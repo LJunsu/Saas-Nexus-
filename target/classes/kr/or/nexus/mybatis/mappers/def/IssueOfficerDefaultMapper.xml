@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.nexus.commons.def.mapper.IssueOfficerDefaultMapper">
+  <resultMap id="BaseResultMap" type="kr.or.nexus.vo.def.IssueOfficerDefaultVO">
+    <id column="ISSUE_OFFICER_IDX" jdbcType="VARCHAR" property="issueOfficerIdx" />
+    <id column="ISSUE_IDX" jdbcType="VARCHAR" property="issueIdx" />
+    <result column="ISSUE_OFFICER_ID" jdbcType="VARCHAR" property="issueOfficerId" />
+    <result column="ISSUE_OFFICER_DATE" jdbcType="TIMESTAMP" property="issueOfficerDate" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="map">
+    delete from ISSUE_OFFICER
+    where ISSUE_OFFICER_IDX = #{issueOfficerIdx,jdbcType=VARCHAR}
+      and ISSUE_IDX = #{issueIdx,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="kr.or.nexus.vo.def.IssueOfficerDefaultVO">
+    insert into ISSUE_OFFICER (ISSUE_OFFICER_IDX, ISSUE_IDX, ISSUE_OFFICER_ID, 
+      ISSUE_OFFICER_DATE)
+    values (#{issueOfficerIdx,jdbcType=VARCHAR}, #{issueIdx,jdbcType=VARCHAR}, #{issueOfficerId,jdbcType=VARCHAR}, 
+      #{issueOfficerDate,jdbcType=TIMESTAMP})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="kr.or.nexus.vo.def.IssueOfficerDefaultVO">
+    update ISSUE_OFFICER
+    set ISSUE_OFFICER_ID = #{issueOfficerId,jdbcType=VARCHAR},
+      ISSUE_OFFICER_DATE = #{issueOfficerDate,jdbcType=TIMESTAMP}
+    where ISSUE_OFFICER_IDX = #{issueOfficerIdx,jdbcType=VARCHAR}
+      and ISSUE_IDX = #{issueIdx,jdbcType=VARCHAR}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="map" resultMap="BaseResultMap">
+    select ISSUE_OFFICER_IDX, ISSUE_IDX, ISSUE_OFFICER_ID, ISSUE_OFFICER_DATE
+    from ISSUE_OFFICER
+    where ISSUE_OFFICER_IDX = #{issueOfficerIdx,jdbcType=VARCHAR}
+      and ISSUE_IDX = #{issueIdx,jdbcType=VARCHAR}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select ISSUE_OFFICER_IDX, ISSUE_IDX, ISSUE_OFFICER_ID, ISSUE_OFFICER_DATE
+    from ISSUE_OFFICER
+  </select>
+</mapper>

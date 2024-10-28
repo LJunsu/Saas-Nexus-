@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.nexus.commons.def.mapper.SysadminDefaultMapper">
+  <resultMap id="BaseResultMap" type="kr.or.nexus.vo.def.SysadminDefaultVO">
+    <id column="SYSADMIN_ID" jdbcType="VARCHAR" property="sysadminId" />
+    <result column="SYSADMIN_PW" jdbcType="VARCHAR" property="sysadminPw" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from SYSADMIN
+    where SYSADMIN_ID = #{sysadminId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="kr.or.nexus.vo.def.SysadminDefaultVO">
+    insert into SYSADMIN (SYSADMIN_ID, SYSADMIN_PW)
+    values (#{sysadminId,jdbcType=VARCHAR}, #{sysadminPw,jdbcType=VARCHAR})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="kr.or.nexus.vo.def.SysadminDefaultVO">
+    update SYSADMIN
+    set SYSADMIN_PW = #{sysadminPw,jdbcType=VARCHAR}
+    where SYSADMIN_ID = #{sysadminId,jdbcType=VARCHAR}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select SYSADMIN_ID, SYSADMIN_PW
+    from SYSADMIN
+    where SYSADMIN_ID = #{sysadminId,jdbcType=VARCHAR}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select SYSADMIN_ID, SYSADMIN_PW
+    from SYSADMIN
+  </select>
+</mapper>

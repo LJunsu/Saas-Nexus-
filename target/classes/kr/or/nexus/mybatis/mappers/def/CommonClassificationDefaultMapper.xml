@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.nexus.commons.def.mapper.CommonClassificationDefaultMapper">
+  <resultMap id="BaseResultMap" type="kr.or.nexus.vo.def.CommonClassificationDefaultVO">
+    <id column="COMM" jdbcType="VARCHAR" property="comm" />
+    <result column="COMM_NAME" jdbcType="VARCHAR" property="commName" />
+    <result column="COMM_REG_DATE" jdbcType="TIMESTAMP" property="commRegDate" />
+    <result column="USE_STATUS" jdbcType="VARCHAR" property="useStatus" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from COMMON_CLASSIFICATION
+    where COMM = #{comm,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="kr.or.nexus.vo.def.CommonClassificationDefaultVO">
+    insert into COMMON_CLASSIFICATION (COMM, COMM_NAME, COMM_REG_DATE, 
+      USE_STATUS)
+    values (#{comm,jdbcType=VARCHAR}, #{commName,jdbcType=VARCHAR}, #{commRegDate,jdbcType=TIMESTAMP}, 
+      #{useStatus,jdbcType=VARCHAR})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="kr.or.nexus.vo.def.CommonClassificationDefaultVO">
+    update COMMON_CLASSIFICATION
+    set COMM_NAME = #{commName,jdbcType=VARCHAR},
+      COMM_REG_DATE = #{commRegDate,jdbcType=TIMESTAMP},
+      USE_STATUS = #{useStatus,jdbcType=VARCHAR}
+    where COMM = #{comm,jdbcType=VARCHAR}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select COMM, COMM_NAME, COMM_REG_DATE, USE_STATUS
+    from COMMON_CLASSIFICATION
+    where COMM = #{comm,jdbcType=VARCHAR}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select COMM, COMM_NAME, COMM_REG_DATE, USE_STATUS
+    from COMMON_CLASSIFICATION
+  </select>
+</mapper>

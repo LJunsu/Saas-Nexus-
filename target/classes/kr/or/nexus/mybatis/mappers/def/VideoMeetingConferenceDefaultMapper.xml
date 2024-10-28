@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.nexus.commons.def.mapper.VideoMeetingConferenceDefaultMapper">
+  <resultMap id="BaseResultMap" type="kr.or.nexus.vo.def.VideoMeetingConferenceDefaultVO">
+    <id column="VIDEO_CONFERENCE_ID" jdbcType="VARCHAR" property="videoConferenceId" />
+    <result column="VIDEO_MEETING_MEMBER" jdbcType="VARCHAR" property="videoMeetingMember" />
+    <result column="VIDEO_MEETING_DATE" jdbcType="TIMESTAMP" property="videoMeetingDate" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from VIDEO_MEETING_CONFERENCE
+    where VIDEO_CONFERENCE_ID = #{videoConferenceId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="kr.or.nexus.vo.def.VideoMeetingConferenceDefaultVO">
+    insert into VIDEO_MEETING_CONFERENCE (VIDEO_CONFERENCE_ID, VIDEO_MEETING_MEMBER, 
+      VIDEO_MEETING_DATE)
+    values (#{videoConferenceId,jdbcType=VARCHAR}, #{videoMeetingMember,jdbcType=VARCHAR}, 
+      #{videoMeetingDate,jdbcType=TIMESTAMP})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="kr.or.nexus.vo.def.VideoMeetingConferenceDefaultVO">
+    update VIDEO_MEETING_CONFERENCE
+    set VIDEO_MEETING_MEMBER = #{videoMeetingMember,jdbcType=VARCHAR},
+      VIDEO_MEETING_DATE = #{videoMeetingDate,jdbcType=TIMESTAMP}
+    where VIDEO_CONFERENCE_ID = #{videoConferenceId,jdbcType=VARCHAR}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select VIDEO_CONFERENCE_ID, VIDEO_MEETING_MEMBER, VIDEO_MEETING_DATE
+    from VIDEO_MEETING_CONFERENCE
+    where VIDEO_CONFERENCE_ID = #{videoConferenceId,jdbcType=VARCHAR}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select VIDEO_CONFERENCE_ID, VIDEO_MEETING_MEMBER, VIDEO_MEETING_DATE
+    from VIDEO_MEETING_CONFERENCE
+  </select>
+</mapper>

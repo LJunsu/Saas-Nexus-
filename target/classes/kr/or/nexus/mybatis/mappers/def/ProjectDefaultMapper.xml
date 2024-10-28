@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.nexus.commons.def.mapper.ProjectDefaultMapper">
+  <resultMap id="BaseResultMap" type="kr.or.nexus.vo.def.ProjectDefaultVO">
+    <id column="PROJECT_ID" jdbcType="VARCHAR" property="projectId" />
+    <result column="PROJECT_NAME" jdbcType="VARCHAR" property="projectName" />
+    <result column="PROJECT_DESCRIPTION" jdbcType="VARCHAR" property="projectDescription" />
+    <result column="PROJECT_PROFILE_IMG" jdbcType="VARCHAR" property="projectProfileImg" />
+    <result column="PROJECT_CREATION_DATE" jdbcType="TIMESTAMP" property="projectCreationDate" />
+    <result column="PROJECT_DELYN" jdbcType="VARCHAR" property="projectDelyn" />
+    <result column="PROJECT_SUCCESS_STATUS" jdbcType="VARCHAR" property="projectSuccessStatus" />
+    <result column="PROJECT_END_DATE" jdbcType="TIMESTAMP" property="projectEndDate" />
+    <result column="PROJECT_BUDGET" jdbcType="NUMERIC" property="projectBudget" />
+    <result column="PROJECT_REVENUE" jdbcType="NUMERIC" property="projectRevenue" />
+    <result column="GROUP_ID" jdbcType="VARCHAR" property="groupId" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from PROJECT
+    where PROJECT_ID = #{projectId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="kr.or.nexus.vo.def.ProjectDefaultVO">
+    insert into PROJECT (PROJECT_ID, PROJECT_NAME, PROJECT_DESCRIPTION, 
+      PROJECT_PROFILE_IMG, PROJECT_CREATION_DATE, 
+      PROJECT_DELYN, PROJECT_SUCCESS_STATUS, PROJECT_END_DATE, 
+      PROJECT_BUDGET, PROJECT_REVENUE, GROUP_ID
+      )
+    values (#{projectId,jdbcType=VARCHAR}, #{projectName,jdbcType=VARCHAR}, #{projectDescription,jdbcType=VARCHAR}, 
+      #{projectProfileImg,jdbcType=VARCHAR}, #{projectCreationDate,jdbcType=TIMESTAMP}, 
+      #{projectDelyn,jdbcType=VARCHAR}, #{projectSuccessStatus,jdbcType=VARCHAR}, #{projectEndDate,jdbcType=TIMESTAMP}, 
+      #{projectBudget,jdbcType=NUMERIC}, #{projectRevenue,jdbcType=NUMERIC}, #{groupId,jdbcType=VARCHAR}
+      )
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="kr.or.nexus.vo.def.ProjectDefaultVO">
+    update PROJECT
+    set PROJECT_NAME = #{projectName,jdbcType=VARCHAR},
+      PROJECT_DESCRIPTION = #{projectDescription,jdbcType=VARCHAR},
+      PROJECT_PROFILE_IMG = #{projectProfileImg,jdbcType=VARCHAR},
+      PROJECT_CREATION_DATE = #{projectCreationDate,jdbcType=TIMESTAMP},
+      PROJECT_DELYN = #{projectDelyn,jdbcType=VARCHAR},
+      PROJECT_SUCCESS_STATUS = #{projectSuccessStatus,jdbcType=VARCHAR},
+      PROJECT_END_DATE = #{projectEndDate,jdbcType=TIMESTAMP},
+      PROJECT_BUDGET = #{projectBudget,jdbcType=NUMERIC},
+      PROJECT_REVENUE = #{projectRevenue,jdbcType=NUMERIC},
+      GROUP_ID = #{groupId,jdbcType=VARCHAR}
+    where PROJECT_ID = #{projectId,jdbcType=VARCHAR}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select PROJECT_ID, PROJECT_NAME, PROJECT_DESCRIPTION, PROJECT_PROFILE_IMG, PROJECT_CREATION_DATE, 
+    PROJECT_DELYN, PROJECT_SUCCESS_STATUS, PROJECT_END_DATE, PROJECT_BUDGET, PROJECT_REVENUE, 
+    GROUP_ID
+    from PROJECT
+    where PROJECT_ID = #{projectId,jdbcType=VARCHAR}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select PROJECT_ID, PROJECT_NAME, PROJECT_DESCRIPTION, PROJECT_PROFILE_IMG, PROJECT_CREATION_DATE, 
+    PROJECT_DELYN, PROJECT_SUCCESS_STATUS, PROJECT_END_DATE, PROJECT_BUDGET, PROJECT_REVENUE, 
+    GROUP_ID
+    from PROJECT
+  </select>
+</mapper>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.nexus.commons.def.mapper.JobsheetCommentDefaultMapper">
+  <resultMap id="BaseResultMap" type="kr.or.nexus.vo.def.JobsheetCommentDefaultVO">
+    <id column="JOBSHEET_COMMENT_ID" jdbcType="NUMERIC" property="jobsheetCommentId" />
+    <id column="JOBSHEET_ID" jdbcType="NUMERIC" property="jobsheetId" />
+    <result column="PARENT_COMMENT_ID" jdbcType="NUMERIC" property="parentCommentId" />
+    <result column="JOBSHEET_REGDT" jdbcType="TIMESTAMP" property="jobsheetRegdt" />
+    <result column="PROJECT_MEMBER_IDX" jdbcType="VARCHAR" property="projectMemberIdx" />
+    <result column="JOBSHEET_CONTENT" jdbcType="CLOB" property="jobsheetContent" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="map">
+    delete from JOBSHEET_COMMENT
+    where JOBSHEET_COMMENT_ID = #{jobsheetCommentId,jdbcType=NUMERIC}
+      and JOBSHEET_ID = #{jobsheetId,jdbcType=NUMERIC}
+  </delete>
+  <insert id="insert" parameterType="kr.or.nexus.vo.def.JobsheetCommentDefaultVO">
+    insert into JOBSHEET_COMMENT (JOBSHEET_COMMENT_ID, JOBSHEET_ID, PARENT_COMMENT_ID, 
+      JOBSHEET_REGDT, PROJECT_MEMBER_IDX, JOBSHEET_CONTENT
+      )
+    values (#{jobsheetCommentId,jdbcType=NUMERIC}, #{jobsheetId,jdbcType=NUMERIC}, #{parentCommentId,jdbcType=NUMERIC}, 
+      #{jobsheetRegdt,jdbcType=TIMESTAMP}, #{projectMemberIdx,jdbcType=VARCHAR}, #{jobsheetContent,jdbcType=CLOB}
+      )
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="kr.or.nexus.vo.def.JobsheetCommentDefaultVO">
+    update JOBSHEET_COMMENT
+    set PARENT_COMMENT_ID = #{parentCommentId,jdbcType=NUMERIC},
+      JOBSHEET_REGDT = #{jobsheetRegdt,jdbcType=TIMESTAMP},
+      PROJECT_MEMBER_IDX = #{projectMemberIdx,jdbcType=VARCHAR},
+      JOBSHEET_CONTENT = #{jobsheetContent,jdbcType=CLOB}
+    where JOBSHEET_COMMENT_ID = #{jobsheetCommentId,jdbcType=NUMERIC}
+      and JOBSHEET_ID = #{jobsheetId,jdbcType=NUMERIC}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="map" resultMap="BaseResultMap">
+    select JOBSHEET_COMMENT_ID, JOBSHEET_ID, PARENT_COMMENT_ID, JOBSHEET_REGDT, PROJECT_MEMBER_IDX, 
+    JOBSHEET_CONTENT
+    from JOBSHEET_COMMENT
+    where JOBSHEET_COMMENT_ID = #{jobsheetCommentId,jdbcType=NUMERIC}
+      and JOBSHEET_ID = #{jobsheetId,jdbcType=NUMERIC}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select JOBSHEET_COMMENT_ID, JOBSHEET_ID, PARENT_COMMENT_ID, JOBSHEET_REGDT, PROJECT_MEMBER_IDX, 
+    JOBSHEET_CONTENT
+    from JOBSHEET_COMMENT
+  </select>
+</mapper>

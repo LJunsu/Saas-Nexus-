@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.or.nexus.codeShare.dao.CodeShareMapper">
+
+	<insert
+		id="codeShareInsert"
+		parameterType="kr.or.nexus.codeShare.vo.codeShareVO"
+	>
+
+		<selectKey keyProperty="codeShareId" resultType="string" order="BEFORE">
+	        SELECT CONCAT('CS', TO_CHAR(LPAD(SEQ_CODE_SHARE.NEXTVAL, 3, '0'))) AS codeShareId FROM DUAL
+	    </selectKey>
+
+	    INSERT INTO CODE_SHARE (
+	        CODE_SHARE_ID,
+	        CODE_SHARE_TITLE,
+	        MEMBER_ID,
+	        GROUP_ID,
+	        PROJECT_ID,
+	        LANGUAGE
+	    ) VALUES (
+	    	#{codeShareId}
+	        , '새로운 코드쉐어 제목'
+	        , #{memberId}
+	        , #{groupId}
+	        , #{projectId}
+	        , #{language}
+	    )
+
+	</insert>
+
+
+	<sql id="searchFrag">
+	    <if test="@org.apache.commons.lang3.StringUtils @isNotBlank(search) and search neq 'null'">
+			AND
+			CODE_SHARE_TITLE LIKE '%'||#{search}||'%'
+	    </if>
+	</sql>
+
+	<select
+		id="codeShareList"
+		parameterType="kr.or.nexus.codeShare.vo.codeShareVO"
+		resultType="kr.or.nexus.codeShare.vo.codeShareVO"
+	>
+
+		SELECT
+		    *
+		FROM
+		    CODE_SHARE
+		WHERE
+		    CODE_SHARE_DELYN = 'N'
+		    AND
+		    GROUP_ID = #{groupId, jdbcType=VARCHAR}
+		    AND
+		    PROJECT_ID = #{projectId, jdbcType=VARCHAR}
+		    <include refid="searchFrag" />
+		ORDER BY
+			CODE_SHARE_DATE DESC
+			, CODE_SHARE_ID DESC
+
+	</select>
+
+	<select
+		id="codeShareDetail"
+		parameterType="kr.or.nexus.codeShare.vo.codeShareVO"
+		resultType="kr.or.nexus.codeShare.vo.codeShareVO"
+	>
+
+		SELECT
+		    *
+		FROM
+		    CODE_SHARE
+		WHERE
+		    CODE_SHARE_DELYN = 'N'
+		    AND
+		    GROUP_ID = #{groupId, jdbcType=VARCHAR}
+		    AND
+		    PROJECT_ID = #{projectId, jdbcType=VARCHAR}
+			AND
+    		CODE_SHARE_ID = #{codeShareId, jdbcType=VARCHAR}
+
+	</select>
+
+	<update
+		id="codeShareUpdate"
+		parameterType="kr.or.nexus.codeShare.vo.codeShareVO"
+	>
+
+		UPDATE CODE_SHARE
+		SET
+			CODE_SHARE_TITLE = #{codeShareTitle}
+		    , CODE_SHARE_CONTENT = #{codeShareContent}
+		    , CODE_SHARE_DATE = SYSDATE
+		WHERE
+		    CODE_SHARE_ID = #{codeShareId, jdbcType=VARCHAR}
+
+	</update>
+
+	<update
+		id="codeShareDelete"
+		parameterType="kr.or.nexus.codeShare.vo.codeShareVO"
+	>
+
+		UPDATE CODE_SHARE
+		SET
+		    CODE_SHARE_DELYN = 'Y'
+		WHERE
+		    CODE_SHARE_ID = #{codeShareId, jdbcType=VARCHAR}
+
+	</update>
+
+	<select
+		id="codeShareCreate"
+		parameterType="kr.or.nexus.codeShare.vo.codeShareVO"
+		resultType="kr.or.nexus.codeShare.vo.codeShareVO"
+	>
+
+	    SELECT
+	        *
+	    FROM
+	        CODE_SHARE
+	    WHERE
+	        CODE_SHARE_DELYN = 'N'
+	        AND GROUP_ID = #{groupId}
+	        AND PROJECT_ID = #{projectId}
+	        AND CODE_SHARE_ID = #{codeShareId}
+
+	</select>
+
+	<select
+		id="nowSeqId"
+		resultType="String"
+	>
+
+		SELECT
+			CONCAT('CS', TO_CHAR(LPAD(SEQ_CODE_SHARE.CURRVAL, 3, '0'))) AS codeShareId
+		FROM
+			DUAL
+
+	</select>
+
+</mapper>

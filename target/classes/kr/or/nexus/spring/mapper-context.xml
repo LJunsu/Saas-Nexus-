@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:c="http://www.springframework.org/schema/c"
+	xmlns:mybatis-spring="http://mybatis.org/schema/mybatis-spring"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring-1.2.xsd">
+
+	<bean
+		class="org.mybatis.spring.SqlSessionFactoryBean"
+		id="sqlSessionFactory"
+		p:dataSource-ref="dataSource"
+		p:configLocation="classpath:kr/or/nexus/mybatis/Configuration.xml"
+		p:mapperLocations="classpath:kr/or/nexus/mybatis/mappers/**/*.xml"
+	/>
+	<!-- datasource-context.xml의 id인 dataSource를 불러와 주입 = p:dataSource-ref="dataSource" -->
+
+	<mybatis-spring:scan 
+		base-package="kr.or.nexus.**.dao, kr.or.nexus.**.mapper"
+		factory-ref="sqlSessionFactory"
+		annotation="org.apache.ibatis.annotations.Mapper"
+	/>
+	<!-- 프록시를 미리 만들어줘 -->
+
+</beans>

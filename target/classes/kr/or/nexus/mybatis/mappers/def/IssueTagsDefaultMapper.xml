@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.nexus.commons.def.mapper.IssueTagsDefaultMapper">
+  <resultMap id="BaseResultMap" type="kr.or.nexus.vo.def.IssueTagsDefaultVO">
+    <id column="ISSUE_TAGS_ID" jdbcType="NUMERIC" property="issueTagsId" />
+    <id column="ISSUE_IDX" jdbcType="VARCHAR" property="issueIdx" />
+    <result column="ISSUE_TAG_NAME" jdbcType="VARCHAR" property="issueTagName" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="map">
+    delete from ISSUE_TAGS
+    where ISSUE_TAGS_ID = #{issueTagsId,jdbcType=NUMERIC}
+      and ISSUE_IDX = #{issueIdx,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="kr.or.nexus.vo.def.IssueTagsDefaultVO">
+    insert into ISSUE_TAGS (ISSUE_TAGS_ID, ISSUE_IDX, ISSUE_TAG_NAME
+      )
+    values (#{issueTagsId,jdbcType=NUMERIC}, #{issueIdx,jdbcType=VARCHAR}, #{issueTagName,jdbcType=VARCHAR}
+      )
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="kr.or.nexus.vo.def.IssueTagsDefaultVO">
+    update ISSUE_TAGS
+    set ISSUE_TAG_NAME = #{issueTagName,jdbcType=VARCHAR}
+    where ISSUE_TAGS_ID = #{issueTagsId,jdbcType=NUMERIC}
+      and ISSUE_IDX = #{issueIdx,jdbcType=VARCHAR}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="map" resultMap="BaseResultMap">
+    select ISSUE_TAGS_ID, ISSUE_IDX, ISSUE_TAG_NAME
+    from ISSUE_TAGS
+    where ISSUE_TAGS_ID = #{issueTagsId,jdbcType=NUMERIC}
+      and ISSUE_IDX = #{issueIdx,jdbcType=VARCHAR}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select ISSUE_TAGS_ID, ISSUE_IDX, ISSUE_TAG_NAME
+    from ISSUE_TAGS
+  </select>
+</mapper>

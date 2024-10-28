@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.nexus.commons.def.mapper.GroupMemberDefaultMapper">
+  <resultMap id="BaseResultMap" type="kr.or.nexus.vo.def.GroupMemberDefaultVO">
+    <id column="GROUP_ID" jdbcType="VARCHAR" property="groupId" />
+    <id column="MEMBER_ID" jdbcType="VARCHAR" property="memberId" />
+    <result column="GROUP_JOIN_DATE" jdbcType="TIMESTAMP" property="groupJoinDate" />
+    <result column="GROUP_DELYN" jdbcType="VARCHAR" property="groupDelyn" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="map">
+    delete from GROUP_MEMBER
+    where GROUP_ID = #{groupId,jdbcType=VARCHAR}
+      and MEMBER_ID = #{memberId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="kr.or.nexus.vo.def.GroupMemberDefaultVO">
+    insert into GROUP_MEMBER (GROUP_ID, MEMBER_ID, GROUP_JOIN_DATE, 
+      GROUP_DELYN)
+    values (#{groupId,jdbcType=VARCHAR}, #{memberId,jdbcType=VARCHAR}, #{groupJoinDate,jdbcType=TIMESTAMP}, 
+      #{groupDelyn,jdbcType=VARCHAR})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="kr.or.nexus.vo.def.GroupMemberDefaultVO">
+    update GROUP_MEMBER
+    set GROUP_JOIN_DATE = #{groupJoinDate,jdbcType=TIMESTAMP},
+      GROUP_DELYN = #{groupDelyn,jdbcType=VARCHAR}
+    where GROUP_ID = #{groupId,jdbcType=VARCHAR}
+      and MEMBER_ID = #{memberId,jdbcType=VARCHAR}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="map" resultMap="BaseResultMap">
+    select GROUP_ID, MEMBER_ID, GROUP_JOIN_DATE, GROUP_DELYN
+    from GROUP_MEMBER
+    where GROUP_ID = #{groupId,jdbcType=VARCHAR}
+      and MEMBER_ID = #{memberId,jdbcType=VARCHAR}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select GROUP_ID, MEMBER_ID, GROUP_JOIN_DATE, GROUP_DELYN
+    from GROUP_MEMBER
+  </select>
+</mapper>

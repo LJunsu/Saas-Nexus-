@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.nexus.commons.def.mapper.ChattingRoomFileDefaultMapper">
+  <resultMap id="BaseResultMap" type="kr.or.nexus.vo.def.ChattingRoomFileDefaultVO">
+    <id column="CHATTING_ROOM_FILE_ID" jdbcType="VARCHAR" property="chattingRoomFileId" />
+    <id column="CHATTING_ROOM_ID" jdbcType="VARCHAR" property="chattingRoomId" />
+    <id column="ATTACHED_FILE_ID" jdbcType="VARCHAR" property="attachedFileId" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="map">
+    delete from CHATTING_ROOM_FILE
+    where CHATTING_ROOM_FILE_ID = #{chattingRoomFileId,jdbcType=VARCHAR}
+      and CHATTING_ROOM_ID = #{chattingRoomId,jdbcType=VARCHAR}
+      and ATTACHED_FILE_ID = #{attachedFileId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="kr.or.nexus.vo.def.ChattingRoomFileDefaultVO">
+    insert into CHATTING_ROOM_FILE (CHATTING_ROOM_FILE_ID, CHATTING_ROOM_ID, 
+      ATTACHED_FILE_ID)
+    values (#{chattingRoomFileId,jdbcType=VARCHAR}, #{chattingRoomId,jdbcType=VARCHAR}, 
+      #{attachedFileId,jdbcType=VARCHAR})
+  </insert>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select CHATTING_ROOM_FILE_ID, CHATTING_ROOM_ID, ATTACHED_FILE_ID
+    from CHATTING_ROOM_FILE
+  </select>
+</mapper>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+   https://logging.apache.org/log4j/2.x/manual/layouts.html
+   logging 기본 설정의 종류
+   1. logging message
+   2. appender : 로그 메시지 출력 위치(console, file, rolling file, database, server)
+   3. pattern : 로그 메시지 형식
+   4. level : 로그 메시지 출력 여부를 결정하는 조건으로 사용
+      trace < debug < info < warn < error < fatal
+      특정 로거에 레벨이 설정되어 있으면, 해당 레벨 이상의 로그 메시지만 출력됨
+      특정 로거에 별도의 레벨 설정이 없다면, 해당 로거의 레벨은 Root 로거를 따라감
+   5. logger : 로그 메시지 기록자
+ -->
+<Configuration status="WARN">
+
+  <Appenders>
+    <Console name="Console" target="SYSTEM_OUT">
+      <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{1.} - %msg%n"/>
+    </Console>
+
+    <Console name="MyConsole" target="SYSTEM_OUT">
+      <PatternLayout pattern="%-5level %logger{1.} =%n %msg%n====================================================================================================%n"/>
+    </Console>
+  </Appenders>
+
+  <Loggers>
+     <Logger name="org.springframework" level="info" />
+     <Logger name="org.springframework.web" level="info" /> <!-- webmvc의 패키지 -->
+     <Logger name="org.springframework.security" level="info" /> <!-- security의 패키지 -->
+     <Logger name="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping" level="trace" />
+
+
+     <Logger name="kr.or.nexus" level="info" additivity="false">
+        <AppenderRef ref="MyConsole"/>
+     </Logger>
+
+     <Logger name="jdbc.sqltiming" level="debug" />
+
+     <Logger name="jdbc.resultsettable" level="error" />
+
+    <Root level="error">
+      <AppenderRef ref="Console"/>
+    </Root>
+  </Loggers>
+
+</Configuration>

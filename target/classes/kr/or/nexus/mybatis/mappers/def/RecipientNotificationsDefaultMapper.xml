@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.nexus.commons.def.mapper.RecipientNotificationsDefaultMapper">
+  <resultMap id="BaseResultMap" type="kr.or.nexus.vo.def.RecipientNotificationsDefaultVO">
+    <id column="ALARM_MESSAGE_IDX" jdbcType="VARCHAR" property="alarmMessageIdx" />
+    <id column="ALARM_NOTIFICATIONS" jdbcType="VARCHAR" property="alarmNotifications" />
+    <result column="ALARM_NOTIFICATION" jdbcType="VARCHAR" property="alarmNotification" />
+    <result column="ALARM_TIME" jdbcType="TIMESTAMP" property="alarmTime" />
+    <result column="ALARM_CHECK" jdbcType="TIMESTAMP" property="alarmCheck" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="map">
+    delete from RECIPIENT_NOTIFICATIONS
+    where ALARM_MESSAGE_IDX = #{alarmMessageIdx,jdbcType=VARCHAR}
+      and ALARM_NOTIFICATIONS = #{alarmNotifications,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="kr.or.nexus.vo.def.RecipientNotificationsDefaultVO">
+    insert into RECIPIENT_NOTIFICATIONS (ALARM_MESSAGE_IDX, ALARM_NOTIFICATIONS, 
+      ALARM_NOTIFICATION, ALARM_TIME, ALARM_CHECK
+      )
+    values (#{alarmMessageIdx,jdbcType=VARCHAR}, #{alarmNotifications,jdbcType=VARCHAR}, 
+      #{alarmNotification,jdbcType=VARCHAR}, #{alarmTime,jdbcType=TIMESTAMP}, #{alarmCheck,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="kr.or.nexus.vo.def.RecipientNotificationsDefaultVO">
+    update RECIPIENT_NOTIFICATIONS
+    set ALARM_NOTIFICATION = #{alarmNotification,jdbcType=VARCHAR},
+      ALARM_TIME = #{alarmTime,jdbcType=TIMESTAMP},
+      ALARM_CHECK = #{alarmCheck,jdbcType=TIMESTAMP}
+    where ALARM_MESSAGE_IDX = #{alarmMessageIdx,jdbcType=VARCHAR}
+      and ALARM_NOTIFICATIONS = #{alarmNotifications,jdbcType=VARCHAR}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="map" resultMap="BaseResultMap">
+    select ALARM_MESSAGE_IDX, ALARM_NOTIFICATIONS, ALARM_NOTIFICATION, ALARM_TIME, ALARM_CHECK
+    from RECIPIENT_NOTIFICATIONS
+    where ALARM_MESSAGE_IDX = #{alarmMessageIdx,jdbcType=VARCHAR}
+      and ALARM_NOTIFICATIONS = #{alarmNotifications,jdbcType=VARCHAR}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select ALARM_MESSAGE_IDX, ALARM_NOTIFICATIONS, ALARM_NOTIFICATION, ALARM_TIME, ALARM_CHECK
+    from RECIPIENT_NOTIFICATIONS
+  </select>
+</mapper>

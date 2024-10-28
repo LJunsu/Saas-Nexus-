@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.nexus.commons.def.mapper.CardRegistrationDefaultMapper">
+  <resultMap id="BaseResultMap" type="kr.or.nexus.vo.def.CardRegistrationDefaultVO">
+    <id column="CARD_ID" jdbcType="NUMERIC" property="cardId" />
+    <result column="CARD_NUM" jdbcType="VARCHAR" property="cardNum" />
+    <result column="CARD_VALIDITY_DATE" jdbcType="TIMESTAMP" property="cardValidityDate" />
+    <result column="CARD_MEMBER_NAME" jdbcType="VARCHAR" property="cardMemberName" />
+    <result column="CARD_PW" jdbcType="VARCHAR" property="cardPw" />
+    <result column="CARD_COMPANY" jdbcType="VARCHAR" property="cardCompany" />
+    <result column="GROUP_ID" jdbcType="VARCHAR" property="groupId" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from CARD_REGISTRATION
+    where CARD_ID = #{cardId,jdbcType=NUMERIC}
+  </delete>
+  <insert id="insert" parameterType="kr.or.nexus.vo.def.CardRegistrationDefaultVO">
+    insert into CARD_REGISTRATION (CARD_ID, CARD_NUM, CARD_VALIDITY_DATE, 
+      CARD_MEMBER_NAME, CARD_PW, CARD_COMPANY, 
+      GROUP_ID)
+    values (#{cardId,jdbcType=NUMERIC}, #{cardNum,jdbcType=VARCHAR}, #{cardValidityDate,jdbcType=TIMESTAMP}, 
+      #{cardMemberName,jdbcType=VARCHAR}, #{cardPw,jdbcType=VARCHAR}, #{cardCompany,jdbcType=VARCHAR}, 
+      #{groupId,jdbcType=VARCHAR})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="kr.or.nexus.vo.def.CardRegistrationDefaultVO">
+    update CARD_REGISTRATION
+    set CARD_NUM = #{cardNum,jdbcType=VARCHAR},
+      CARD_VALIDITY_DATE = #{cardValidityDate,jdbcType=TIMESTAMP},
+      CARD_MEMBER_NAME = #{cardMemberName,jdbcType=VARCHAR},
+      CARD_PW = #{cardPw,jdbcType=VARCHAR},
+      CARD_COMPANY = #{cardCompany,jdbcType=VARCHAR},
+      GROUP_ID = #{groupId,jdbcType=VARCHAR}
+    where CARD_ID = #{cardId,jdbcType=NUMERIC}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select CARD_ID, CARD_NUM, CARD_VALIDITY_DATE, CARD_MEMBER_NAME, CARD_PW, CARD_COMPANY, 
+    GROUP_ID
+    from CARD_REGISTRATION
+    where CARD_ID = #{cardId,jdbcType=NUMERIC}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select CARD_ID, CARD_NUM, CARD_VALIDITY_DATE, CARD_MEMBER_NAME, CARD_PW, CARD_COMPANY, 
+    GROUP_ID
+    from CARD_REGISTRATION
+  </select>
+</mapper>

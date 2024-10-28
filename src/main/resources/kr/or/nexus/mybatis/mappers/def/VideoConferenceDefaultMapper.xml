@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.nexus.commons.def.mapper.VideoConferenceDefaultMapper">
+  <resultMap id="BaseResultMap" type="kr.or.nexus.vo.def.VideoConferenceDefaultVO">
+    <id column="VIDEO_CONFERENCE_ID" jdbcType="VARCHAR" property="videoConferenceId" />
+    <result column="GROUP_ID" jdbcType="VARCHAR" property="groupId" />
+    <result column="PROJECT_ID" jdbcType="VARCHAR" property="projectId" />
+    <result column="VIDEO_CONFERENCE_CR" jdbcType="VARCHAR" property="videoConferenceCr" />
+    <result column="VIDEO_CONFERENCE_CR_TIME" jdbcType="TIMESTAMP" property="videoConferenceCrTime" />
+    <result column="VIDEO_CONFERENCE_TITLE" jdbcType="VARCHAR" property="videoConferenceTitle" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from VIDEO_CONFERENCE
+    where VIDEO_CONFERENCE_ID = #{videoConferenceId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="kr.or.nexus.vo.def.VideoConferenceDefaultVO">
+    insert into VIDEO_CONFERENCE (VIDEO_CONFERENCE_ID, GROUP_ID, PROJECT_ID, 
+      VIDEO_CONFERENCE_CR, VIDEO_CONFERENCE_CR_TIME, 
+      VIDEO_CONFERENCE_TITLE)
+    values (#{videoConferenceId,jdbcType=VARCHAR}, #{groupId,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, 
+      #{videoConferenceCr,jdbcType=VARCHAR}, #{videoConferenceCrTime,jdbcType=TIMESTAMP}, 
+      #{videoConferenceTitle,jdbcType=VARCHAR})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="kr.or.nexus.vo.def.VideoConferenceDefaultVO">
+    update VIDEO_CONFERENCE
+    set GROUP_ID = #{groupId,jdbcType=VARCHAR},
+      PROJECT_ID = #{projectId,jdbcType=VARCHAR},
+      VIDEO_CONFERENCE_CR = #{videoConferenceCr,jdbcType=VARCHAR},
+      VIDEO_CONFERENCE_CR_TIME = #{videoConferenceCrTime,jdbcType=TIMESTAMP},
+      VIDEO_CONFERENCE_TITLE = #{videoConferenceTitle,jdbcType=VARCHAR}
+    where VIDEO_CONFERENCE_ID = #{videoConferenceId,jdbcType=VARCHAR}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select VIDEO_CONFERENCE_ID, GROUP_ID, PROJECT_ID, VIDEO_CONFERENCE_CR, VIDEO_CONFERENCE_CR_TIME, 
+    VIDEO_CONFERENCE_TITLE
+    from VIDEO_CONFERENCE
+    where VIDEO_CONFERENCE_ID = #{videoConferenceId,jdbcType=VARCHAR}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select VIDEO_CONFERENCE_ID, GROUP_ID, PROJECT_ID, VIDEO_CONFERENCE_CR, VIDEO_CONFERENCE_CR_TIME, 
+    VIDEO_CONFERENCE_TITLE
+    from VIDEO_CONFERENCE
+  </select>
+</mapper>

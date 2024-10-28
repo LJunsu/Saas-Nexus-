@@ -1,0 +1,504 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.or.nexus.timeline.dao.TimeLineMapper">
+
+	<resultMap type="kr.or.nexus.vo.IssueVO" id="issueMap" autoMapping="true">
+		<collection property="issueTags" ofType="kr.or.nexus.vo.IssueTagsVO" autoMapping="true"/>
+		<collection property="issueBoardAnswers" ofType="kr.or.nexus.vo.IssueBoardAnswersVO" autoMapping="true"/>
+	</resultMap>
+
+	<select
+		id="timeLineList"
+		parameterType="String"
+		resultMap="issueMap"
+	>
+
+		SELECT
+		    *
+		FROM
+		    ISSUE
+		WHERE
+		    PROJECT_ID = #{projectId, jdbcType=VARCHAR}
+		    AND
+		    ISSUE_DELYN = 'N'
+		ORDER BY
+			ISSUE_DATE ASC
+
+	</select>
+
+
+
+	<resultMap type="kr.or.nexus.vo.IssueVO" id="issueUpdateDataMap" autoMapping="true">
+		<collection property="issueTags" ofType="kr.or.nexus.vo.IssueTagsVO" autoMapping="true"/>
+	</resultMap>
+
+	<select
+		id="timeLineUpdateInputData"
+		parameterType="kr.or.nexus.vo.IssueVO"
+		resultMap="issueUpdateDataMap"
+	>
+
+		SELECT
+		    ISSUE.*
+		    , ISSUE_TAGS.ISSUE_TAGS_ID
+		    , ISSUE_TAGS.ISSUE_TAG_NAME
+		FROM
+		    ISSUE
+		    LEFT OUTER JOIN
+		    ISSUE_TAGS
+		    ON (ISSUE.ISSUE_IDX = ISSUE_TAGS.ISSUE_IDX)
+		WHERE
+		    ISSUE.ISSUE_DELYN = 'N'
+		    AND
+		    ISSUE.ISSUE_IDX = #{issueIdx, jdbcType=VARCHAR}
+
+	</select>
+
+
+
+	<insert
+		id="timeLineInsert"
+		parameterType="kr.or.nexus.vo.IssueVO"
+	>
+
+		<selectKey keyProperty="issueIdx" resultType="string" order="BEFORE">
+	        SELECT CONCAT('ISS_', TO_CHAR(LPAD(SEQ_ISSUE.NEXTVAL, 3, '0'))) AS issueIdx FROM DUAL
+	    </selectKey>
+
+		DECLARE
+		    V_ISSUE_IDX VARCHAR2(30);
+		BEGIN
+		    INSERT INTO ISSUE (
+		        ISSUE_IDX
+		        , SUB_ISSUE_IDX
+		        , ISSUE_DATE
+		        , ISSUE_DELYN
+		        , PROJECT_MEM_IDX
+		        , ISSUE_PROGRESS_STATUS
+		        , ISSUE_PRIORITY_NAME
+		        , ISSUE_TITLE
+		        , PROJECT_ID
+		        , ISSUE_CONTENT
+		        , ISSUE_OFFICER
+		        , ISSUE_DEADLINE
+		    ) VALUES (
+		        #{issueIdx}
+			    , #{subIssueIdx, jdbcType=VARCHAR}
+			    , #{issueDate, jdbcType=DATE}
+			    , 'N'
+			    , #{projectMemIdx, jdbcType=VARCHAR}
+			    , #{issueProgressStatus, jdbcType=VARCHAR}
+			    , #{issuePriorityName, jdbcType=VARCHAR}
+			    , #{issueTitle, jdbcType=VARCHAR}
+			    , #{projectId, jdbcType=VARCHAR}
+			    , #{issueContent}
+			    , #{issueOfficer, jdbcType=VARCHAR}
+			    , #{issueDeadline, jdbcType=DATE}
+		    )
+		    RETURNING ISSUE_IDX INTO V_ISSUE_IDX;
+
+		    INSERT INTO ISSUE_TAGS (
+		        ISSUE_TAGS_ID
+		        , ISSUE_IDX
+		        , ISSUE_TAG_NAME
+		    ) VALUES (
+		        SEQ_ISSUE_TAGS.NEXTVAL
+		        , V_ISSUE_IDX
+		        , #{issueTags[0].issueTagName, jdbcType=VARCHAR}
+		    );
+
+		END;
+
+	</insert>
+
+
+
+	<update
+		id="timeLineUpdate"
+		parameterType="kr.or.nexus.vo.IssueVO"
+	>
+
+		UPDATE
+		    ISSUE
+		SET
+		    SUB_ISSUE_IDX = #{subIssueIdx, jdbcType=VARCHAR}
+		    , ISSUE_DATE = #{issueDate, jdbcType=DATE}
+		    , ISSUE_PROGRESS_STATUS = #{issueProgressStatus, jdbcType=VARCHAR}
+		    , ISSUE_PRIORITY_NAME = #{issuePriorityName, jdbcType=VARCHAR}
+		    , ISSUE_TITLE = #{issueTitle, jdbcType=VARCHAR}
+		    , ISSUE_CONTENT = #{issueContent}
+		    , ISSUE_OFFICER = #{issueOfficer, jdbcType=VARCHAR}
+		    , ISSUE_DEADLINE = #{issueDeadline, jdbcType=DATE}
+		WHERE
+		    ISSUE_IDX = #{issueIdx, jdbcType=VARCHAR}
+		    AND
+		    PROJECT_ID = #{projectId, jdbcType=VARCHAR}
+
+	</update>
+
+	<update
+		id="timeLineTagUpdate"
+		parameterType="kr.or.nexus.vo.IssueVO"
+	>
+
+		UPDATE
+		    ISSUE_TAGS
+		SET
+		    ISSUE_TAG_NAME = #{issueTags[0].issueTagName, jdbcType=VARCHAR}
+		WHERE
+		    ISSUE_IDX = #{issueIdx, jdbcType=VARCHAR}
+
+	</update>
+
+
+
+	<resultMap type="ProjectMemberVO" id="pmMap" autoMapping="true">
+		<id property="projectMemIdx" column="PROJECT_MEM_IDX"/>
+		<collection property="projectRole" ofType="ProjectRoleVO" autoMapping="true">
+			<id property="projectRoleIdx" column="PROJECT_ROLE_IDX"/>
+		</collection>
+
+		<collection property="member" ofType="MemberManagementVO" autoMapping="true">
+			<id property="memberName" column="MEMBER_NAME"/>
+		</collection>
+	</resultMap>
+
+	<select
+		id="timeLineProjectMemberList"
+		parameterType="String"
+		resultMap="pmMap"
+	>
+
+		SELECT
+		    PROJECT_MEMBER.PROJECT_MEM_IDX
+		    , PROJECT_MEMBER.PROJECT_ROLE_IDX
+		    , PROJECT_MEMBER.MEMBER_ID
+		    , PROJECT_ROLE.PROJECT_ROLE_NAME
+		    , MEMBER_MANAGEMENT.MEMBER_NAME
+		FROM
+		    PROJECT_MEMBER
+		    LEFT OUTER JOIN
+		    PROJECT_ROLE
+		    ON (PROJECT_MEMBER.PROJECT_ROLE_IDX = PROJECT_ROLE.PROJECT_ROLE_IDX)
+		    LEFT OUTER JOIN
+		    MEMBER_MANAGEMENT
+		    ON (PROJECT_MEMBER.MEMBER_ID = MEMBER_MANAGEMENT.MEMBER_ID)
+		WHERE
+		    PROJECT_MEMBER.PROJECT_ID = #{projectId, jdbcType=VARCHAR}
+		    AND
+    		PROJECT_MEMBER.PROJECT_DELYN = 'N'
+
+	</select>
+
+
+
+	<select
+		id="timeLineIssueList"
+		parameterType="String"
+		resultType="kr.or.nexus.vo.IssueVO"
+	>
+
+		SELECT
+		    ISSUE_IDX
+		    , ISSUE_TITLE
+		FROM
+		    ISSUE
+		WHERE
+		    PROJECT_ID = #{projectId, jdbcType=VARCHAR}
+		    AND
+		    ISSUE_DELYN = 'N'
+		ORDER BY
+		    ISSUE_IDX DESC
+
+	</select>
+
+	<select
+		id="timeLineIssueListDisab"
+		parameterType="kr.or.nexus.vo.IssueVO"
+		resultType="kr.or.nexus.vo.IssueVO"
+	>
+
+		SELECT
+		    ISSUE_IDX
+		    , ISSUE_TITLE
+		FROM
+		    ISSUE
+		WHERE
+		    PROJECT_ID = #{projectId}
+		    AND
+		    ISSUE_DELYN = 'N'
+            AND
+            NOT ISSUE_IDX = #{issueIdx}
+            AND
+            (
+                SELECT
+                    ISSUE_DATE
+                FROM
+                    ISSUE
+                WHERE
+                    ISSUE_IDX = #{issueIdx}
+            ) <![CDATA[>]]> ISSUE_DATE
+		ORDER BY
+		    ISSUE_IDX DESC
+
+	</select>
+
+
+
+	<resultMap type="kr.or.nexus.vo.IssueVO" id="issueSearchMap" autoMapping="true">
+		<collection property="issueTags" ofType="kr.or.nexus.vo.IssueTagsVO" autoMapping="true"/>
+	</resultMap>
+
+	<sql id="searchFrag">
+	    	<if test="@org.apache.commons.lang3.StringUtils @isNotBlank(searchInp)">
+	        	<choose>
+	            	<when test="searchName eq 'tag'">
+	            		AND
+	            		ISSUE_TAGS.ISSUE_TAG_NAME LIKE '%'||#{searchInp}||'%'
+	            	</when>
+
+	            	<when test="searchName eq 'title'">
+	            		AND
+	            		ISSUE.ISSUE_TITLE LIKE '%'||#{searchInp}||'%'
+	            	</when>
+
+	            	<otherwise>
+	           			AND
+					    (ISSUE_TAGS.ISSUE_TAG_NAME LIKE '%'||#{searchInp}||'%'
+					    OR
+					    ISSUE.ISSUE_TITLE LIKE '%'||#{searchInp}||'%')
+	            	</otherwise>
+	            </choose>
+	    	</if>
+	</sql>
+
+	<select
+		id="timeLineSearch"
+		parameterType="kr.or.nexus.vo.IssueVO"
+		resultMap="issueSearchMap"
+	>
+
+		SELECT
+		    ISSUE.*
+		    , ISSUE_TAGS.ISSUE_TAG_NAME
+		FROM
+		    ISSUE
+		    LEFT OUTER JOIN
+		    ISSUE_TAGS
+		    ON (ISSUE.ISSUE_IDX = ISSUE_TAGS.ISSUE_IDX)
+		WHERE
+		    ISSUE.PROJECT_ID = #{projectId, jdbcType=VARCHAR}
+		    AND
+		    ISSUE.ISSUE_DELYN = 'N'
+		    <include refid="searchFrag" />
+		ORDER BY
+		    ISSUE_DATE ASC
+
+	</select>
+
+
+
+	<select
+		id="timeLineMemSelect"
+		parameterType="kr.or.nexus.vo.IssueVO"
+		resultMap="issueSearchMap"
+	>
+
+		SELECT
+		    ISSUE.*
+		    , ISSUE_TAGS.ISSUE_TAG_NAME
+		FROM
+		    ISSUE
+		    LEFT OUTER JOIN
+		    ISSUE_TAGS
+		    ON (ISSUE.ISSUE_IDX = ISSUE_TAGS.ISSUE_IDX)
+		WHERE
+		    ISSUE.PROJECT_ID = #{projectId, jdbcType=VARCHAR}
+		    AND
+		    ISSUE.ISSUE_DELYN = 'N'
+            AND
+            ISSUE.ISSUE_OFFICER = #{issueOfficer, jdbcType=VARCHAR}
+		ORDER BY
+		    ISSUE_DATE ASC
+
+	</select>
+
+
+
+	<select
+		id="timeLineOfficerChk"
+		parameterType="kr.or.nexus.vo.ProjectMemberVO"
+		resultType="kr.or.nexus.vo.ProjectMemberVO"
+	>
+
+		SELECT
+		    PROJECT_MEM_IDX
+		FROM
+		    PROJECT_MEMBER
+		WHERE
+		    PROJECT_ID = #{projectId, jdbcType=VARCHAR}
+		    AND
+		    MEMBER_ID = #{memberId, jdbcType=VARCHAR}
+
+	</select>
+
+
+
+	<update
+		id="timeLineDelete"
+		parameterType="String"
+	>
+
+		UPDATE
+		    ISSUE
+		SET
+		    ISSUE_DELYN = 'Y'
+		WHERE
+		    ISSUE_IDX = #{issueIdx, jdbcType=VARCHAR}
+
+	</update>
+
+	<select
+		id="projectMemId"
+		parameterType="kr.or.nexus.vo.ProjectMemberVO"
+		resultType="kr.or.nexus.vo.ProjectMemberVO"
+	>
+
+		SELECT
+		    PROJECT_MEMBER.*
+		FROM
+		    PROJECT_MEMBER
+		    INNER JOIN
+		    MEMBER_MANAGEMENT
+		    ON (PROJECT_MEMBER.MEMBER_ID = MEMBER_MANAGEMENT.MEMBER_ID)
+		WHERE
+		    PROJECT_MEMBER.PROJECT_ID = #{projectId}
+		    AND
+		    PROJECT_MEMBER.MEMBER_ID = #{memberId}
+
+	</select>
+
+
+	<sql id="projectMemFrag">
+		<if test="@org.apache.commons.lang3.StringUtils @isNotBlank(issueOfficer)">
+			AND
+			ISSUE_OFFICER = #{issueOfficer, jdbcType=VARCHAR}
+		</if>
+	</sql>
+
+
+	<resultMap
+		type="kr.or.nexus.vo.IssueVO" id="issueChartMap" autoMapping="true">
+		<association property="projectMember" javaType="kr.or.nexus.vo.ProjectMemberVO" autoMapping="true" />
+		<association property="member" javaType="kr.or.nexus.vo.MemberManagementVO" autoMapping="true" />
+	</resultMap>
+
+	<select
+		id="timelineChart"
+		parameterType="kr.or.nexus.vo.IssueVO"
+		resultMap="issueChartMap"
+	>
+
+		SELECT
+		    ISU.ISSUE_OFFICER
+		    , NVL(
+		        (
+		            SELECT
+		                COUNT(*)
+		            FROM
+		                ISSUE COM_ISU
+		            WHERE
+		                COM_ISU.ISSUE_OFFICER = ISU.ISSUE_OFFICER
+		                AND
+		                COM_ISU.ISSUE_PROGRESS_STATUS = 'Completed'
+		                AND
+		                COM_ISU.PROJECT_ID = #{projectId}
+		                AND
+		                COM_ISU.ISSUE_DELYN = 'N'
+		        ), 0) AS COMPLETED_COUNT
+		    , NVL(
+		        (
+		            SELECT
+		                COUNT(*)
+		            FROM
+		                ISSUE ALL_ISU
+		            WHERE
+		                ALL_ISU.ISSUE_OFFICER = ISU.ISSUE_OFFICER
+		                AND
+		                ALL_ISU.PROJECT_ID = #{projectId}
+		                AND
+		                ALL_ISU.ISSUE_DELYN = 'N'
+		        ), 0) AS ALL_COUNT
+		        , PROJECT_MEMBER.MEMBER_ID
+                , MEMBER_MANAGEMENT.MEMBER_NAME
+		FROM
+		    (
+		        SELECT
+		            DISTINCT ISSUE_OFFICER
+		        FROM
+		            ISSUE
+		        WHERE
+		            PROJECT_ID = #{projectId}
+		            AND
+                    ISSUE_DELYN = 'N'
+					<include refid="projectMemFrag" />
+		    ) ISU
+		    INNER JOIN
+            PROJECT_MEMBER
+            ON(ISU.ISSUE_OFFICER = PROJECT_MEMBER.PROJECT_MEM_IDX)
+            INNER JOIN
+            MEMBER_MANAGEMENT
+            ON(PROJECT_MEMBER.MEMBER_ID = MEMBER_MANAGEMENT.MEMBER_ID)
+		ORDER BY
+		    ISU.ISSUE_OFFICER
+
+	</select>
+
+	<select
+		id="timelinePriorityChart"
+		parameterType="kr.or.nexus.vo.IssueVO"
+		resultType="kr.or.nexus.vo.IssueVO"
+	>
+
+		SELECT
+		    ISSUE_PRIORITY_NAME,
+		    COUNT(*) AS PRIORITY_COUNT
+		FROM
+		    ISSUE
+		WHERE
+		    PROJECT_ID = #{projectId}
+		    AND
+		    ISSUE_DELYN = 'N'
+			<include refid="projectMemFrag" />
+		GROUP BY
+		    ISSUE_PRIORITY_NAME
+		ORDER BY
+		    PRIORITY_COUNT DESC
+
+	</select>
+
+	<select
+		id="timelineStatusChart"
+		parameterType="kr.or.nexus.vo.IssueVO"
+		resultType="kr.or.nexus.vo.IssueVO"
+	>
+
+		SELECT
+		    ISSUE_PROGRESS_STATUS,
+		    COUNT(*) AS STATUS_COUNT
+		FROM
+		    ISSUE
+		WHERE
+		    PROJECT_ID = #{projectId}
+		    AND
+		    ISSUE_DELYN = 'N'
+		    <include refid="projectMemFrag" />
+		GROUP BY
+		    ISSUE_PROGRESS_STATUS
+		ORDER BY
+		    STATUS_COUNT DESC
+
+	</select>
+
+</mapper>

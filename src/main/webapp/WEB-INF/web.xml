@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
+	version="3.1">
+
+	<welcome-file-list>
+		<welcome-file>index.do</welcome-file>
+	</welcome-file-list>
+
+
+
+	<!-- 상위 컨테이너용 설정 파일의 위치 -->
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>classpath:kr/or/nexus/spring/*-context.xml</param-value>
+	</context-param>
+
+	<!-- 서버가 구동된 후, 상위 컨테이너(Model Layer)(RootWebApplicationContext)를 생성하는 리스너 -->
+	<!-- 서버가 구동되면 제일 먼저 실행 - 엔트리 포인트 -->
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
+
+
+	<!-- 하위 컨테이너보다 먼저 필터를 실행시킴 - 인코딩 이런 느낌인듯 -->
+	<filter>
+		<filter-name>CharacterEncodingFilter</filter-name>
+		<filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+
+		<!-- CharacterEncodingFilter 클래스의 메소드에 파라미터를 넘겨 설정해주는 느낌쓰 -->
+		<init-param>
+			<param-name>encoding</param-name>
+			<param-value>UTF-8</param-value>
+		</init-param>
+
+		<init-param>
+			<param-name>forceEncoding</param-name>
+			<param-value>true</param-value>
+		</init-param>
+	</filter>
+
+	<filter-mapping>
+		<filter-name>CharacterEncodingFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+	<filter>
+		<filter-name>FormContentFilter</filter-name>
+		<filter-class>org.springframework.web.filter.FormContentFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>FormContentFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+    <filter>
+		<!-- 위임대상 (해당 네임값에 해당하는 빈을 찾은 후, 매핑한다.)-->
+		<filter-name>loggingFilter</filter-name>
+		<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>loggingFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+<!-- 스프링 시큐리티 필터적용 -->
+	<filter>
+		<!-- 위임대상 (해당 네임값에 해당하는 빈을 찾은 후, 매핑한다.) -->
+		<filter-name>springSecurityFilterChain</filter-name>
+		<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>springSecurityFilterChain</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+
+	<!-- Front Controller Pattern에 따라 모든 요청을 받기 위한 유일한 서블릿 등록 -->
+	<!-- 하위 컨테이너를 형성하고, 각 요청과 응답을 처리할 Controller/View가 등록됨 -->
+	<servlet>
+		<servlet-name>springDispatcherServlet</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		<init-param>
+			<param-name>contextConfigLocation</param-name>
+			<param-value>/WEB-INF/springmvc/*-context.xml</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+		<async-supported>true</async-supported>
+	</servlet>
+
+	<!-- Map all requests to the DispatcherServlet for handling -->
+	<!-- 스프링의 컨테이너와 톰캣의 컨테이너는 각각 존재하는데, index.do로 요청이 들어오면 톰캣에서 springDispatcherServlet으로
+		보낸다 -->
+	<!-- + 웰컴 페이지 세팅 -->
+	<servlet-mapping>
+		<servlet-name>springDispatcherServlet</servlet-name>
+		<url-pattern>/</url-pattern> <!-- 동적, 정적인(css, js 등) 요청까지 받는다. -->
+		<url-pattern>/index.do</url-pattern>
+	</servlet-mapping>
+</web-app>

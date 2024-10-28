@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.nexus.commons.def.mapper.FolderAccessRoleDefaultMapper">
+  <resultMap id="BaseResultMap" type="kr.or.nexus.vo.def.FolderAccessRoleDefaultVO">
+    <id column="PROJECT_ROLE_IDX" jdbcType="VARCHAR" property="projectRoleIdx" />
+    <id column="CLOUD_FOLDER_ID" jdbcType="VARCHAR" property="cloudFolderId" />
+    <id column="PROJECT_ID" jdbcType="VARCHAR" property="projectId" />
+    <result column="ACESS_LEVEL" jdbcType="NUMERIC" property="acessLevel" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="map">
+    delete from FOLDER_ACCESS_ROLE
+    where PROJECT_ROLE_IDX = #{projectRoleIdx,jdbcType=VARCHAR}
+      and CLOUD_FOLDER_ID = #{cloudFolderId,jdbcType=VARCHAR}
+      and PROJECT_ID = #{projectId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="kr.or.nexus.vo.def.FolderAccessRoleDefaultVO">
+    insert into FOLDER_ACCESS_ROLE (PROJECT_ROLE_IDX, CLOUD_FOLDER_ID, PROJECT_ID, 
+      ACESS_LEVEL)
+    values (#{projectRoleIdx,jdbcType=VARCHAR}, #{cloudFolderId,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, 
+      #{acessLevel,jdbcType=NUMERIC})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="kr.or.nexus.vo.def.FolderAccessRoleDefaultVO">
+    update FOLDER_ACCESS_ROLE
+    set ACESS_LEVEL = #{acessLevel,jdbcType=NUMERIC}
+    where PROJECT_ROLE_IDX = #{projectRoleIdx,jdbcType=VARCHAR}
+      and CLOUD_FOLDER_ID = #{cloudFolderId,jdbcType=VARCHAR}
+      and PROJECT_ID = #{projectId,jdbcType=VARCHAR}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="map" resultMap="BaseResultMap">
+    select PROJECT_ROLE_IDX, CLOUD_FOLDER_ID, PROJECT_ID, ACESS_LEVEL
+    from FOLDER_ACCESS_ROLE
+    where PROJECT_ROLE_IDX = #{projectRoleIdx,jdbcType=VARCHAR}
+      and CLOUD_FOLDER_ID = #{cloudFolderId,jdbcType=VARCHAR}
+      and PROJECT_ID = #{projectId,jdbcType=VARCHAR}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select PROJECT_ROLE_IDX, CLOUD_FOLDER_ID, PROJECT_ID, ACESS_LEVEL
+    from FOLDER_ACCESS_ROLE
+  </select>
+</mapper>

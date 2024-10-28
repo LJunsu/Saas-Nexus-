@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.nexus.commons.def.mapper.LogDefaultMapper">
+  <resultMap id="BaseResultMap" type="kr.or.nexus.vo.def.LogDefaultVO">
+    <id column="LOG_IDX" jdbcType="NUMERIC" property="logIdx" />
+    <result column="LOG_SOURCE" jdbcType="VARCHAR" property="logSource" />
+    <result column="LOG_GENERATION_SERVICE" jdbcType="VARCHAR" property="logGenerationService" />
+    <result column="LOG_GENERATION_DATE" jdbcType="TIMESTAMP" property="logGenerationDate" />
+    <result column="LOG_GENERATION_ACTION" jdbcType="VARCHAR" property="logGenerationAction" />
+    <result column="MEMBER_ID" jdbcType="VARCHAR" property="memberId" />
+    <result column="LOG_SUCCESS_STATUS" jdbcType="VARCHAR" property="logSuccessStatus" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from LOG
+    where LOG_IDX = #{logIdx,jdbcType=NUMERIC}
+  </delete>
+  <insert id="insert" parameterType="kr.or.nexus.vo.def.LogDefaultVO">
+    insert into LOG (LOG_IDX, LOG_SOURCE, LOG_GENERATION_SERVICE, 
+      LOG_GENERATION_DATE, LOG_GENERATION_ACTION, 
+      MEMBER_ID, LOG_SUCCESS_STATUS)
+    values (#{logIdx,jdbcType=NUMERIC}, #{logSource,jdbcType=VARCHAR}, #{logGenerationService,jdbcType=VARCHAR}, 
+      #{logGenerationDate,jdbcType=TIMESTAMP}, #{logGenerationAction,jdbcType=VARCHAR}, 
+      #{memberId,jdbcType=VARCHAR}, #{logSuccessStatus,jdbcType=VARCHAR})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="kr.or.nexus.vo.def.LogDefaultVO">
+    update LOG
+    set LOG_SOURCE = #{logSource,jdbcType=VARCHAR},
+      LOG_GENERATION_SERVICE = #{logGenerationService,jdbcType=VARCHAR},
+      LOG_GENERATION_DATE = #{logGenerationDate,jdbcType=TIMESTAMP},
+      LOG_GENERATION_ACTION = #{logGenerationAction,jdbcType=VARCHAR},
+      MEMBER_ID = #{memberId,jdbcType=VARCHAR},
+      LOG_SUCCESS_STATUS = #{logSuccessStatus,jdbcType=VARCHAR}
+    where LOG_IDX = #{logIdx,jdbcType=NUMERIC}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select LOG_IDX, LOG_SOURCE, LOG_GENERATION_SERVICE, LOG_GENERATION_DATE, LOG_GENERATION_ACTION, 
+    MEMBER_ID, LOG_SUCCESS_STATUS
+    from LOG
+    where LOG_IDX = #{logIdx,jdbcType=NUMERIC}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select LOG_IDX, LOG_SOURCE, LOG_GENERATION_SERVICE, LOG_GENERATION_DATE, LOG_GENERATION_ACTION, 
+    MEMBER_ID, LOG_SUCCESS_STATUS
+    from LOG
+  </select>
+</mapper>

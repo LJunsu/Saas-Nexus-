@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.nexus.commons.def.mapper.IssueContentDefaultMapper">
+  <resultMap id="BaseResultMap" type="kr.or.nexus.vo.def.IssueContentDefaultVO">
+    <id column="ISSUE_CONTENT_IDX" jdbcType="VARCHAR" property="issueContentIdx" />
+    <id column="ISSUE_IDX" jdbcType="VARCHAR" property="issueIdx" />
+    <result column="ISSUE_CONTENT_DATE" jdbcType="TIMESTAMP" property="issueContentDate" />
+    <result column="CONTENT_MODIFIED_DATE" jdbcType="TIMESTAMP" property="contentModifiedDate" />
+    <result column="ISSUE_CONTENT" jdbcType="CLOB" property="issueContent" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="map">
+    delete from ISSUE_CONTENT
+    where ISSUE_CONTENT_IDX = #{issueContentIdx,jdbcType=VARCHAR}
+      and ISSUE_IDX = #{issueIdx,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="kr.or.nexus.vo.def.IssueContentDefaultVO">
+    insert into ISSUE_CONTENT (ISSUE_CONTENT_IDX, ISSUE_IDX, ISSUE_CONTENT_DATE, 
+      CONTENT_MODIFIED_DATE, ISSUE_CONTENT)
+    values (#{issueContentIdx,jdbcType=VARCHAR}, #{issueIdx,jdbcType=VARCHAR}, #{issueContentDate,jdbcType=TIMESTAMP}, 
+      #{contentModifiedDate,jdbcType=TIMESTAMP}, #{issueContent,jdbcType=CLOB})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="kr.or.nexus.vo.def.IssueContentDefaultVO">
+    update ISSUE_CONTENT
+    set ISSUE_CONTENT_DATE = #{issueContentDate,jdbcType=TIMESTAMP},
+      CONTENT_MODIFIED_DATE = #{contentModifiedDate,jdbcType=TIMESTAMP},
+      ISSUE_CONTENT = #{issueContent,jdbcType=CLOB}
+    where ISSUE_CONTENT_IDX = #{issueContentIdx,jdbcType=VARCHAR}
+      and ISSUE_IDX = #{issueIdx,jdbcType=VARCHAR}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="map" resultMap="BaseResultMap">
+    select ISSUE_CONTENT_IDX, ISSUE_IDX, ISSUE_CONTENT_DATE, CONTENT_MODIFIED_DATE, ISSUE_CONTENT
+    from ISSUE_CONTENT
+    where ISSUE_CONTENT_IDX = #{issueContentIdx,jdbcType=VARCHAR}
+      and ISSUE_IDX = #{issueIdx,jdbcType=VARCHAR}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select ISSUE_CONTENT_IDX, ISSUE_IDX, ISSUE_CONTENT_DATE, CONTENT_MODIFIED_DATE, ISSUE_CONTENT
+    from ISSUE_CONTENT
+  </select>
+</mapper>

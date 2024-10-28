@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.nexus.commons.def.mapper.CustomerBoardDefaultMapper">
+  <resultMap id="BaseResultMap" type="kr.or.nexus.vo.def.CustomerBoardDefaultVO">
+    <id column="CS_ID" jdbcType="VARCHAR" property="csId" />
+    <id column="MEMBER_ID" jdbcType="VARCHAR" property="memberId" />
+    <result column="CS_TITLE" jdbcType="VARCHAR" property="csTitle" />
+    <result column="CS_CREATION_DATE" jdbcType="TIMESTAMP" property="csCreationDate" />
+    <result column="CS_DELYN" jdbcType="VARCHAR" property="csDelyn" />
+    <result column="CS_CONTENT" jdbcType="CLOB" property="csContent" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="map">
+    delete from CUSTOMER_BOARD
+    where CS_ID = #{csId,jdbcType=VARCHAR}
+      and MEMBER_ID = #{memberId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="kr.or.nexus.vo.def.CustomerBoardDefaultVO">
+    insert into CUSTOMER_BOARD (CS_ID, MEMBER_ID, CS_TITLE, 
+      CS_CREATION_DATE, CS_DELYN, CS_CONTENT
+      )
+    values (#{csId,jdbcType=VARCHAR}, #{memberId,jdbcType=VARCHAR}, #{csTitle,jdbcType=VARCHAR}, 
+      #{csCreationDate,jdbcType=TIMESTAMP}, #{csDelyn,jdbcType=VARCHAR}, #{csContent,jdbcType=CLOB}
+      )
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="kr.or.nexus.vo.def.CustomerBoardDefaultVO">
+    update CUSTOMER_BOARD
+    set CS_TITLE = #{csTitle,jdbcType=VARCHAR},
+      CS_CREATION_DATE = #{csCreationDate,jdbcType=TIMESTAMP},
+      CS_DELYN = #{csDelyn,jdbcType=VARCHAR},
+      CS_CONTENT = #{csContent,jdbcType=CLOB}
+    where CS_ID = #{csId,jdbcType=VARCHAR}
+      and MEMBER_ID = #{memberId,jdbcType=VARCHAR}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="map" resultMap="BaseResultMap">
+    select CS_ID, MEMBER_ID, CS_TITLE, CS_CREATION_DATE, CS_DELYN, CS_CONTENT
+    from CUSTOMER_BOARD
+    where CS_ID = #{csId,jdbcType=VARCHAR}
+      and MEMBER_ID = #{memberId,jdbcType=VARCHAR}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select CS_ID, MEMBER_ID, CS_TITLE, CS_CREATION_DATE, CS_DELYN, CS_CONTENT
+    from CUSTOMER_BOARD
+  </select>
+</mapper>

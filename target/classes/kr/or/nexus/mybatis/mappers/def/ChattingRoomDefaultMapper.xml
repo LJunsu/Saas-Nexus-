@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.nexus.commons.def.mapper.ChattingRoomDefaultMapper">
+  <resultMap id="BaseResultMap" type="kr.or.nexus.vo.def.ChattingRoomDefaultVO">
+    <id column="CHATTING_ROOM_ID" jdbcType="VARCHAR" property="chattingRoomId" />
+    <result column="ROOM_POPULATION" jdbcType="NUMERIC" property="roomPopulation" />
+    <result column="ROOM_NAME" jdbcType="VARCHAR" property="roomName" />
+    <result column="ROOM_COMMENT" jdbcType="VARCHAR" property="roomComment" />
+    <result column="CREATE_DATE" jdbcType="TIMESTAMP" property="createDate" />
+    <result column="LAST_MESSAGE_DATE" jdbcType="TIMESTAMP" property="lastMessageDate" />
+    <result column="ROOM_SETTINGS_ID" jdbcType="VARCHAR" property="roomSettingsId" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from CHATTING_ROOM
+    where CHATTING_ROOM_ID = #{chattingRoomId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="kr.or.nexus.vo.def.ChattingRoomDefaultVO">
+    insert into CHATTING_ROOM (CHATTING_ROOM_ID, ROOM_POPULATION, ROOM_NAME, 
+      ROOM_COMMENT, CREATE_DATE, LAST_MESSAGE_DATE, 
+      ROOM_SETTINGS_ID)
+    values (#{chattingRoomId,jdbcType=VARCHAR}, #{roomPopulation,jdbcType=NUMERIC}, #{roomName,jdbcType=VARCHAR}, 
+      #{roomComment,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP}, #{lastMessageDate,jdbcType=TIMESTAMP}, 
+      #{roomSettingsId,jdbcType=VARCHAR})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="kr.or.nexus.vo.def.ChattingRoomDefaultVO">
+    update CHATTING_ROOM
+    set ROOM_POPULATION = #{roomPopulation,jdbcType=NUMERIC},
+      ROOM_NAME = #{roomName,jdbcType=VARCHAR},
+      ROOM_COMMENT = #{roomComment,jdbcType=VARCHAR},
+      CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      LAST_MESSAGE_DATE = #{lastMessageDate,jdbcType=TIMESTAMP},
+      ROOM_SETTINGS_ID = #{roomSettingsId,jdbcType=VARCHAR}
+    where CHATTING_ROOM_ID = #{chattingRoomId,jdbcType=VARCHAR}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select CHATTING_ROOM_ID, ROOM_POPULATION, ROOM_NAME, ROOM_COMMENT, CREATE_DATE, LAST_MESSAGE_DATE, 
+    ROOM_SETTINGS_ID
+    from CHATTING_ROOM
+    where CHATTING_ROOM_ID = #{chattingRoomId,jdbcType=VARCHAR}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select CHATTING_ROOM_ID, ROOM_POPULATION, ROOM_NAME, ROOM_COMMENT, CREATE_DATE, LAST_MESSAGE_DATE, 
+    ROOM_SETTINGS_ID
+    from CHATTING_ROOM
+  </select>
+</mapper>

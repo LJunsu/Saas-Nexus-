@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.or.nexus.chat.model.dao.ChattingMapper">
+	<resultMap type="ChattingRoomDefaultVO" id="room"
+		autoMapping="true">
+		<id property="chattingRoomId" column="CHATTING_ROOM_ID" />
+		<collection property="members"
+			ofType="ChattingRoomMemberVO" autoMapping="true">
+		</collection>
+	</resultMap>
+
+
+	<!-- 채팅방 생성 -->
+	<insert id="insertChatRoom"
+		parameterType="ChattingRoomDefaultVO">
+		INSERT INTO CHATTING_ROOM
+		(CHATTING_ROOM_ID, ROOM_NAME,
+		CREATE_DATE)
+		VALUES (
+		'CR_' || LPAD(SEQ_CHATTING_ROOM.NEXTVAL, 3, '0'),
+		#{roomName},
+		SYSDATE
+		)
+	</insert>
+
+	<select id="selectLastInsertedRoomId" parameterType="String"
+		resultType="String">
+		SELECT CHATTING_ROOM_ID
+		FROM (
+		SELECT CHATTING_ROOM_ID
+		FROM
+		CHATTING_ROOM
+		WHERE ROOM_NAME = #{roomName}
+		ORDER BY CREATE_DATE DESC
+		)
+		WHERE ROWNUM = 1
+	</select>
+
+
+	<!-- 특정 채팅방 조회 -->
+	<!-- 특정 채팅방 조회 및 해당 채팅방의 멤버들 조회 -->
+	<select id="selectChattingRoomById" parameterType="string"
+		resultMap="room">
+		SELECT
+		CR.CHATTING_ROOM_ID,
+		CR.ROOM_POPULATION,
+		CR.ROOM_NAME,
+		CR.ROOM_COMMENT,
+		CR.CREATE_DATE,
+		CR.LAST_MESSAGE_DATE,
+		CR.ROOM_SETTINGS_ID,
+		CRM.CHATTING_ROOM_ID,
+		CRM.MEMBER_ID
+		FROM
+		CHATTING_ROOM CR
+		LEFT JOIN
+		CHATTING_ROOM_MEMBER CRM ON
+		CR.CHATTING_ROOM_ID = CRM.CHATTING_ROOM_ID
+		WHERE
+		CR.CHATTING_ROOM_ID =
+		#{chattingRoomId}
+	</select>
+
+
+	<!-- 모든 채팅방 조회 -->
+	<select id="selectChattingRoomList" resultMap="room">
+		SELECT
+		C.CHATTING_ROOM_ID, C.ROOM_NAME, M.MEMBER_ID
+		FROM CHATTING_ROOM C LEFT
+		OUTER JOIN CHATTING_ROOM_MEMBER M ON C.CHATTING_ROOM_ID =
+		M.CHATTING_ROOM_ID
+
+	</select>
+	<!-- 모든 그룹원 조회 -->
+	<select id="retrieveGroupMemberByUserId" parameterType="string"
+		resultType="MemberManagementVO">
+		SELECT gm.MEMBER_ID, m.MEMBER_NAME, m.MEMBER_EMAIL, m.MEMBER_PROFILE_PICT
+		FROM
+		GROUP_MEMBER gm
+		JOIN MEMBER_MANAGEMENT m ON gm.MEMBER_ID = m.MEMBER_ID
+		WHERE gm.GROUP_ID IN (
+		SELECT gm2.GROUP_ID
+		FROM GROUP_MEMBER gm2
+		WHERE
+		gm2.MEMBER_ID = #{memberId}
+		)
+		AND gm.GROUP_DELYN = 'N'
+	</select>
+
+
+	<!-- 채팅방 나가기 -->
+	<delete id="deleteChattingRoomMember" parameterType="map">
+		DELETE FROM CHATTING_ROOM_MEMBER
+		WHERE
+		CHATTING_ROOM_ID = #{chattingRoomId} AND MEMBER_ID = #{memberId}
+	</delete>
+
+	<!-- 채팅방 멤버추가 -->
+	<insert id="insertChatRoomMember"
+		parameterType="ChattingRoomMemberVO">
+		INSERT INTO CHATTING_ROOM_MEMBER (CHATTING_ROOM_ID,
+		MEMBER_ID)
+		VALUES (#{chattingRoomId}, #{memberId})
+	</insert>
+<!-- 	채팅방에속한 멤버조회 -->
+	 <select id="getMembersByRoomId" parameterType="String" resultType="MemberManagementVO">
+        SELECT m.*
+        FROM MEMBER_MANAGEMENT m
+        JOIN CHATTING_ROOM_MEMBER crm ON m.MEMBER_ID = crm.MEMBER_ID
+        WHERE crm.CHATTING_ROOM_ID = #{chattingRoomId}
+    </select>
+
+
+
+
+</mapper>

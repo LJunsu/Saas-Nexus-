@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.or.nexus.billing.dao.BillingMapper">
+
+	<!-- 그룹 구독 정보 조회 -->
+	<select id="getSubscriptionByGroupId" parameterType="String"
+		resultType="kr.or.nexus.vo.def.SubscriptionTypeDefaultVO">
+		SELECT *
+		FROM SUBSCRIPTION_TYPE
+		WHERE subscription_id IN (
+		SELECT subscription_id
+		FROM SUBSCRIPTION_PAYMENT
+		WHERE group_id =
+		#{groupId}
+		AND REFUND_APPROVAL = 'N'
+		)
+	</select>
+	<!-- 구독취소 -->
+	<update id="deletePayment"
+		parameterType="kr.or.nexus.vo.def.SubscriptionTypeDefaultVO">
+		UPDATE SUBSCRIPTION_PAYMENT
+		SET REFUND_APPROVAL = 'Y'
+		WHERE GROUP_ID = #{groupId}
+	</update>
+
+	<update id="updateUse2"
+		parameterType="kr.or.nexus.vo.def.SubscriptionPaymentDefaultVO">
+		UPDATE GROUP_MANAGEMENT
+		SET USE_STATUS = 'N'
+		WHERE
+		GROUP_ID = #{groupId}
+	</update>
+
+	<update id="updateUse"
+		parameterType="kr.or.nexus.vo.def.SubscriptionPaymentDefaultVO">
+		UPDATE GROUP_MANAGEMENT
+		SET USE_STATUS = 'Y'
+		WHERE
+		GROUP_ID = #{groupId}
+	</update>
+
+
+	<!-- 결제 정보 조회 -->
+	<select id="getPaymentByGroupId" parameterType="String"
+		resultType="kr.or.nexus.vo.def.SubscriptionPaymentDefaultVO">
+		SELECT *
+		FROM SUBSCRIPTION_PAYMENT
+		WHERE group_id =
+		#{groupId}
+	</select>
+
+	<!-- 그룹 멤버 수 조회 -->
+	<select id="countGroupMembersByGroupId" parameterType="String"
+		resultType="Integer">
+		SELECT COUNT(MEMBER_ID)
+		FROM group_member
+		WHERE GROUP_ID =
+		#{groupId}
+	</select>
+
+	<select id="monthSubscription" parameterType="String"
+		resultType="kr.or.nexus.vo.def.SubscriptionTypeDefaultVO">
+		SELECT *
+		FROM SUBSCRIPTION_TYPE
+		WHERE SUBSCRIPTION_ID =
+		'SUB_001'
+	</select>
+
+	<select id="yearSubscription" parameterType="String"
+		resultType="kr.or.nexus.vo.def.SubscriptionTypeDefaultVO">
+		SELECT *
+		FROM SUBSCRIPTION_TYPE
+		WHERE SUBSCRIPTION_ID =
+		'SUB_002'
+	</select>
+
+	<insert id="insertPayment"
+		parameterType="kr.or.nexus.vo.def.SubscriptionPaymentDefaultVO">
+		INSERT INTO SUBSCRIPTION_PAYMENT (
+		PAYMENT_ID,
+		PAYMENT_DATE,
+		PAYMENT_AMOUNT,
+		GROUP_ID,
+		SUBSCRIPTION_ID
+		) VALUES (
+		CONCAT('PM', TO_CHAR(LPAD(SEQ_NOTIFICATION.NEXTVAL, 3, '0'))),
+		SYSDATE,
+		#{paymentAmount},
+		#{groupId},
+		#{subscriptionId}
+		)
+	</insert>
+
+
+	<delete id="deleteSub"
+		parameterType="kr.or.nexus.vo.def.SubscriptionPaymentDefaultVO">
+		DELETE
+		FROM SUBSCRIPTION_PAYMENT
+		WHERE GROUP_ID =
+		#{groupId}
+	</delete>
+
+</mapper>

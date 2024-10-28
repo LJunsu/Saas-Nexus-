@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper
+	namespace="kr.or.nexus.announcement.dao.AnnouncementMapper">
+	<sql id="announcementColumns">
+		BOARD_ID,
+		BOARD_TITLE,
+		BOARD_CONTENT,
+		BOARD_CREATE_DATE,
+		ATTACHED_FILE_ID,
+		BOARD_DELYN,
+		GROUP_ID,
+		MEMBER_ID,
+		PROJECT_ID
+	</sql>
+
+
+	<sql id="searchFrag">
+		<if
+			test="@org.apache.commons.lang3.StringUtils@isNotBlank(simpleCondition.searchWord)">
+			<choose>
+				<when test="simpleCondition.searchType == 'title'">
+					AND INSTR(BOARD_TITLE,
+					#{simpleCondition.searchWord}) > 0
+				</when>
+				<otherwise>
+					AND INSTR(BOARD_CONTENT, #{simpleCondition.searchWord}) >
+					0
+				</otherwise>
+			</choose>
+		</if>
+	</sql>
+
+
+
+
+
+	<select id="selectAnnouncement" resultMap="Announcement">
+		SELECT
+		A.BOARD_ID,
+		A.BOARD_TITLE,
+		A.BOARD_CONTENT,
+		A.BOARD_CREATE_DATE,
+		A.ATTACHED_FILE_ID,
+		A.BOARD_DELYN,
+		A.GROUP_ID,
+		A.MEMBER_ID,
+		A.PROJECT_ID,
+		M.MEMBER_NAME
+		FROM
+		ANNOUNCEMENT_BOARD A JOIN MEMBER_MANAGEMENT M ON A.MEMBER_ID = M.MEMBER_ID
+		WHERE BOARD_ID = #{boardId}
+	</select>
+
+	<select id="selectTotalRecord" resultType="int">
+		SELECT COUNT(BOARD_ID)
+		FROM ANNOUNCEMENT_BOARD
+		WHERE PROJECT_ID =
+		#{projectId}
+		AND GROUP_ID = #{groupId}
+		AND BOARD_DELYN = 'N'
+		<include refid="searchFrag" />
+	</select>
+
+
+	<insert id="insertAnnouncement" parameterType="AnnouncementVO">
+		INSERT INTO
+		ANNOUNCEMENT_BOARD (
+		BOARD_ID,
+		GROUP_ID,
+		MEMBER_ID,
+		BOARD_TITLE,
+		BOARD_CONTENT,
+		BOARD_CREATE_DATE,
+		ATTACHED_FILE_ID,
+		BOARD_DELYN,
+		PROJECT_ID
+		) VALUES (
+		CONCAT('NOT',
+		TO_CHAR(LPAD(SEQ_NOTIFICATION.NEXTVAL, 3, '0'))),
+		#{groupId},
+		#{memberId, jdbcType=VARCHAR},
+		#{boardTitle,jdbcType=VARCHAR},
+		#{boardContent,jdbcType=CLOB},
+		SYSDATE,
+		#{attachedFileId},
+		'N',
+		#{projectId,jdbcType=VARCHAR}
+		)
+	</insert>
+	<resultMap type="kr.or.nexus.vo.AnnouncementVO"
+		id="Announcement" autoMapping="true">
+		<id property="boardId" column="BOARD_ID" />
+		<result property="attachedFileId" column="ATTACHED_FILE_ID" />
+		<association property="atchFile" column="ATTACHED_FILE_ID"
+			select="kr.or.nexus.commons.AtchFile.dao.AtchFileMapper.selectAtchFile" />
+	</resultMap>
+
+
+
+	<select id="selectAnnouncementList"
+		parameterType="kr.or.nexus.commons.paging.PaginationInfo"
+		resultType="AnnouncementVO">
+		SELECT B.*
+		FROM (
+		SELECT ROWNUM RNUM, A.*
+		FROM (
+		SELECT
+		A.BOARD_ID,
+		A.BOARD_TITLE,
+		A.BOARD_CONTENT,
+		A.BOARD_CREATE_DATE,
+		A.ATTACHED_FILE_ID,
+		A.BOARD_DELYN,
+		A.GROUP_ID,
+		A.MEMBER_ID,
+		A.PROJECT_ID,
+		M.MEMBER_NAME
+		FROM
+		ANNOUNCEMENT_BOARD A
+		JOIN MEMBER_MANAGEMENT M
+		ON
+		A.MEMBER_ID =
+		M.MEMBER_ID
+		WHERE A.BOARD_DELYN = 'N'
+		AND A.GROUP_ID =
+		#{groupId}
+		AND
+		A.PROJECT_ID = #{projectId}
+		<include refid="searchFrag" />
+		ORDER BY A.BOARD_ID DESC
+		) A
+		) B
+    <![CDATA[
+    WHERE RNUM >= #{firstRecord} - 1 AND RNUM <= #{lastRecord}
+    ]]>
+	</select>
+
+
+
+
+	<update id="deleteAnnouncement">
+		UPDATE ANNOUNCEMENT_BOARD
+		SET BOARD_DELYN = 'Y'
+		WHERE
+		BOARD_ID = #{boardId}
+	</update>
+
+	<update id="updateAnnouncement">
+		UPDATE ANNOUNCEMENT_BOARD
+		SET
+		BOARD_TITLE =
+		#{boardTitle,jdbcType=VARCHAR}
+		, BOARD_CONTENT =
+		#{boardContent,jdbcType=VARCHAR}
+		<if test="attachedFileId neq null">
+			, ATTACHED_FILE_ID = #{attachedFileId,jdbcType=NUMERIC}
+		</if>
+		WHERE BOARD_ID =#{boardId}
+	</update>
+
+	<select id="findProjectLeadersByProjectId">
+		SELECT m.MEMBER_ID, p.PROJECT_ID,
+		pr.PROJECT_ROLE_NAME
+		FROM MEMBER_MANAGEMENT m LEFT OUTER JOIN
+		PROJECT_MEMBER p
+		ON m.MEMBER_ID = p.MEMBER_ID
+		LEFT OUTER JOIN
+		PROJECT_ROLE pr ON p.PROJECT_id = pr.PROJECT_ID
+		WHERE pr.PROJECT_ID =
+		#{projectId} AND pr.PROJECT_ROLE_NAME = '프로젝트 리더'
+	</select>
+
+
+
+
+
+	<resultMap id="BaseResultMap"
+		type="kr.or.nexus.gnotification.vo.GnoticeVO">
+		<id column="BOARD_ID" jdbcType="VARCHAR" property="boardId" />
+		<id column="GROUP_ID" jdbcType="VARCHAR" property="groupId" />
+		<id column="MEMBER_ID" jdbcType="VARCHAR" property="memberId" />
+		<result column="BOARD_TITLE" jdbcType="VARCHAR"
+			property="boardTitle" />
+		<result column="BOARD_CREATE_DATE" jdbcType="TIMESTAMP"
+			property="boardCreateDate" />
+		<result column="ATTACHED_FILE_ID" jdbcType="VARCHAR"
+			property="attachedFileId" />
+		<result column="BOARD_DELYN" jdbcType="VARCHAR"
+			property="boardDelyn" />
+		<result column="PROJECT_ID" jdbcType="VARCHAR"
+			property="projectId" />
+		<result column="BOARD_CONTENT" jdbcType="CLOB"
+			property="boardContent" />
+		<association property="managementVO"
+			javaType="kr.or.nexus.vo.MemberManagementVO" autoMapping="true" />
+	</resultMap>
+
+	<select id="chMainAnnouncementBoardList"
+		parameterType="kr.or.nexus.gnotification.vo.GnoticeVO"
+		resultMap="BaseResultMap">
+
+		SELECT
+		a.board_id,
+		a.board_title,
+		a.board_content,
+		a.board_create_date,
+		a.attached_file_id,
+		a.board_delyn,
+		a.group_id,
+		a.member_id,
+		a.project_id,
+		b.member_name
+		FROM
+		announcement_board a
+		INNER
+		JOIN
+		member_management b
+		ON
+		a.member_id = b.member_id
+		WHERE
+		a.PROJECT_ID =
+		#{projectId}
+		AND
+		BOARD_DELYN = 'N'
+		AND
+		a.GROUP_ID = #{groupId}
+		ORDER BY
+		a.BOARD_CREATE_DATE DESC
+
+	</select>
+
+
+</mapper>
+
+

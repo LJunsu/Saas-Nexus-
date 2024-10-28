@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.nexus.commons.def.mapper.IssueBoardAnswersDefaultMapper">
+  <resultMap id="BaseResultMap" type="kr.or.nexus.vo.def.IssueBoardAnswersDefaultVO">
+    <id column="ISSUE_COMMENT_ID" jdbcType="VARCHAR" property="issueCommentId" />
+    <id column="ISSUE_IDX" jdbcType="VARCHAR" property="issueIdx" />
+    <result column="ISSUE_PARENT_CMT_ID" jdbcType="VARCHAR" property="issueParentCmtId" />
+    <result column="ISSUE_CMT_WRITER" jdbcType="VARCHAR" property="issueCmtWriter" />
+    <result column="ISSUE_CMT_CR_DATE" jdbcType="TIMESTAMP" property="issueCmtCrDate" />
+    <result column="ISSUE_CMT_MODIFIED_DATE" jdbcType="TIMESTAMP" property="issueCmtModifiedDate" />
+    <result column="ISSUE_CMT_CONTENT" jdbcType="CLOB" property="issueCmtContent" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="map">
+    delete from ISSUE_BOARD_ANSWERS
+    where ISSUE_COMMENT_ID = #{issueCommentId,jdbcType=VARCHAR}
+      and ISSUE_IDX = #{issueIdx,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="kr.or.nexus.vo.def.IssueBoardAnswersDefaultVO">
+    insert into ISSUE_BOARD_ANSWERS (ISSUE_COMMENT_ID, ISSUE_IDX, ISSUE_PARENT_CMT_ID, 
+      ISSUE_CMT_WRITER, ISSUE_CMT_CR_DATE, ISSUE_CMT_MODIFIED_DATE, 
+      ISSUE_CMT_CONTENT)
+    values (#{issueCommentId,jdbcType=VARCHAR}, #{issueIdx,jdbcType=VARCHAR}, #{issueParentCmtId,jdbcType=VARCHAR}, 
+      #{issueCmtWriter,jdbcType=VARCHAR}, #{issueCmtCrDate,jdbcType=TIMESTAMP}, #{issueCmtModifiedDate,jdbcType=TIMESTAMP}, 
+      #{issueCmtContent,jdbcType=CLOB})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="kr.or.nexus.vo.def.IssueBoardAnswersDefaultVO">
+    update ISSUE_BOARD_ANSWERS
+    set ISSUE_PARENT_CMT_ID = #{issueParentCmtId,jdbcType=VARCHAR},
+      ISSUE_CMT_WRITER = #{issueCmtWriter,jdbcType=VARCHAR},
+      ISSUE_CMT_CR_DATE = #{issueCmtCrDate,jdbcType=TIMESTAMP},
+      ISSUE_CMT_MODIFIED_DATE = #{issueCmtModifiedDate,jdbcType=TIMESTAMP},
+      ISSUE_CMT_CONTENT = #{issueCmtContent,jdbcType=CLOB}
+    where ISSUE_COMMENT_ID = #{issueCommentId,jdbcType=VARCHAR}
+      and ISSUE_IDX = #{issueIdx,jdbcType=VARCHAR}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="map" resultMap="BaseResultMap">
+    select ISSUE_COMMENT_ID, ISSUE_IDX, ISSUE_PARENT_CMT_ID, ISSUE_CMT_WRITER, ISSUE_CMT_CR_DATE, 
+    ISSUE_CMT_MODIFIED_DATE, ISSUE_CMT_CONTENT
+    from ISSUE_BOARD_ANSWERS
+    where ISSUE_COMMENT_ID = #{issueCommentId,jdbcType=VARCHAR}
+      and ISSUE_IDX = #{issueIdx,jdbcType=VARCHAR}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select ISSUE_COMMENT_ID, ISSUE_IDX, ISSUE_PARENT_CMT_ID, ISSUE_CMT_WRITER, ISSUE_CMT_CR_DATE, 
+    ISSUE_CMT_MODIFIED_DATE, ISSUE_CMT_CONTENT
+    from ISSUE_BOARD_ANSWERS
+  </select>
+</mapper>

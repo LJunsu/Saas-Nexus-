@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.nexus.commons.def.mapper.IssueDefaultMapper">
+  <resultMap id="BaseResultMap" type="kr.or.nexus.vo.def.IssueDefaultVO">
+    <id column="ISSUE_IDX" jdbcType="VARCHAR" property="issueIdx" />
+    <result column="SUB_ISSUE_IDX" jdbcType="VARCHAR" property="subIssueIdx" />
+    <result column="ISSUE_MODIFIED_DATE" jdbcType="TIMESTAMP" property="issueModifiedDate" />
+    <result column="ISSUE_DELYN" jdbcType="VARCHAR" property="issueDelyn" />
+    <result column="PROJECT_MEMBER_IDX" jdbcType="VARCHAR" property="projectMemIdx" />
+    <result column="ISSUE_PROGRESS_STATUS" jdbcType="VARCHAR" property="issueProgressStatus" />
+    <result column="ISSUE_PRIORITY_NAME" jdbcType="VARCHAR" property="issuePriorityName" />
+    <result column="ISSUE_TITLE" jdbcType="VARCHAR" property="issueTitle" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from ISSUE
+    where ISSUE_IDX = #{issueIdx,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="kr.or.nexus.vo.def.IssueDefaultVO">
+    insert into ISSUE (ISSUE_IDX, SUB_ISSUE_IDX, ISSUE_MODIFIED_DATE, 
+      ISSUE_DELYN, PROJECT_MEMBER_IDX, ISSUE_PROGRESS_STATUS, 
+      ISSUE_PRIORITY_NAME, ISSUE_TITLE)
+    values (#{issueIdx,jdbcType=VARCHAR}, #{subIssueIdx,jdbcType=VARCHAR}, #{issueModifiedDate,jdbcType=TIMESTAMP}, 
+      #{issueDelyn,jdbcType=VARCHAR}, #{projectMemberIdx,jdbcType=VARCHAR}, #{issueProgressStatus,jdbcType=VARCHAR}, 
+      #{issuePriorityName,jdbcType=VARCHAR}, #{issueTitle,jdbcType=VARCHAR})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="kr.or.nexus.vo.def.IssueDefaultVO">
+    update ISSUE
+    set SUB_ISSUE_IDX = #{subIssueIdx,jdbcType=VARCHAR},
+      ISSUE_MODIFIED_DATE = #{issueModifiedDate,jdbcType=TIMESTAMP},
+      ISSUE_DELYN = #{issueDelyn,jdbcType=VARCHAR},
+      PROJECT_MEMBER_IDX = #{projectMemberIdx,jdbcType=VARCHAR},
+      ISSUE_PROGRESS_STATUS = #{issueProgressStatus,jdbcType=VARCHAR},
+      ISSUE_PRIORITY_NAME = #{issuePriorityName,jdbcType=VARCHAR},
+      ISSUE_TITLE = #{issueTitle,jdbcType=VARCHAR}
+    where ISSUE_IDX = #{issueIdx,jdbcType=VARCHAR}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select ISSUE_IDX, SUB_ISSUE_IDX, ISSUE_MODIFIED_DATE, ISSUE_DELYN, PROJECT_MEMBER_IDX, 
+    ISSUE_PROGRESS_STATUS, ISSUE_PRIORITY_NAME, ISSUE_TITLE
+    from ISSUE
+    where ISSUE_IDX = #{issueIdx,jdbcType=VARCHAR}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select ISSUE_IDX, SUB_ISSUE_IDX, ISSUE_MODIFIED_DATE, ISSUE_DELYN, PROJECT_MEMBER_IDX, 
+    ISSUE_PROGRESS_STATUS, ISSUE_PRIORITY_NAME, ISSUE_TITLE
+    from ISSUE
+  </select>
+</mapper>

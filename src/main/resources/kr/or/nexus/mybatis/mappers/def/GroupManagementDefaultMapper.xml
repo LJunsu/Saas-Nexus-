@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.nexus.commons.def.mapper.GroupManagementDefaultMapper">
+  <resultMap id="BaseResultMap" type="kr.or.nexus.vo.def.GroupManagementDefaultVO">
+    <id column="GROUP_ID" jdbcType="VARCHAR" property="groupId" />
+    <result column="GROUP_NAME" jdbcType="VARCHAR" property="groupName" />
+    <result column="GROUP_PROFILE_PICTURE" jdbcType="VARCHAR" property="groupProfilePicture" />
+    <result column="GROUP_CREATION_DATE" jdbcType="TIMESTAMP" property="groupCreationDate" />
+    <result column="GROUP_DELYN" jdbcType="VARCHAR" property="groupDelyn" />
+    <result column="USE_STATUS" jdbcType="VARCHAR" property="useStatus" />
+    <result column="BUSINESS_LICENSE_ID" jdbcType="VARCHAR" property="businessLicenseId" />
+    <result column="APPLICATION_DATE" jdbcType="TIMESTAMP" property="applicationDate" />
+    <result column="APPROVAL_DATE" jdbcType="TIMESTAMP" property="approvalDate" />
+    <result column="COMMENT" jdbcType="VARCHAR" property="comment" />
+    <result column="MEMBER_ID" jdbcType="VARCHAR" property="memberId" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from GROUP_MANAGEMENT
+    where GROUP_ID = #{groupId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="kr.or.nexus.vo.def.GroupManagementDefaultVO">
+    insert into GROUP_MANAGEMENT (GROUP_ID, GROUP_NAME, GROUP_PROFILE_PICTURE, 
+      GROUP_CREATION_DATE, GROUP_DELYN, USE_STATUS, 
+      BUSINESS_LICENSE_ID, APPLICATION_DATE, APPROVAL_DATE, 
+      COMMENT, MEMBER_ID
+      )
+    values (#{groupId,jdbcType=VARCHAR}, #{groupName,jdbcType=VARCHAR}, #{groupProfilePicture,jdbcType=VARCHAR}, 
+      #{groupCreationDate,jdbcType=TIMESTAMP}, #{groupDelyn,jdbcType=VARCHAR}, #{useStatus,jdbcType=VARCHAR}, 
+      #{businessLicenseId,jdbcType=VARCHAR}, #{applicationDate,jdbcType=TIMESTAMP}, #{approvalDate,jdbcType=TIMESTAMP}, 
+      #{comment,jdbcType=VARCHAR}, #{memberId,jdbcType=VARCHAR}
+      )
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="kr.or.nexus.vo.def.GroupManagementDefaultVO">
+    update GROUP_MANAGEMENT
+    set GROUP_NAME = #{groupName,jdbcType=VARCHAR},
+      GROUP_PROFILE_PICTURE = #{groupProfilePicture,jdbcType=VARCHAR},
+      GROUP_CREATION_DATE = #{groupCreationDate,jdbcType=TIMESTAMP},
+      GROUP_DELYN = #{groupDelyn,jdbcType=VARCHAR},
+      USE_STATUS = #{useStatus,jdbcType=VARCHAR},
+      BUSINESS_LICENSE_ID = #{businessLicenseId,jdbcType=VARCHAR},
+      APPLICATION_DATE = #{applicationDate,jdbcType=TIMESTAMP},
+      APPROVAL_DATE = #{approvalDate,jdbcType=TIMESTAMP},
+      COMMENT = #{comment,jdbcType=VARCHAR},
+      MEMBER_ID = #{memberId,jdbcType=VARCHAR}
+    where GROUP_ID = #{groupId,jdbcType=VARCHAR}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select GROUP_ID, GROUP_NAME, GROUP_PROFILE_PICTURE, GROUP_CREATION_DATE, GROUP_DELYN, 
+    USE_STATUS, BUSINESS_LICENSE_ID, APPLICATION_DATE, APPROVAL_DATE, GROUP_COMMENT, MEMBER_ID
+    from GROUP_MANAGEMENT
+    where GROUP_ID = #{groupId,jdbcType=VARCHAR}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select GROUP_ID, GROUP_NAME, GROUP_PROFILE_PICTURE, GROUP_CREATION_DATE, GROUP_DELYN, 
+    USE_STATUS, BUSINESS_LICENSE_ID, APPLICATION_DATE, APPROVAL_DATE, COMMENT, MEMBER_ID
+    from GROUP_MANAGEMENT
+  </select>
+</mapper>

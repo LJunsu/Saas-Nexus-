@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.nexus.group.main.dao.GroupMainMapper">
+
+	<resultMap type="GroupManagementVO" id="groupMap" autoMapping="true">
+		<id property="groupId" column="GROUP_ID"/>
+		<association property="memberManagementVO" javaType="MemberManagementVO" autoMapping="true" />
+	</resultMap>
+
+	<select id="selectGroupById" parameterType="string" resultMap="groupMap">
+		select GROUP_ID, GROUP_NAME, GROUP_PROFILE_PICTURE, GROUP_CREATION_DATE,
+		GROUP_DELYN,
+		USE_STATUS, BUSINESS_LICENSE_ID, APPLICATION_DATE, APPROVAL_DATE, GROUP_COMMENT,
+		MEMBER_ID, MEMBER_NAME
+		from GROUP_MANAGEMENT
+		NATURAL JOIN MEMBER_MANAGEMENT
+		where GROUP_ID = #{groupId,jdbcType=VARCHAR}
+	</select>
+	
+	<update id="updateGroup" parameterType="GroupManagementVO">
+		UPDATE GROUP_MANAGEMENT
+		SET GROUP_NAME = #{groupName}
+			,GROUP_PROFILE_PICTURE = #{groupProfilePicture}
+			,GROUP_COMMENT = #{groupComment}
+			,MEMBER_ID = #{memberId}
+		WHERE GROUP_ID = #{groupId}
+	</update>
+	
+	<insert id="insertGroup" parameterType="GroupManagementVO">
+		INSERT INTO GROUP_MANAGEMENT(
+			GROUP_ID
+			,GROUP_NAME
+			,GROUP_PROFILE_PICTURE
+			,BUSINESS_LICENSE_ID
+			,GROUP_COMMENT
+			,GROUP_ZIP
+			,GROUP_ADDRESS
+			,GROUP_ADDRESS2
+			,MEMBER_ID
+		)VALUES(
+			#{groupId}
+			,#{groupName}
+			,#{groupProfilePicture}
+			,#{businessLicenseId}
+			,#{groupComment}
+			,#{groupZip}
+			,#{groupAddress}
+			,#{groupAddress2}
+			,#{memberId}
+		)
+	</insert>
+	
+	<update id="updateGroupProfile" parameterType="GroupManagementVO">
+		UPDATE GROUP_MANAGEMENT
+		SET GROUP_PROFILE_PICTURE = #{groupProfilePicture}
+			,BUSINESS_LICENSE_ID = #{businessLicenseId}
+		WHERE GROUP_ID = #{groupId}
+	</update>
+</mapper>

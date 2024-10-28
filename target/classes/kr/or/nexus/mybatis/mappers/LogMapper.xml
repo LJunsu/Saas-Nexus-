@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.nexus.log.dao.LogMapper">
+  <resultMap id="BaseResultMap" type="kr.or.nexus.vo.LogClassificationVO">
+    <id column="CLASS_IDX" jdbcType="VARCHAR" property="classIdx" />
+    <result column="CLASS_NAME" jdbcType="VARCHAR" property="className" />
+    <result column="CLASS_ADDRESS" jdbcType="VARCHAR" property="classAddress" />
+    <result column="CLASS_PARENT" jdbcType="VARCHAR" property="classParent" />
+  </resultMap>
+
+  <resultMap id="BaseResultMap2" type="kr.or.nexus.vo.LogVO">
+    <id column="LOG_IDX" jdbcType="NUMERIC" property="logIdx" />
+    <result column="LOG_SOURCE" jdbcType="VARCHAR" property="logSource" />
+    <result column="LOG_SOURCE_MODIFY" jdbcType="VARCHAR" property="logSourceModify" />
+    <result column="LOG_GENERATION_DATE" jdbcType="TIMESTAMP" property="logGenerationDate" />
+    <result column="MEMBER_ID" jdbcType="VARCHAR" property="memberId" />
+    <result column="GROUP_ID" jdbcType="VARCHAR" property="groupId" />
+    <result column="CLASS_IDX" jdbcType="VARCHAR" property="classIdx" />
+    <result column="ISSUE_IDX" jdbcType="VARCHAR" property="issueIdx" />
+    <result column="PROJECT_ID" jdbcType="VARCHAR" property="projectId" />
+  </resultMap>
+  
+  <select id="confirmLogClass" parameterType="String" resultMap="BaseResultMap">
+    SELECT 
+        class_idx
+        , class_name
+        , class_address
+        , class_parent
+        , class_method
+    FROM 
+        log_classification
+    WHERE 
+        class_address = #{classAddress,jdbcType=VARCHAR} and class_method=#{classMethod,jdbcType=VARCHAR}
+  </select>
+  
+  <insert id="insertLogClass" parameterType="kr.or.nexus.vo.LogClassificationVO">
+      <selectKey order="BEFORE" resultType="String" keyProperty="classIdx">
+       SELECT 'LCD' || LPAD(NVL(TO_NUMBER(SUBSTR(MAX(class_idx), 5)),0) + 1,3,'0')
+       FROM log_classification
+      </selectKey>
+      INSERT INTO log_classification (
+          class_idx,
+          class_name,
+          class_address,
+          class_parent,
+          class_method
+      )VALUES (
+          #{classIdx,jdbcType=VARCHAR}
+          , #{classAddress,jdbcType=VARCHAR}
+          , #{classAddress,jdbcType=VARCHAR}
+          , (SELECT a.class_idx
+             FROM (
+                 SELECT a.class_idx
+                 FROM log_classification a
+                 WHERE #{classAddress,jdbcType=VARCHAR} LIKE '%' || a.class_address || '%'
+                 ORDER BY a.class_idx ASC
+             ) a
+             WHERE ROWNUM = 1)
+          , #{classMethod,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertLog" parameterType="java.util.Map">
+  <selectKey keyProperty="logIdx" resultType="int" order="BEFORE"> select SEQ_LOG.nextval as logIdx from dual</selectKey>
+     insert into LOG (
+       LOG_IDX
+       , LOG_SOURCE
+       , LOG_SOURCE_MODIFY
+       , LOG_GENERATION_DATE
+       , MEMBER_ID
+       , GROUP_ID
+       , CLASS_IDX
+       , ISSUE_IDX
+       , PROJECT_ID
+       )values (
+       #{logIdx,jdbcType=INTEGER}
+       , #{logVO.logSource,jdbcType=VARCHAR}
+       , #{logVO.logSourceModify,jdbcType=VARCHAR}
+       , SYSDATE
+       , #{logVO.memberId,jdbcType=VARCHAR}
+       , #{logVO.groupId,jdbcType=VARCHAR}
+       , (select b.class_idx
+          from log_classification b
+          where b.class_address=#{logVO.logSourceModify,jdbcType=VARCHAR} and b.class_method=#{classMethod,jdbcType=VARCHAR})
+       , #{logVO.issueIdx,jdbcType=VARCHAR}
+       , #{logVO.projectId,jdbcType=VARCHAR}
+     )
+  </insert>
+</mapper>

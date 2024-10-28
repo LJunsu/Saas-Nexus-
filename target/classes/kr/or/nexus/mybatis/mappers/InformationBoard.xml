@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper
+	namespace="kr.or.nexus.informationBoard.dao.InformationBoardMapper">
+
+	<insert id="informationBoardInsert"
+		parameterType="kr.or.nexus.informationBoard.vo.InformationBoardVO">
+
+		INSERT INTO INFORMATION (
+		IF_BOARD_ID
+		, IF_BOARD_TITLE
+		, IF_BOARD_CONTENT
+		, IF_BOARD_CREATION_DATE
+		, IF_BOARD_DELYN
+		, IF_BOARD_NUM
+		, GROUP_ID
+		, MEMBER_ID
+		, ATTACHED_FILE_ID
+		) VALUES (
+		CONCAT('IF', TO_CHAR(LPAD(SEQ_INFORMATION.NEXTVAL, 3, '0')))
+		, #{ifBoardTitle}
+		, #{ifBoardContent}
+		, SYSDATE
+		, 'N'
+		, 0
+		, #{groupId}
+		, #{memberId}
+		, #{attachedFileId}
+		)
+
+	</insert>
+
+
+
+
+
+	<resultMap
+		type="kr.or.nexus.informationBoard.vo.InformationBoardVO"
+		id="informationMap" autoMapping="true">
+		<id property="memberId" column="MEMBER_ID" />
+		<id property="ifBoardId" column="if_board_id" />
+		<association property="member" javaType="kr.or.nexus.vo.MemberManagementVO" autoMapping="true" />
+		<collection property="ifBoardLikeList"
+			ofType="kr.or.nexus.informationBoard.vo.InformationBoardLikeVO"
+			autoMapping="true" />
+	</resultMap>
+
+	<select id="informationBoardList" parameterType="String"
+		resultMap="informationMap">
+
+		SELECT
+			INFORMATION.IF_BOARD_ID
+			, INFORMATION.IF_BOARD_TITLE
+			, INFORMATION.IF_BOARD_CREATION_DATE
+			, INFORMATION.IF_BOARD_DELYN
+			, INFORMATION.IF_BOARD_NUM
+			, INFORMATION.GROUP_ID
+			, INFORMATION.MEMBER_ID
+			, INFORMATION.ATTACHED_FILE_ID
+			, COUNT(INFORMATION_LIKE.IF_BOARD_LIKE) AS IF_BOARD_LIKE
+            , MEMBER_MANAGEMENT.MEMBER_NAME
+		FROM
+			INFORMATION
+			LEFT OUTER JOIN
+			INFORMATION_LIKE ON(INFORMATION.IF_BOARD_ID = INFORMATION_LIKE.IF_BOARD_ID)
+            INNER JOIN
+            MEMBER_MANAGEMENT ON(INFORMATION.MEMBER_ID = MEMBER_MANAGEMENT.MEMBER_ID)
+			WHERE
+			INFORMATION.GROUP_ID = #{groupId}
+			AND
+			INFORMATION.IF_BOARD_DELYN = 'N'
+			GROUP BY
+			INFORMATION.IF_BOARD_ID,
+			INFORMATION.IF_BOARD_TITLE,
+			INFORMATION.IF_BOARD_CREATION_DATE,
+			INFORMATION.IF_BOARD_DELYN,
+			INFORMATION.IF_BOARD_NUM,
+			INFORMATION.GROUP_ID,
+			INFORMATION.MEMBER_ID,
+			INFORMATION.ATTACHED_FILE_ID,
+            MEMBER_MANAGEMENT.MEMBER_NAME
+		ORDER BY
+			INFORMATION.IF_BOARD_CREATION_DATE DESC
+
+	</select>
+
+
+
+
+	<!-- 석준 추가 코드 (파일 다운로드 관련) -->
+	<resultMap
+		type="kr.or.nexus.informationBoard.vo.InformationBoardVO"
+		id="Information" autoMapping="true">
+		<id property="memberId" column="MEMBER_ID" />
+		<id property="ifBoardId" column="IF_BOARD_ID" />
+		<result property="attachedFileId" column="ATTACHED_FILE_ID" />
+		<association property="member" javaType="kr.or.nexus.vo.MemberManagementVO" autoMapping="true" />
+		<association property="attachedFile"
+			column="ATTACHED_FILE_ID"
+			select="kr.or.nexus.commons.AtchFile.dao.AtchFileMapper.selectAtchFile" />
+		<collection property="ifBoardLikeList"
+			ofType="kr.or.nexus.informationBoard.vo.InformationBoardLikeVO"
+			autoMapping="true" />
+	</resultMap>
+
+	<!-- resultType="kr.or.nexus.informationBoard.vo.InformationBoardVO" -->
+	<select id="informationBoardDetail"
+		parameterType="kr.or.nexus.informationBoard.vo.InformationBoardVO"
+		resultMap="Information">
+
+		SELECT
+		    info.IF_BOARD_ID,
+		    info.IF_BOARD_TITLE,
+		    info.IF_BOARD_CREATION_DATE,
+		    (SELECT INFORMATION.IF_BOARD_CONTENT
+		     FROM INFORMATION
+		     WHERE INFORMATION.IF_BOARD_ID = info.IF_BOARD_ID
+		       AND ROWNUM = 1) AS IF_BOARD_CONTENT,
+		    info.IF_BOARD_DELYN,
+		    info.IF_BOARD_NUM,
+		    info.GROUP_ID,
+		    info.MEMBER_ID,
+		    info.ATTACHED_FILE_ID,
+		    COUNT(like_info.IF_BOARD_LIKE) AS IF_BOARD_LIKE,
+		    MEMBER_MANAGEMENT.MEMBER_NAME
+		FROM
+		    INFORMATION info
+		LEFT OUTER JOIN
+		    INFORMATION_LIKE like_info ON (info.IF_BOARD_ID = like_info.IF_BOARD_ID)
+        INNER JOIN
+        	MEMBER_MANAGEMENT ON(info.MEMBER_ID = MEMBER_MANAGEMENT.MEMBER_ID)
+		WHERE
+		    info.GROUP_ID = #{groupId}
+		    AND info.IF_BOARD_ID = #{ifBoardId}
+		    AND info.IF_BOARD_DELYN = 'N'
+		GROUP BY
+		    info.IF_BOARD_ID,
+		    info.IF_BOARD_TITLE,
+		    info.IF_BOARD_CREATION_DATE,
+		    info.IF_BOARD_DELYN,
+		    info.IF_BOARD_NUM,
+		    info.GROUP_ID,
+		    info.MEMBER_ID,
+		    info.ATTACHED_FILE_ID,
+		    MEMBER_MANAGEMENT.MEMBER_NAME
+
+	</select>
+
+
+
+
+
+	<update id="informationBoardUpdate"
+		parameterType="kr.or.nexus.informationBoard.vo.InformationBoardVO">
+
+		UPDATE
+		INFORMATION
+		SET
+		IF_BOARD_TITLE = #{ifBoardTitle}
+		, IF_BOARD_CONTENT = #{ifBoardContent}
+		, IF_BOARD_CREATION_DATE = SYSDATE
+		, ATTACHED_FILE_ID = #{attachedFileId}
+		WHERE
+		GROUP_ID = #{groupId}
+		AND
+		IF_BOARD_ID = #{ifBoardId}
+
+	</update>
+
+
+
+
+
+	<update id="informationBoardDelete"
+		parameterType="kr.or.nexus.informationBoard.vo.InformationBoardVO">
+
+		UPDATE
+		INFORMATION
+		SET
+		IF_BOARD_DELYN = 'Y'
+		WHERE
+		GROUP_ID = #{groupId}
+		AND
+		IF_BOARD_ID = #{ifBoardId}
+
+	</update>
+
+
+
+	<select id="informationBoardAnswersList"
+		parameterType="kr.or.nexus.informationBoard.vo.InformationBoardVO"
+		resultType="kr.or.nexus.informationBoard.vo.InformationBoardAnswersVO">
+
+		SELECT
+		LEVEL AS COMMENT_LEVEL
+		, INFORMATION_ANSWERS.IF_BOARD_CMT_ID
+		, INFORMATION_ANSWERS.IF_BOARD_ID
+		, INFORMATION_ANSWERS.IF_BOARD_PARENT_CMT_ID
+		, INFORMATION_ANSWERS.IF_BOARD_CMT_CONTENT
+		, INFORMATION_ANSWERS.IF_BOARD_CMT_CR_DATE
+		, INFORMATION_ANSWERS.GROUP_ID
+		, INFORMATION_ANSWERS.MEMBER_ID
+        , MEMBER_MANAGEMENT.MEMBER_NAME
+		FROM
+		INFORMATION_ANSWERS
+		INNER JOIN
+        MEMBER_MANAGEMENT ON (INFORMATION_ANSWERS.MEMBER_ID = MEMBER_MANAGEMENT.MEMBER_ID)
+		WHERE
+		GROUP_ID = #{groupId}
+		AND
+		IF_BOARD_ID = #{ifBoardId}
+		AND
+		IF_BOARD_CMT_DELYN = 'N'
+		START WITH
+		IF_BOARD_PARENT_CMT_ID IS NULL
+		CONNECT BY
+		PRIOR IF_BOARD_CMT_ID = IF_BOARD_PARENT_CMT_ID
+		AND
+		PRIOR IF_BOARD_CMT_DELYN = 'N'
+		ORDER SIBLINGS BY
+		IF_BOARD_CMT_CR_DATE ASC
+
+	</select>
+
+	<insert id="informationBoardAnswersInsert"
+		parameterType="kr.or.nexus.informationBoard.vo.InformationBoardAnswersVO">
+
+		INSERT INTO INFORMATION_ANSWERS (
+		IF_BOARD_CMT_ID
+		, IF_BOARD_ID
+		, IF_BOARD_PARENT_CMT_ID
+		, IF_BOARD_CMT_CONTENT
+		, IF_BOARD_CMT_CR_DATE
+		, GROUP_ID
+		, MEMBER_ID
+		) VALUES (
+		SEQ_INFORMATION_ANSWERS.NEXTVAL
+		, #{ifBoardId}
+		, #{ifBoardParentCmtId}
+		, #{ifBoardCmtContent}
+		, SYSDATE
+		, #{groupId}
+		, #{memberId}
+		)
+
+	</insert>
+
+	<update id="informationBoardAnswersUpdate"
+		parameterType="kr.or.nexus.informationBoard.vo.InformationBoardAnswersVO">
+
+		UPDATE
+		INFORMATION_ANSWERS
+		SET
+		IF_BOARD_CMT_CONTENT = #{ifBoardCmtContent}
+		, IF_BOARD_CMT_CR_DATE = SYSDATE
+		WHERE
+		IF_BOARD_CMT_ID = #{ifBoardCmtId}
+		AND
+		MEMBER_ID = #{memberId}
+
+	</update>
+
+	<update id="informationBoardAnswersDelete"
+		parameterType="kr.or.nexus.informationBoard.vo.InformationBoardAnswersVO">
+
+		UPDATE
+		INFORMATION_ANSWERS
+		SET
+		IF_BOARD_CMT_DELYN = 'Y'
+		WHERE
+		IF_BOARD_CMT_ID = #{ifBoardCmtId}
+		AND
+		MEMBER_ID = #{memberId}
+
+	</update>
+
+	<insert id="informationBoardLikeAdd"
+		parameterType="kr.or.nexus.informationBoard.vo.InformationBoardLikeVO">
+
+		INSERT INTO INFORMATION_LIKE (
+		IF_BOARD_LIKE
+		, IF_BOARD_ID
+		, MEMBER_ID
+		) VALUES (
+		SEQ_INFORMATION_LIKE.NEXTVAL
+		, #{ifBoardId}
+		, #{memberId}
+		)
+
+	</insert>
+
+	<delete id="informationBoardLikeDelete"
+		parameterType="kr.or.nexus.informationBoard.vo.InformationBoardLikeVO">
+
+		DELETE FROM
+		INFORMATION_LIKE
+		WHERE
+		IF_BOARD_ID = #{ifBoardId}
+		AND
+		MEMBER_ID = #{memberId}
+
+	</delete>
+
+	<select id="informationBoardLikeYN"
+		parameterType="kr.or.nexus.informationBoard.vo.InformationBoardLikeVO"
+		resultType="kr.or.nexus.informationBoard.vo.InformationBoardLikeVO">
+
+		SELECT
+		*
+		FROM
+		INFORMATION_LIKE
+		WHERE
+		IF_BOARD_ID = #{ifBoardId}
+		AND
+		MEMBER_ID = #{memberId}
+
+	</select>
+
+	<update id="informationBoardNumPlue" parameterType="String">
+
+		UPDATE
+		INFORMATION
+		SET
+		IF_BOARD_NUM = IF_BOARD_NUM + 1
+		WHERE
+		IF_BOARD_ID = #{ifBoardId}
+
+	</update>
+
+</mapper>

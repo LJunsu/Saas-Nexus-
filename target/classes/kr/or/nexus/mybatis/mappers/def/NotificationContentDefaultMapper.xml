@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="kr.or.nexus.gnotification.dao.NotificationContentDefaultMapper">
+
+
+	<resultMap id="BaseResultMap"
+		type="kr.or.nexus.vo.def.NotificationContentDefaultVO">
+		<id column="ALARM_MESSAGE_IDX" jdbcType="VARCHAR"
+			property="alarmMessageIdx" />
+		<result column="MESSAGE_TITLE" jdbcType="VARCHAR"
+			property="messageTitle" />
+		<result column="MESSAGE_CONTENTS" jdbcType="VARCHAR"
+			property="messageContents" />
+		<result column="MESSAGE_DATETIME" jdbcType="TIMESTAMP"
+			property="messageDatetime" />
+		<result column="MESSAGE_CLASSIFICATION" jdbcType="VARCHAR"
+			property="messageClassification" />
+		<result column="PREFIX_GU" jdbcType="VARCHAR"
+			property="prefixGu" />
+		<result column="MEMBER_ID" jdbcType="VARCHAR"
+			property="memberId" />
+		<result column="MESSAGE_URL" jdbcType="CLOB"
+			property="messageUrl" />
+	</resultMap>
+
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+		delete from NOTIFICATION_CONTENT
+		where ALARM_MESSAGE_IDX = #{alarmMessageIdx,jdbcType=VARCHAR}
+	</delete>
+
+
+
+	<insert id="insert"
+		parameterType="kr.or.nexus.vo.def.NotificationContentDefaultVO">
+		insert into NOTIFICATION_CONTENT (ALARM_MESSAGE_IDX, MESSAGE_TITLE,
+		MESSAGE_CONTENTS,
+		MESSAGE_DATETIME, MESSAGE_CLASSIFICATION,
+		PREFIX_GU, MEMBER_ID, MESSAGE_URL
+		)
+		values (
+		
+		CONCAT('ALM', TO_CHAR(LPAD(SEQ_GNOTIFICATION.NEXTVAL, 3, '0'))),
+		#{messageTitle,jdbcType=VARCHAR},
+		#{messageContents,jdbcType=VARCHAR},
+		#{messageDatetime,jdbcType=TIMESTAMP},
+		#{messageClassification,jdbcType=VARCHAR},
+		#{prefixGu,jdbcType=VARCHAR}, #{memberId,jdbcType=VARCHAR},
+		#{messageUrl,jdbcType=CLOB}
+		
+		)
+	</insert>
+
+
+
+
+	<update id="updateByPrimaryKey"
+		parameterType="kr.or.nexus.vo.def.NotificationContentDefaultVO">
+		update NOTIFICATION_CONTENT
+		set MESSAGE_TITLE = #{messageTitle,jdbcType=VARCHAR},
+		MESSAGE_CONTENTS = #{messageContents,jdbcType=VARCHAR},
+		MESSAGE_DATETIME = #{messageDatetime,jdbcType=TIMESTAMP},
+		MESSAGE_CLASSIFICATION = #{messageClassification,jdbcType=VARCHAR},
+		PREFIX_GU = #{prefixGu,jdbcType=VARCHAR},
+		MEMBER_ID = #{memberId,jdbcType=VARCHAR},
+		MESSAGE_URL = #{messageUrl,jdbcType=CLOB}
+		where ALARM_MESSAGE_IDX = #{alarmMessageIdx,jdbcType=VARCHAR}
+	</update>
+
+	<select id="selectByPrimaryKey" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		select ALARM_MESSAGE_IDX, MESSAGE_TITLE, MESSAGE_CONTENTS, MESSAGE_DATETIME,
+		MESSAGE_CLASSIFICATION,
+		PREFIX_GU, MEMBER_ID, MESSAGE_URL
+		from NOTIFICATION_CONTENT
+		where ALARM_MESSAGE_IDX = #{alarmMessageIdx,jdbcType=VARCHAR}
+	</select>
+
+	<select id="selectAll" resultMap="BaseResultMap">
+		select ALARM_MESSAGE_IDX, MESSAGE_TITLE, MESSAGE_CONTENTS, MESSAGE_DATETIME,
+		MESSAGE_CLASSIFICATION,
+		PREFIX_GU, MEMBER_ID, MESSAGE_URL
+		from NOTIFICATION_CONTENT
+	</select>
+</mapper>

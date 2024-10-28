@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.nexus.commons.def.mapper.CanvasDefaultMapper">
+  <resultMap id="BaseResultMap" type="kr.or.nexus.vo.def.CanvasDefaultVO">
+    <id column="CANVAS_ID" jdbcType="NUMERIC" property="canvasId" />
+    <id column="PROJECT_ID" jdbcType="VARCHAR" property="projectId" />
+    <result column="CANVAS_CR_DATE" jdbcType="TIMESTAMP" property="canvasCrDate" />
+    <result column="CANVAS_MOD_DATE" jdbcType="TIMESTAMP" property="canvasModDate" />
+    <result column="CANVAS_DELYN" jdbcType="VARCHAR" property="canvasDelyn" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="map">
+    delete from CANVAS
+    where CANVAS_ID = #{canvasId,jdbcType=NUMERIC}
+      and PROJECT_ID = #{projectId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="kr.or.nexus.vo.def.CanvasDefaultVO">
+    insert into CANVAS (CANVAS_ID, PROJECT_ID, CANVAS_CR_DATE, 
+      CANVAS_MOD_DATE, CANVAS_DELYN)
+    values (#{canvasId,jdbcType=NUMERIC}, #{projectId,jdbcType=VARCHAR}, #{canvasCrDate,jdbcType=TIMESTAMP}, 
+      #{canvasModDate,jdbcType=TIMESTAMP}, #{canvasDelyn,jdbcType=VARCHAR})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="kr.or.nexus.vo.def.CanvasDefaultVO">
+    update CANVAS
+    set CANVAS_CR_DATE = #{canvasCrDate,jdbcType=TIMESTAMP},
+      CANVAS_MOD_DATE = #{canvasModDate,jdbcType=TIMESTAMP},
+      CANVAS_DELYN = #{canvasDelyn,jdbcType=VARCHAR}
+    where CANVAS_ID = #{canvasId,jdbcType=NUMERIC}
+      and PROJECT_ID = #{projectId,jdbcType=VARCHAR}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="map" resultMap="BaseResultMap">
+    select CANVAS_ID, PROJECT_ID, CANVAS_CR_DATE, CANVAS_MOD_DATE, CANVAS_DELYN
+    from CANVAS
+    where CANVAS_ID = #{canvasId,jdbcType=NUMERIC}
+      and PROJECT_ID = #{projectId,jdbcType=VARCHAR}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select CANVAS_ID, PROJECT_ID, CANVAS_CR_DATE, CANVAS_MOD_DATE, CANVAS_DELYN
+    from CANVAS
+  </select>
+</mapper>

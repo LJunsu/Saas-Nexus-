@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.nexus.commons.def.mapper.CloudFileDefaultMapper">
+  <resultMap id="BaseResultMap" type="kr.or.nexus.vo.def.CloudFileDefaultVO">
+    <id column="CLOUD_FILE_ID" jdbcType="VARCHAR" property="cloudFileId" />
+    <id column="CLOUD_FOLDER_ID" jdbcType="VARCHAR" property="cloudFolderId" />
+    <id column="CLOUD_ID" jdbcType="VARCHAR" property="cloudId" />
+    <id column="PROJECT_ID" jdbcType="VARCHAR" property="projectId" />
+    <result column="ORIGINAL_FILE_NAME" jdbcType="VARCHAR" property="originalFileName" />
+    <result column="SAVE_FILE_NAME" jdbcType="VARCHAR" property="saveFileName" />
+    <result column="FILE_EXTENSIONS" jdbcType="VARCHAR" property="fileExtensions" />
+    <result column="FILE_SIZE" jdbcType="NUMERIC" property="fileSize" />
+    <result column="FILE_CREATION_DATE" jdbcType="TIMESTAMP" property="fileCreationDate" />
+    <result column="FILE_DEL_DATE" jdbcType="TIMESTAMP" property="fileDelDate" />
+    <result column="FILE_DELYN" jdbcType="VARCHAR" property="fileDelyn" />
+    <result column="Field" jdbcType="VARCHAR" property="field" />
+    <result column="SAVE_PATH" jdbcType="CLOB" property="savePath" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="map">
+    delete from CLOUD_FILE
+    where CLOUD_FILE_ID = #{cloudFileId,jdbcType=VARCHAR}
+      and CLOUD_FOLDER_ID = #{cloudFolderId,jdbcType=VARCHAR}
+      and CLOUD_ID = #{cloudId,jdbcType=VARCHAR}
+      and PROJECT_ID = #{projectId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="kr.or.nexus.vo.def.CloudFileDefaultVO">
+    insert into CLOUD_FILE (CLOUD_FILE_ID, CLOUD_FOLDER_ID, CLOUD_ID, 
+      PROJECT_ID, ORIGINAL_FILE_NAME, SAVE_FILE_NAME, 
+      FILE_EXTENSIONS, FILE_SIZE, FILE_CREATION_DATE, 
+      FILE_DEL_DATE, FILE_DELYN, Field, 
+      SAVE_PATH)
+    values (#{cloudFileId,jdbcType=VARCHAR}, #{cloudFolderId,jdbcType=VARCHAR}, #{cloudId,jdbcType=VARCHAR}, 
+      #{projectId,jdbcType=VARCHAR}, #{originalFileName,jdbcType=VARCHAR}, #{saveFileName,jdbcType=VARCHAR}, 
+      #{fileExtensions,jdbcType=VARCHAR}, #{fileSize,jdbcType=NUMERIC}, #{fileCreationDate,jdbcType=TIMESTAMP}, 
+      #{fileDelDate,jdbcType=TIMESTAMP}, #{fileDelyn,jdbcType=VARCHAR}, #{field,jdbcType=VARCHAR}, 
+      #{savePath,jdbcType=CLOB})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="kr.or.nexus.vo.def.CloudFileDefaultVO">
+    update CLOUD_FILE
+    set ORIGINAL_FILE_NAME = #{originalFileName,jdbcType=VARCHAR},
+      SAVE_FILE_NAME = #{saveFileName,jdbcType=VARCHAR},
+      FILE_EXTENSIONS = #{fileExtensions,jdbcType=VARCHAR},
+      FILE_SIZE = #{fileSize,jdbcType=NUMERIC},
+      FILE_CREATION_DATE = #{fileCreationDate,jdbcType=TIMESTAMP},
+      FILE_DEL_DATE = #{fileDelDate,jdbcType=TIMESTAMP},
+      FILE_DELYN = #{fileDelyn,jdbcType=VARCHAR},
+      Field = #{field,jdbcType=VARCHAR},
+      SAVE_PATH = #{savePath,jdbcType=CLOB}
+    where CLOUD_FILE_ID = #{cloudFileId,jdbcType=VARCHAR}
+      and CLOUD_FOLDER_ID = #{cloudFolderId,jdbcType=VARCHAR}
+      and CLOUD_ID = #{cloudId,jdbcType=VARCHAR}
+      and PROJECT_ID = #{projectId,jdbcType=VARCHAR}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="map" resultMap="BaseResultMap">
+    select CLOUD_FILE_ID, CLOUD_FOLDER_ID, CLOUD_ID, PROJECT_ID, ORIGINAL_FILE_NAME, 
+    SAVE_FILE_NAME, FILE_EXTENSIONS, FILE_SIZE, FILE_CREATION_DATE, FILE_DEL_DATE, FILE_DELYN, 
+    Field, SAVE_PATH
+    from CLOUD_FILE
+    where CLOUD_FILE_ID = #{cloudFileId,jdbcType=VARCHAR}
+      and CLOUD_FOLDER_ID = #{cloudFolderId,jdbcType=VARCHAR}
+      and CLOUD_ID = #{cloudId,jdbcType=VARCHAR}
+      and PROJECT_ID = #{projectId,jdbcType=VARCHAR}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select CLOUD_FILE_ID, CLOUD_FOLDER_ID, CLOUD_ID, PROJECT_ID, ORIGINAL_FILE_NAME, 
+    SAVE_FILE_NAME, FILE_EXTENSIONS, FILE_SIZE, FILE_CREATION_DATE, FILE_DEL_DATE, FILE_DELYN, 
+    Field, SAVE_PATH
+    from CLOUD_FILE
+  </select>
+</mapper>

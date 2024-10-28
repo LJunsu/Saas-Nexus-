@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.nexus.commons.def.mapper.InformationAnswersDefaultMapper">
+  <resultMap id="BaseResultMap" type="kr.or.nexus.vo.def.InformationAnswersDefaultVO">
+    <id column="IF_BOARD_CMT_ID" jdbcType="NUMERIC" property="ifBoardCmtId" />
+    <id column="IF_BOARD_ID" jdbcType="VARCHAR" property="ifBoardId" />
+    <result column="IF_BOARD_PARENT_CMT_ID" jdbcType="NUMERIC" property="ifBoardParentCmtId" />
+    <result column="IF_BOARD_CMT_CR_DATE" jdbcType="TIMESTAMP" property="ifBoardCmtCrDate" />
+    <result column="GROUP_ID" jdbcType="VARCHAR" property="groupId" />
+    <result column="MEMBER_ID" jdbcType="VARCHAR" property="memberId" />
+    <result column="IF_BOARD_CMT_CONTENT" jdbcType="CLOB" property="ifBoardCmtContent" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="map">
+    delete from INFORMATION_ANSWERS
+    where IF_BOARD_CMT_ID = #{ifBoardCmtId,jdbcType=NUMERIC}
+      and IF_BOARD_ID = #{ifBoardId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="kr.or.nexus.vo.def.InformationAnswersDefaultVO">
+    insert into INFORMATION_ANSWERS (IF_BOARD_CMT_ID, IF_BOARD_ID, IF_BOARD_PARENT_CMT_ID, 
+      IF_BOARD_CMT_CR_DATE, GROUP_ID, MEMBER_ID, 
+      IF_BOARD_CMT_CONTENT)
+    values (#{ifBoardCmtId,jdbcType=NUMERIC}, #{ifBoardId,jdbcType=VARCHAR}, #{ifBoardParentCmtId,jdbcType=NUMERIC}, 
+      #{ifBoardCmtCrDate,jdbcType=TIMESTAMP}, #{groupId,jdbcType=VARCHAR}, #{memberId,jdbcType=VARCHAR}, 
+      #{ifBoardCmtContent,jdbcType=CLOB})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="kr.or.nexus.vo.def.InformationAnswersDefaultVO">
+    update INFORMATION_ANSWERS
+    set IF_BOARD_PARENT_CMT_ID = #{ifBoardParentCmtId,jdbcType=NUMERIC},
+      IF_BOARD_CMT_CR_DATE = #{ifBoardCmtCrDate,jdbcType=TIMESTAMP},
+      GROUP_ID = #{groupId,jdbcType=VARCHAR},
+      MEMBER_ID = #{memberId,jdbcType=VARCHAR},
+      IF_BOARD_CMT_CONTENT = #{ifBoardCmtContent,jdbcType=CLOB}
+    where IF_BOARD_CMT_ID = #{ifBoardCmtId,jdbcType=NUMERIC}
+      and IF_BOARD_ID = #{ifBoardId,jdbcType=VARCHAR}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="map" resultMap="BaseResultMap">
+    select IF_BOARD_CMT_ID, IF_BOARD_ID, IF_BOARD_PARENT_CMT_ID, IF_BOARD_CMT_CR_DATE, 
+    GROUP_ID, MEMBER_ID, IF_BOARD_CMT_CONTENT
+    from INFORMATION_ANSWERS
+    where IF_BOARD_CMT_ID = #{ifBoardCmtId,jdbcType=NUMERIC}
+      and IF_BOARD_ID = #{ifBoardId,jdbcType=VARCHAR}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select IF_BOARD_CMT_ID, IF_BOARD_ID, IF_BOARD_PARENT_CMT_ID, IF_BOARD_CMT_CR_DATE, 
+    GROUP_ID, MEMBER_ID, IF_BOARD_CMT_CONTENT
+    from INFORMATION_ANSWERS
+  </select>
+</mapper>

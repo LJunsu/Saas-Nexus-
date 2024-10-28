@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.nexus.member.main.dao.MemberMainMapper">
+    <resultMap id="BaseResultMap" type="kr.or.nexus.vo.ProjectVO">
+    <id column="PROJECT_ID" jdbcType="VARCHAR" property="projectId" />
+    <result column="PROJECT_NAME" jdbcType="VARCHAR" property="projectName" />
+    <result column="PROJECT_DESCRIPTION" jdbcType="VARCHAR" property="projectDescription" />
+    <result column="PROJECT_PROFILE_IMG" jdbcType="VARCHAR" property="projectProfileImg" />
+    <result column="PROJECT_CREATION_DATE" jdbcType="TIMESTAMP" property="projectCreationDate" />
+    <result column="PROJECT_DELYN" jdbcType="VARCHAR" property="projectDelyn" />
+    <result column="PROJECT_SUCCESS_STATUS" jdbcType="VARCHAR" property="projectSuccessStatus" />
+    <result column="PROJECT_END_DATE" jdbcType="TIMESTAMP" property="projectEndDate" />
+    <result column="PROJECT_BUDGET" jdbcType="NUMERIC" property="projectBudget" />
+    <result column="PROJECT_REVENUE" jdbcType="NUMERIC" property="projectRevenue" />
+    <result column="GROUP_ID" jdbcType="VARCHAR" property="groupId" />
+    <result column="PROJECT_STATE" jdbcType="VARCHAR" property="projectState" />
+    <collection property="projectRole" ofType="ProjectRoleVO" autoMapping="true" />
+    <collection property="projectMember" ofType="ProjectMemberVO" autoMapping="true" />
+    <collection property="issueList" ofType="IssueVO" autoMapping="true" />
+  </resultMap>
+
+  <select id="retrieveGroupId" resultType="String">
+     select group_id
+     from group_member
+     where member_id = #{memberId,jdbcType=VARCHAR} and ROWNUM =1
+  </select>
+
+  <select id="retrieveProjectList" resultType="java.util.Map" parameterType="java.util.Map">
+     SELECT DISTINCT
+           A.PROJECT_ID
+         , A.PROJECT_NAME
+         , A.PROJECT_DESCRIPTION
+         , A.PROJECT_PROFILE_IMG
+         , TO_CHAR(A.PROJECT_CREATION_DATE, 'YYYY-MM-DD') AS PROJECT_CREATION_DATE
+         , A.PROJECT_SUCCESS_STATUS
+         , TO_CHAR(A.PROJECT_BUDGET, 'FM999G999G999G999') AS PROJECT_BUDGET
+         , A.PROJECT_REVENUE
+         , A.GROUP_ID
+         , PM_PROJECT_MEM.PROJECT_MEMBER_COUNT AS PROJECT_MEM_COUNT
+         , (SELECT MM.MEMBER_NAME
+            FROM PROJECT_ROLE PR
+            JOIN PROJECT_MEMBER PM ON PR.PROJECT_ROLE_IDX = PM.PROJECT_ROLE_IDX
+            LEFT OUTER JOIN MEMBER_MANAGEMENT MM ON PM.MEMBER_ID = MM.MEMBER_ID
+            WHERE PR.PROJECT_ROLE_NAME = '프로젝트 리더' AND PM.PROJECT_ID = A.PROJECT_ID
+            AND ROWNUM = 1) AS PROJECT_LEADER
+         , (SELECT COUNT(ISSUE.ISSUE_IDX) FROM ISSUE WHERE ISSUE.ISSUE_DELYN!='Y' AND ISSUE.PROJECT_ID = A.PROJECT_ID) AS ISSUE_COUNT
+         , (SELECT COUNT(CASE WHEN ISSUE.ISSUE_PROGRESS_STATUS = 'Completed' THEN 1 END) FROM ISSUE  WHERE ISSUE.ISSUE_DELYN!='Y' AND ISSUE.PROJECT_ID = A.PROJECT_ID) AS ISSUE_COUNT_COMPLETE
+         , CASE
+             WHEN COUNT(CASE WHEN ISSUE.ISSUE_DELYN != 'Y' THEN ISSUE.ISSUE_IDX END) = 0 THEN 0
+             ELSE TRUNC(
+                COUNT(CASE WHEN ISSUE.ISSUE_PROGRESS_STATUS = 'Completed' AND ISSUE.ISSUE_DELYN != 'Y' THEN 1 END) / 
+                COUNT(CASE WHEN ISSUE.ISSUE_DELYN != 'Y' THEN ISSUE.ISSUE_IDX END) * 100
+             )
+           END AS ISSUE_COMPLETE_PERCENT
+     FROM PROJECT A
+     LEFT OUTER JOIN PROJECT_MEMBER ON (PROJECT_MEMBER.PROJECT_ID = A.PROJECT_ID)
+     LEFT OUTER JOIN ISSUE ON (ISSUE.PROJECT_ID = A.PROJECT_ID)
+     LEFT OUTER JOIN (
+         SELECT PM.PROJECT_ID, COUNT(PM2.MEMBER_ID) AS PROJECT_MEMBER_COUNT
+         FROM PROJECT_MEMBER PM
+         LEFT OUTER JOIN PROJECT_MEMBER PM2 ON PM.PROJECT_ID = PM2.PROJECT_ID
+         WHERE PM.MEMBER_ID = #{memberId,jdbcType=VARCHAR}
+         GROUP BY PM.PROJECT_ID
+     ) PM_PROJECT_MEM ON A.PROJECT_ID = PM_PROJECT_MEM.PROJECT_ID
+     WHERE A.GROUP_ID = #{groupId,jdbcType=VARCHAR}
+         AND PROJECT_MEMBER.MEMBER_ID = #{memberId,jdbcType=VARCHAR}
+         AND A.PROJECT_DELYN = 'N'
+     GROUP BY
+           A.PROJECT_ID
+         , A.PROJECT_NAME
+         , A.PROJECT_DESCRIPTION
+         , A.PROJECT_PROFILE_IMG
+         , A.PROJECT_CREATION_DATE
+         , A.PROJECT_SUCCESS_STATUS
+         , A.PROJECT_BUDGET
+         , A.PROJECT_REVENUE
+         , A.GROUP_ID
+         , PM_PROJECT_MEM.PROJECT_MEMBER_COUNT
+     ORDER BY A.PROJECT_ID ASC
+  </select>
+
+
+  <resultMap id="issueMap" type="kr.or.nexus.vo.IssueVO" autoMapping="true">
+    <id column="issue_idx" jdbcType="VARCHAR" property="issueIdx" />
+    <association property="project" column="project_name" javaType="kr.or.nexus.vo.ProjectVO" autoMapping="true" />
+  </resultMap>
+
+  <select id="retrieveIssueList" parameterType="java.util.List" resultMap="issueMap">
+    SELECT
+      A.issue_idx
+      , A.sub_issue_idx
+      , A.issue_date
+      , A.issue_delyn
+      , A.project_mem_idx
+      , A.issue_progress_status
+      , A.issue_priority_name
+      , A.issue_title
+      , A.project_id
+      , A.issue_content
+      , A.issue_officer
+      , A.issue_deadline
+      , A.issue_creation_date
+      , B.project_name
+    FROM issue A
+    LEFT OUTER JOIN PROJECT B ON (A.PROJECT_ID = B.PROJECT_ID)
+    WHERE
+    (
+    <foreach collection="list" item="projectMember" separator="OR">
+    A.issue_officer = #{projectMember.projectMemIdx}
+    </foreach>
+    )
+    AND
+    A.issue_delyn = 'N'
+    ORDER BY
+      ISSUE_DEADLINE DESC
+  </select>
+
+
+
+  <select
+  	id="memIdProMemId"
+  	parameterType="String"
+  	resultType="kr.or.nexus.vo.ProjectMemberVO"
+  >
+
+	SELECT
+	    *
+	FROM
+	    PROJECT_MEMBER
+	WHERE
+	    MEMBER_ID = #{memberId}
+	    AND
+	    PROJECT_DELYN = 'N'
+
+  </select>
+
+
+  <select id="memAllIssue" parameterType="String" resultMap="issueMap">
+		SELECT
+		    A.*
+		    , B.PROJECT_NAME
+		FROM
+		    ISSUE A
+		    LEFT OUTER JOIN
+    		PROJECT B ON (A.PROJECT_ID = B.PROJECT_ID)
+		WHERE
+		    ISSUE_OFFICER IN
+		    (
+		        SELECT
+		            PROJECT_MEM_IDX
+		        FROM
+		            PROJECT_MEMBER
+		        WHERE
+		            MEMBER_ID = #{memberId}
+		    )
+		    AND
+		    ISSUE_DELYN = 'N'
+		ORDER BY
+		    ISSUE_DEADLINE DESC
+  </select>
+
+</mapper>

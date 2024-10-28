@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.nexus.kanban.dao.KanbanRestMapper">
+
+<resultMap type="MemberManagementVO" id="memMap"
+		autoMapping="true">
+	<id property="memberId" column="MEMBER_ID" />
+	<association property="groupMemberVO" 
+	javaType="GroupMemberVO" autoMapping="true" />
+	<collection property="projectMemberVO"
+		ofType="ProjectMemberVO" autoMapping="true" />
+	<collection property="issueVO"
+		ofType="kr.or.nexus.vo.IssueVO" resultMap="issueMap"/>
+	<collection property="projectVO"
+		ofType="kr.or.nexus.vo.ProjectVO" autoMapping="true" />
+</resultMap>
+
+<resultMap id="issueMap" type="kr.or.nexus.vo.IssueVO" autoMapping="true">
+    <!-- IssueVO의 필드들 매핑 -->
+    <id property="issueIdx" column="ISSUE_IDX" />
+    
+    <!-- IssueVO 내의 IssueBoardAnswersVO 리스트 매핑 -->
+    <collection property="issueBoardAnswers"
+        ofType="kr.or.nexus.vo.IssueBoardAnswersVO" autoMapping="true">
+        <id property="issueCommentId" column="ISSUE_COMMENT_ID" />
+        <result property="answerCount" column="ANSWER_COUNT" />
+        <!-- 추가 필드들 매핑 -->
+    </collection>
+    
+    <!-- IssueVO 내의 IssueTagsVO 리스트 매핑 -->
+    <collection property="issueTags"
+        ofType="kr.or.nexus.vo.IssueTagsVO" autoMapping="true">
+        <id property="issueTagsId" column="ISSUE_TAGS_ID" />
+        <!-- 추가 필드들 매핑 -->
+    </collection>
+</resultMap>
+
+
+
+
+
+<select id="getMyIssueList" parameterType="map" resultMap="memMap">
+
+    
+ SELECT 
+    i.*, 
+    COALESCE(t.issue_tag_name, 'NULL') AS issue_tag_name,
+    m.member_name,
+    (SELECT COUNT(a.issue_comment_id) 
+     FROM issue_board_answers a 
+     WHERE a.issue_idx = i.issue_idx) AS answer_count
+FROM
+    member_management m
+JOIN project_member pm
+    ON m.member_id = pm.member_id
+JOIN issue i
+    ON i.issue_officer = (
+        SELECT pm_inner.project_mem_idx 
+        FROM project_member pm_inner 
+        WHERE pm_inner.member_id = #{memberId}
+        AND pm_inner.project_id = #{projectId}
+    )
+LEFT JOIN issue_tags t
+    ON i.issue_idx = t.issue_idx
+WHERE
+    pm.project_id = #{projectId}
+    AND m.member_id = #{memberId}
+    AND i.issue_delyn = 'N'
+ORDER BY
+    i.issue_idx
+
+
+</select>
+
+
+
+
+<update id="updateIssue" parameterType="kr.or.nexus.vo.IssueVO" >
+
+
+UPDATE issue
+SET
+ISSUE_PROGRESS_STATUS =#{issueProgressStatus}
+WHERE issue_idx = #{issueIdx}
+
+
+
+
+
+</update>
+
+
+	<update
+		id="timeLineUpdate"
+		parameterType="kr.or.nexus.vo.IssueVO"
+	>
+
+		UPDATE
+		    ISSUE
+		SET
+		    SUB_ISSUE_IDX = #{subIssueIdx, jdbcType=VARCHAR}
+		    , ISSUE_DATE = #{issueDate, jdbcType=DATE}
+		    , ISSUE_PRIORITY_NAME = #{issuePriorityName, jdbcType=VARCHAR}
+		    , ISSUE_TITLE = #{issueTitle, jdbcType=VARCHAR}
+		    , ISSUE_CONTENT = #{issueContent}
+		    , ISSUE_OFFICER = #{issueOfficer, jdbcType=VARCHAR}
+		    , ISSUE_DEADLINE = #{issueDeadline, jdbcType=DATE}
+		WHERE
+		    ISSUE_IDX = #{issueIdx, jdbcType=VARCHAR}
+		    AND
+		    PROJECT_ID = #{projectId, jdbcType=VARCHAR}
+
+	</update>
+
+
+	<insert
+		id="addIssue"
+		parameterType="kr.or.nexus.vo.IssueVO"
+		keyProperty="issueIdx"
+	>
+		<selectKey keyProperty="issueIdx" resultType="string" order="BEFORE">
+	        SELECT CONCAT('ISS_', TO_CHAR(LPAD(SEQ_ISSUE.NEXTVAL, 3, '0'))) AS issueIdx FROM DUAL
+	    </selectKey>
+
+		    INSERT INTO ISSUE (
+		        ISSUE_IDX
+		        , SUB_ISSUE_IDX
+		        , ISSUE_DATE
+		        , ISSUE_DELYN
+		        , PROJECT_MEM_IDX
+		        , ISSUE_PROGRESS_STATUS
+		        , ISSUE_PRIORITY_NAME
+		        , ISSUE_TITLE
+		        , PROJECT_ID
+		        , ISSUE_CONTENT
+		        , ISSUE_OFFICER
+		        , ISSUE_DEADLINE
+		    ) VALUES (
+		        #{issueIdx}
+			    , #{subIssueIdx, jdbcType=VARCHAR}
+			    , #{issueDate, jdbcType=DATE}
+			    , 'N'
+			    , #{projectMemIdx, jdbcType=VARCHAR}
+			    , #{issueProgressStatus, jdbcType=VARCHAR}
+			    , #{issuePriorityName, jdbcType=VARCHAR}
+			    , #{issueTitle, jdbcType=VARCHAR}
+			    , #{projectId, jdbcType=VARCHAR}
+			    , #{issueContent}
+			    , #{issueOfficer, jdbcType=VARCHAR}
+			    , #{issueDeadline, jdbcType=DATE}
+		    )
+
+
+	</insert>
+
+	<insert id="addIssueTags" parameterType="map">
+	
+			INSERT INTO ISSUE_TAGS (
+		        ISSUE_TAGS_ID
+		        , ISSUE_IDX
+		        , ISSUE_TAG_NAME
+		    ) VALUES (
+		        SEQ_ISSUE_TAGS.NEXTVAL
+		        , #{issueIdx ,jdbcType=VARCHAR}
+		        , #{issueTagName, jdbcType=VARCHAR}
+		    )
+	
+	
+	
+	</insert>
+	
+	
+	<update id="removeIssue" parameterType="String">
+	
+	UPDATE ISSUE
+	SET ISSUE_DELYN = 'Y'
+	WHERE ISSUE_IDX = #{issueIdx}
+	
+	
+	
+	
+	</update>
+
+
+	<update id="updateTag" parameterType="kr.or.nexus.vo.IssueVO">
+	
+	UPDATE ISSUE_TAGS
+	SET ISSUE_TAG_NAME =#{issueTagName}
+	WHERE ISSUE_IDX=#{issueIdx}
+	
+	
+	
+	</update>
+
+
+</mapper>

@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.or.nexus.issuesummary.dao.IssueSummaryMapper">
+
+	<resultMap
+		type="kr.or.nexus.vo.IssueVO" id="issueChartMap" autoMapping="true">
+		<association property="projectMember" javaType="kr.or.nexus.vo.ProjectMemberVO" autoMapping="true" />
+		<association property="member" javaType="kr.or.nexus.vo.MemberManagementVO" autoMapping="true" />
+	</resultMap>
+
+	<select
+		id="issueSummaryDateChart"
+		parameterType="kr.or.nexus.vo.IssueVO"
+		resultMap="issueChartMap"
+	>
+
+		SELECT
+		    ISU.ISSUE_OFFICER
+		    , NVL(
+		        (
+		            SELECT
+		                COUNT(*)
+		            FROM
+		                ISSUE COM_ISU
+		            WHERE
+		                COM_ISU.ISSUE_OFFICER = ISU.ISSUE_OFFICER
+		                AND
+		                COM_ISU.ISSUE_PROGRESS_STATUS = 'Completed'
+		                AND
+		                COM_ISU.PROJECT_ID = #{projectId, jdbcType=VARCHAR}
+		                AND
+		                COM_ISU.ISSUE_DELYN = 'N'
+		                AND
+		                ISSUE_DATE >= #{startDate} AND ISSUE_DATE <![CDATA[<=]]> #{endDate}
+		                AND
+		                ISSUE_DEADLINE >= #{startDate} AND ISSUE_DEADLINE <![CDATA[<=]]> #{endDate}
+		        ), 0) AS COMPLETED_COUNT
+		    , NVL(
+		        (
+		            SELECT
+		                COUNT(*)
+		            FROM
+		                ISSUE ALL_ISU
+		            WHERE
+		                ALL_ISU.ISSUE_OFFICER = ISU.ISSUE_OFFICER
+		                AND
+		                ALL_ISU.PROJECT_ID = #{projectId, jdbcType=VARCHAR}
+		                AND
+		                ALL_ISU.ISSUE_DELYN = 'N'
+		                AND
+		                ISSUE_DATE >= #{startDate} AND ISSUE_DATE <![CDATA[<=]]> #{endDate}
+		                AND
+		                ISSUE_DEADLINE >= #{startDate} AND ISSUE_DEADLINE <![CDATA[<=]]> #{endDate}
+		        ), 0) AS ALL_COUNT
+		        , PROJECT_MEMBER.MEMBER_ID
+                , MEMBER_MANAGEMENT.MEMBER_NAME
+		FROM
+		    (
+		        SELECT
+		            DISTINCT ISSUE_OFFICER
+		        FROM
+		            ISSUE
+		        WHERE
+		            PROJECT_ID = #{projectId, jdbcType=VARCHAR}
+		            AND
+                    ISSUE_DELYN = 'N'
+		    ) ISU
+		    INNER JOIN
+            PROJECT_MEMBER
+            ON(ISU.ISSUE_OFFICER = PROJECT_MEMBER.PROJECT_MEM_IDX)
+            INNER JOIN
+            MEMBER_MANAGEMENT
+            ON(PROJECT_MEMBER.MEMBER_ID = MEMBER_MANAGEMENT.MEMBER_ID)
+		ORDER BY
+		    ISU.ISSUE_OFFICER
+
+	</select>
+
+
+
+	<sql id="projectMemFrag">
+		<if test="@org.apache.commons.lang3.StringUtils @isNotBlank(issueOfficer)">
+			<if test="issueOfficer neq '전체'">
+				AND
+				ISSUE_OFFICER = #{issueOfficer, jdbcType=VARCHAR}
+			</if>
+		</if>
+	</sql>
+
+	<select
+		id="issueSummaryPriorityChart"
+		parameterType="kr.or.nexus.vo.IssueVO"
+		resultType="kr.or.nexus.vo.IssueVO"
+	>
+
+		SELECT
+		    ISSUE_PRIORITY_NAME,
+		    COUNT(*) AS PRIORITY_COUNT
+		FROM
+		    ISSUE
+		WHERE
+		    PROJECT_ID = #{projectId, jdbcType=VARCHAR}
+		    AND
+		    ISSUE_DELYN = 'N'
+		    AND
+			ISSUE_DATE >= #{startDate} AND ISSUE_DATE <![CDATA[<=]]> #{endDate}
+			AND
+			ISSUE_DEADLINE >= #{startDate} AND ISSUE_DEADLINE <![CDATA[<=]]> #{endDate}
+			<include refid="projectMemFrag" />
+		GROUP BY
+		    ISSUE_PRIORITY_NAME
+		ORDER BY
+		    PRIORITY_COUNT DESC
+
+	</select>
+
+
+
+	<select
+		id="issueSummaryStatusChart"
+		parameterType="kr.or.nexus.vo.IssueVO"
+		resultType="kr.or.nexus.vo.IssueVO"
+	>
+
+		SELECT
+		    ISSUE_PROGRESS_STATUS,
+		    COUNT(*) AS STATUS_COUNT
+		FROM
+		    ISSUE
+		WHERE
+		    PROJECT_ID = #{projectId, jdbcType=VARCHAR}
+		    AND
+		    ISSUE_DELYN = 'N'
+		    AND
+			ISSUE_DATE >= #{startDate} AND ISSUE_DATE <![CDATA[<=]]> #{endDate}
+			AND
+			ISSUE_DEADLINE >= #{startDate} AND ISSUE_DEADLINE <![CDATA[<=]]> #{endDate}
+			<include refid="projectMemFrag" />
+		GROUP BY
+		    ISSUE_PROGRESS_STATUS
+		ORDER BY
+		    STATUS_COUNT DESC
+
+	</select>
+
+
+
+	<resultMap type="kr.or.nexus.vo.ProjectMemberVO" id="projectMemMap" autoMapping="true">
+		<id property="memberId" column="MEMBER_ID" />
+		<id property="projectRoleIdx" column="PROJECT_ROLE_IDX" />
+		<association property="member" javaType="kr.or.nexus.vo.MemberManagementVO" autoMapping="true" />
+		<collection property="projectRole" ofType="kr.or.nexus.vo.ProjectRoleVO" autoMapping="true" />
+	</resultMap>
+
+	<select
+		id="projectMemberInformation"
+		parameterType="String"
+		resultMap="projectMemMap"
+	>
+
+		SELECT
+		    PROJECT_MEMBER.PROJECT_MEM_IDX
+		    , PROJECT_MEMBER.MEMBER_ID
+		    , MEMBER_MANAGEMENT.MEMBER_NAME
+		    , PROJECT_MEMBER.PROJECT_ROLE_IDX
+		    , PROJECT_ROLE.PROJECT_ROLE_NAME
+		FROM
+		    PROJECT_MEMBER
+		    INNER JOIN
+		    MEMBER_MANAGEMENT
+		    ON (PROJECT_MEMBER.MEMBER_ID = MEMBER_MANAGEMENT.MEMBER_ID)
+		    LEFT OUTER JOIN
+		    PROJECT_ROLE
+		    ON(PROJECT_MEMBER.PROJECT_ROLE_IDX = PROJECT_ROLE.PROJECT_ROLE_IDX)
+		WHERE
+		    PROJECT_MEMBER.PROJECT_ID = #{projectId, jdbcType=VARCHAR}
+		    AND
+		    PROJECT_MEMBER.PROJECT_DELYN = 'N'
+
+	</select>
+
+	<select
+		id="issueProjectName"
+		parameterType="String"
+		resultType="kr.or.nexus.vo.ProjectVO"
+	>
+
+		SELECT
+			*
+		FROM
+			PROJECT
+		WHERE
+			PROJECT_ID = #{projectId, jdbcType=VARCHAR}
+
+	</select>
+
+	<select
+		id="issueGroupName"
+		parameterType="String"
+		resultType="kr.or.nexus.vo.GroupManagementVO"
+	>
+
+		SELECT
+			*
+		FROM
+			GROUP_MANAGEMENT
+		WHERE
+			GROUP_ID = #{groupId, jdbcType=VARCHAR}
+
+	</select>
+
+
+
+
+	<select
+		id="projectList"
+		parameterType="String"
+		resultType="kr.or.nexus.vo.ProjectVO"
+	>
+
+		SELECT
+		    *
+		FROM
+		    PROJECT
+		WHERE
+		    GROUP_ID = #{groupId, jdbcType=VARCHAR}
+		    AND
+		    PROJECT_DELYN = 'N'
+		ORDER BY
+    		PROJECT_ID ASC
+
+	</select>
+
+	<select
+		id="projectDetail"
+		parameterType="String"
+		resultType="kr.or.nexus.vo.ProjectVO"
+	>
+
+		SELECT
+		    *
+		FROM
+		    PROJECT
+		WHERE
+		    PROJECT_DELYN = 'N'
+		    AND
+		    PROJECT_ID = #{projectId, jdbcType=VARCHAR}
+		ORDER BY
+    		PROJECT_ID ASC
+
+	</select>
+
+
+	<select
+		id="projectMemCount"
+		parameterType="String"
+		resultType="Integer"
+	>
+
+		SELECT
+		    COUNT(*)
+		FROM
+		    PROJECT_MEMBER
+		WHERE
+		    PROJECT_DELYN = 'N'
+		    AND
+		    PROJECT_ID = #{projectId, jdbcType=VARCHAR}
+
+	</select>
+
+
+	<select
+		id="projectLeader"
+		parameterType="String"
+		resultMap="projectMemMap"
+	>
+
+		SELECT
+		    PROJECT_MEMBER.PROJECT_ID
+		    , PROJECT_MEMBER.PROJECT_MEM_IDX
+		    , PROJECT_ROLE.PROJECT_ROLE_NAME
+		    , MEMBER_MANAGEMENT.MEMBER_NAME
+		FROM
+		    PROJECT_MEMBER
+		    INNER JOIN
+		    PROJECT_ROLE
+		    ON (PROJECT_MEMBER.PROJECT_ROLE_IDX = PROJECT_ROLE.PROJECT_ROLE_IDX)
+		    INNER JOIN
+		    MEMBER_MANAGEMENT
+		    ON (PROJECT_MEMBER.MEMBER_ID = MEMBER_MANAGEMENT.MEMBER_ID)
+		WHERE
+		    PROJECT_MEMBER.PROJECT_DELYN = 'N'
+		    AND
+		    PROJECT_MEMBER.PROJECT_ID = #{projectId, jdbcType=VARCHAR}
+            AND
+		    PROJECT_ROLE_NAME = '프로젝트 리더'
+		ORDER BY
+		    PROJECT_MEMBER.PROJECT_ID ASC
+
+	</select>
+
+
+	<select
+		id="issueSummaryStatus"
+		parameterType="String"
+		resultType="kr.or.nexus.vo.IssueVO"
+	>
+
+			SELECT
+			    ISSUE_PROGRESS_STATUS
+			    , COUNT(*) AS STATUS_COUNT
+			FROM
+			    ISSUE
+			WHERE
+			    PROJECT_ID = #{projectId, jdbcType=VARCHAR}
+			    AND
+			    ISSUE_DELYN = 'N'
+			GROUP BY
+			    ISSUE_PROGRESS_STATUS
+			ORDER BY
+			    STATUS_COUNT DESC
+
+	</select>
+
+	<select
+		id="issueCompletedPercentage"
+		parameterType="String"
+		resultType="Double"
+	>
+
+		SELECT
+		    ROUND(SUM(CASE WHEN ISSUE_PROGRESS_STATUS = 'Completed' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS COMPLETED_PERCENTAGE
+		FROM
+		    ISSUE
+		WHERE
+		    PROJECT_ID = #{projectId, jdbcType=VARCHAR}
+		    AND
+		    ISSUE_DELYN = 'N'
+
+	</select>
+
+</mapper>

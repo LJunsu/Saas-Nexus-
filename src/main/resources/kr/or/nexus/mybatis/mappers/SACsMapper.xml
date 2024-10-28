@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.nexus.sysadmin.cs.dao.SACsMapper">
+  <resultMap id="BaseResultMap" type="kr.or.nexus.vo.CustomerBoardVO">
+    <id column="CS_ID" jdbcType="VARCHAR" property="csId" />
+    <id column="MEMBER_ID" jdbcType="VARCHAR" property="memberId" />
+    <result column="CS_TITLE" jdbcType="VARCHAR" property="csTitle" />
+    <result column="CS_DATE" jdbcType="TIMESTAMP" property="csDate" />
+    <result column="CS_DELYN" jdbcType="VARCHAR" property="csDelyn" />
+    <result column="CS_CONTENT" jdbcType="CLOB" property="csContent" />
+    <collection property="customerBoardAnswersVO" ofType="CustomerBoardAnswersVO" autoMapping="true" />
+  </resultMap>
+
+  <sql id="searchFrag">
+      <where>
+          <if test="@org.apache.commons.lang3.StringUtils@isNotBlank(simpleCondition.searchWord)">
+              <choose>
+                  <when test="simpleCondition.searchType eq 'title'">
+                      INSTR(b.CS_TITLE, #{simpleCondition.searchWord}) > 0
+                  </when>
+                  <when test="simpleCondition.searchType eq 'id'">
+                      INSTR(b.MEMBER_ID, #{simpleCondition.searchWord}) > 0
+                  </when>
+                  <otherwise>
+                      INSTR(b.CS_TITLE, #{simpleCondition.searchWord}) > 0
+                      OR
+                      INSTR(b.MEMBER_ID, #{simpleCondition.searchWord}) > 0
+                  </otherwise>
+              </choose>
+          </if>
+      </where>
+  </sql>
+
+  <select id="selectTotalRecord" resultType="int">
+    SELECT COUNT(DISTINCT b.cs_id)
+    FROM CUSTOMER_BOARD b LEFT JOIN CUSTOMER_BOARD_ANSWERS a ON b.cs_id = a.cs_id
+    <include refid="searchFrag"/>
+  </select>
+  
+  <select id="retrieveCsList" resultMap="BaseResultMap">
+       
+       WITH ORDEREDCS AS (
+           SELECT 
+               b.CS_ID,
+               b.MEMBER_ID,
+               b.CS_TITLE,
+               b.CS_DATE,
+               b.CS_DELYN,
+               b.CS_CONTENT,
+               a.CS_ANS_IDX,
+               a.CS_ANS_CONTENT,
+               a.CS_ANS_DATE,
+               a.ADMIN_ID,
+               CASE 
+                   WHEN ROW_NUMBER() OVER (PARTITION BY b.CS_ID ORDER BY a.CS_ANS_DATE) = 1 
+                   THEN DENSE_RANK() OVER (ORDER BY b.CS_ID desc) 
+                   ELSE NULL 
+               END AS RNUM
+           FROM 
+               CUSTOMER_BOARD b
+           LEFT JOIN 
+               CUSTOMER_BOARD_ANSWERS a 
+           ON 
+               b.CS_ID = a.CS_ID
+           <include refid="searchFrag"/>
+       )
+       SELECT *
+       FROM ORDEREDCS
+       <![CDATA[
+       WHERE RNUM BETWEEN #{firstRecord} AND #{lastRecord}
+       ]]>
+  </select>
+  
+  <select id="retrieveCs" parameterType="map" resultMap="BaseResultMap">
+    select 
+        b.CS_ID
+        , b.MEMBER_ID
+        , b.CS_TITLE
+        , b.CS_DATE
+        , b.CS_DELYN
+        , b.CS_CONTENT
+        , a.CS_ANS_IDX
+        , a.CS_ANS_CONTENT
+        , a.CS_ANS_DATE
+        , a.ADMIN_ID
+    from CUSTOMER_BOARD b
+    LEFT JOIN CUSTOMER_BOARD_ANSWERS a ON b.cs_id = a.cs_id
+    where b.CS_ID = #{csId,jdbcType=VARCHAR}
+  </select>
+  
+  <insert id="insertBoardAnswer" parameterType="kr.or.nexus.vo.CustomerBoardAnswersVO">
+  <selectKey keyProperty="csAnsIdx" resultType="int" order="BEFORE"> select SEQ_customer_board_answers.nextval as csAnsIdx from dual</selectKey>
+    INSERT INTO customer_board_answers (
+        cs_ans_idx
+        , cs_id
+        , cs_ans_content
+        , cs_ans_date
+        , admin_id
+    ) VALUES (
+        #{csAnsIdx,jdbcType=INTEGER}
+        , #{csId,jdbcType=VARCHAR}
+        , #{csAnsContent,jdbcType=CLOB}
+        , sysdate
+        , #{adminId,jdbcType=VARCHAR}
+    )
+  </insert>
+  
+  <delete id="removeBoardAnswer" parameterType="Integer">
+    delete from CUSTOMER_BOARD_ANSWERS
+    where cs_ans_idx = #{csAnsIdx,jdbcType=VARCHAR}
+  </delete>
+  
+  <update id="modifyBoardAnswer" parameterType="kr.or.nexus.vo.CustomerBoardAnswersVO">
+    update CUSTOMER_BOARD_ANSWERS
+    set CS_ANS_CONTENT = #{csAnsContent,jdbcType=CLOB}
+    where CS_ID = #{csId,jdbcType=VARCHAR} and CS_ANS_IDX = #{csAnsIdx,jdbcType=INTEGER}
+  </update>
+  
+  <insert id="insertCustomerBoard" parameterType="kr.or.nexus.vo.CustomerBoardVO">
+     <selectKey keyProperty="csId" resultType="string" order="BEFORE">
+       SELECT 'CS' || LPAD(NVL(TO_NUMBER(SUBSTR(MAX(cs_id), 3)),0) + 1,3,'0')
+       FROM customer_board
+    </selectKey>
+    INSERT INTO customer_board (
+        cs_id
+        , cs_title
+        , cs_content
+        , cs_date
+        , cs_delyn
+        , member_id
+    ) VALUES (
+        #{csId,jdbcType=VARCHAR}
+        , #{csTitle,jdbcType=VARCHAR}
+        , #{csContent,jdbcType=VARCHAR}
+        , sysdate
+        , 'N'
+        , #{memberId,jdbcType=VARCHAR}
+    )
+  </insert>
+</mapper>

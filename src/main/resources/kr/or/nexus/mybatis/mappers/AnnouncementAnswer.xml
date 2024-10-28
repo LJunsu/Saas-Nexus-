@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper
+	namespace="kr.or.nexus.announcement.dao.AnnouncementAnswerMapper">
+	<sql id="answerColumns">
+		BOARD_CMT_ID
+		BOARD_ID
+		PARENT_CMT_ID
+		CMT_CONTENT
+		CMT_CREATION_DATE
+		MEMBER_ID
+		CMT_DELYN
+	</sql>
+
+	<insert id="insertAnswer"
+		parameterType="AnnouncementAnswersDefaultVO">
+		INSERT INTO ANNOUNCEMENT_ANSWERS (
+		BOARD_CMT_ID,
+		BOARD_ID,
+		PARENT_CMT_ID,
+		CMT_CONTENT,
+		CMT_CREATION_DATE,
+		MEMBER_ID,
+		CMT_DELYN
+		) VALUES
+		(
+		COMMENT_SEQ.NEXTVAL,
+		#{boardId},
+		#{parentCmtId},
+		#{cmtContent},
+		SYSDATE,
+		#{memberId},
+		'N'
+		)
+	</insert>
+
+	<select id="selectAnswerList"
+		resultType="AnnouncementAnswersDefaultVO">
+		SELECT
+		A.BOARD_CMT_ID
+		, A.BOARD_ID
+		, A.PARENT_CMT_ID
+		, A.CMT_CONTENT
+		, A.CMT_CREATION_DATE
+		, A.MEMBER_ID
+		, A.CMT_DELYN
+		, M.MEMBER_NAME
+		FROM MEMBER_MANAGEMENT M LEFT OUTER JOIN ANNOUNCEMENT_ANSWERS A ON M.MEMBER_ID = A.MEMBER_ID
+		WHERE BOARD_ID =
+		#{boardId} AND CMT_DELYN = 'N'
+		ORDER BY
+		BOARD_CMT_ID
+
+	</select>
+	<select id="detailAnswer"
+		resultType="AnnouncementAnswersDefaultVO">
+		SELECT
+		BOARD_CMT_ID
+		, BOARD_ID
+		, PARENT_CMT_ID
+		, CMT_CONTENT
+		,CMT_CREATION_DATE
+		,
+		MEMBER_ID
+		,CMT_DELYN
+		FROM ANNOUNCEMENT_ANSWERS
+		WHERE BOARD_CMT_ID = #{boardCmtId}
+	</select>
+
+
+	<update id="updateAnswer">
+		UPDATE ANNOUNCEMENT_ANSWERS
+		SET CMT_CONTENT =
+		#{cmtContent}
+		WHERE BOARD_CMT_ID = #{boardCmtId}
+	</update>
+
+	<update id="deleteAnswer">
+		UPDATE ANNOUNCEMENT_ANSWERS
+		SET CMT_DELYN = 'Y'
+		WHERE BOARD_CMT_ID = #{boardCmtId}
+	</update>
+
+
+
+
+</mapper>

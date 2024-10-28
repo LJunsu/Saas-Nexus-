@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.nexus.commons.def.mapper.SubscriptionPaymentDefaultMapper">
+  <resultMap id="BaseResultMap" type="kr.or.nexus.vo.def.SubscriptionPaymentDefaultVO">
+    <id column="PAYMENT_ID" jdbcType="VARCHAR" property="paymentId" />
+    <result column="PAYMENT_DATE" jdbcType="TIMESTAMP" property="paymentDate" />
+    <result column="PAYMENT_AMOUNT" jdbcType="NUMERIC" property="paymentAmount" />
+    <result column="REFUND_DATE" jdbcType="TIMESTAMP" property="refundDate" />
+    <result column="REFUND_APPROVAL_DATE" jdbcType="TIMESTAMP" property="refundApprovalDate" />
+    <result column="REFUND_APPROVAL" jdbcType="VARCHAR" property="refundApproval" />
+    <result column="GROUP_ID" jdbcType="VARCHAR" property="groupId" />
+    <result column="SUBSCRIPTION_ID" jdbcType="VARCHAR" property="subscriptionId" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from SUBSCRIPTION_PAYMENT
+    where PAYMENT_ID = #{paymentId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="kr.or.nexus.vo.def.SubscriptionPaymentDefaultVO">
+    insert into SUBSCRIPTION_PAYMENT (PAYMENT_ID, PAYMENT_DATE, PAYMENT_AMOUNT, 
+      REFUND_DATE, REFUND_APPROVAL_DATE, REFUND_APPROVAL, 
+      GROUP_ID, SUBSCRIPTION_ID)
+    values (#{paymentId,jdbcType=VARCHAR}, #{paymentDate,jdbcType=TIMESTAMP}, #{paymentAmount,jdbcType=NUMERIC}, 
+      #{refundDate,jdbcType=TIMESTAMP}, #{refundApprovalDate,jdbcType=TIMESTAMP}, #{refundApproval,jdbcType=VARCHAR}, 
+      #{groupId,jdbcType=VARCHAR}, #{subscriptionId,jdbcType=VARCHAR})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="kr.or.nexus.vo.def.SubscriptionPaymentDefaultVO">
+    update SUBSCRIPTION_PAYMENT
+    set PAYMENT_DATE = #{paymentDate,jdbcType=TIMESTAMP},
+      PAYMENT_AMOUNT = #{paymentAmount,jdbcType=NUMERIC},
+      REFUND_DATE = #{refundDate,jdbcType=TIMESTAMP},
+      REFUND_APPROVAL_DATE = #{refundApprovalDate,jdbcType=TIMESTAMP},
+      REFUND_APPROVAL = #{refundApproval,jdbcType=VARCHAR},
+      GROUP_ID = #{groupId,jdbcType=VARCHAR},
+      SUBSCRIPTION_ID = #{subscriptionId,jdbcType=VARCHAR}
+    where PAYMENT_ID = #{paymentId,jdbcType=VARCHAR}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select PAYMENT_ID, PAYMENT_DATE, PAYMENT_AMOUNT, REFUND_DATE, REFUND_APPROVAL_DATE, 
+    REFUND_APPROVAL, GROUP_ID, SUBSCRIPTION_ID
+    from SUBSCRIPTION_PAYMENT
+    where PAYMENT_ID = #{paymentId,jdbcType=VARCHAR}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select PAYMENT_ID, PAYMENT_DATE, PAYMENT_AMOUNT, REFUND_DATE, REFUND_APPROVAL_DATE, 
+    REFUND_APPROVAL, GROUP_ID, SUBSCRIPTION_ID
+    from SUBSCRIPTION_PAYMENT
+  </select>
+</mapper>

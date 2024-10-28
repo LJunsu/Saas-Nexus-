@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.nexus.cloud.dao.CloudMapper">
+
+	<insert id="insert" parameterType="FolderAccessVO">
+		INSERT INTO FOLDER_ACCESS(
+			ACCESS_ID
+			,PROJECT_ID
+			,PROJECT_ROLE_IDX
+			,ACCESS_PATTERN
+		)VALUES(
+			FOLDER_ACCESS_SEQ.NEXTVAL
+			, #{projectId}
+			, #{projectRoleIdx}
+			, #{accessPattern}
+		)
+	</insert>
+
+	<select id="findByProjectId" parameterType="FolderAccessVO" resultType="FolderAccessVO">
+		SELECT *
+		FROM FOLDER_ACCESS
+		WHERE PROJECT_ID = #{projectId} AND ACCESS_PATTERN = #{accessPattern}
+	</select>
+</mapper>

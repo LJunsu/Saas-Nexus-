@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.nexus.sysadmin.member.dao.SAMemberMapper">
+
+  <resultMap id="BaseResultMap" type="kr.or.nexus.vo.MemberManagementVO">
+    <id column="MEMBER_ID" jdbcType="VARCHAR" property="memberId" />
+    <result column="MEMBER_PW" jdbcType="VARCHAR" property="memberPw" />
+    <result column="MEMBER_NAME" jdbcType="VARCHAR" property="memberName" />
+    <result column="MEMBER_REGNO1" jdbcType="NUMERIC" property="memberRegno1" />
+    <result column="MEMBER_REGNO2" jdbcType="NUMERIC" property="memberRegno2" />
+    <result column="MEMBER_ZIP" jdbcType="NUMERIC" property="memberZip" />
+    <result column="MEMBER_ADDRESS_1" jdbcType="VARCHAR" property="memberAddress1" />
+    <result column="MEMBER_ADDRESS_2" jdbcType="VARCHAR" property="memberAddress2" />
+    <result column="MEMBER_TEL" jdbcType="VARCHAR" property="memberTel" />
+    <result column="MEMBER_EMAIL" jdbcType="VARCHAR" property="memberEmail" />
+    <result column="MEMBER_PROFILE_PICT" jdbcType="VARCHAR" property="memberProfilePict" />
+    <result column="MEMBER_DESCRIPTION" jdbcType="VARCHAR" property="memberDescription" />
+    <result column="MEMBER_AUTH_QUESTION" jdbcType="VARCHAR" property="memberAuthQuestion" />
+    <result column="MEMBER_AUTH_RESPONSE" jdbcType="VARCHAR" property="memberAuthResponse" />
+    <result column="MEMBER_DELYN" jdbcType="VARCHAR" property="memberDelyn" />
+    <result column="MEMBER_JOIN_DATE" jdbcType="DATE" property="memberJoinDate" />
+    <result column="MEMBER_ROLE" jdbcType="VARCHAR" property="memberRole" />
+    <association property="groupManagementVO" javaType="GroupManagementVO" autoMapping="true" />
+    <association property="groupMemberVO" javaType="GroupMemberVO" autoMapping="true" />
+  </resultMap>
+
+  <sql id="searchFrag">
+      <where>
+          <if test="@org.apache.commons.lang3.StringUtils@isNotBlank(simpleCondition.searchWord)">
+              <choose>
+                  <when test="simpleCondition.searchType eq 'name'">
+                      INSTR(b.MEMBER_NAME, #{simpleCondition.searchWord}) > 0
+                  </when>
+                  <when test="simpleCondition.searchType eq 'id'">
+                      INSTR(b.MEMBER_ID, #{simpleCondition.searchWord}) > 0
+                  </when>
+                  <otherwise>
+                      INSTR(b.MEMBER_NAME, #{simpleCondition.searchWord}) > 0
+                      OR
+                      INSTR(b.MEMBER_ID, #{simpleCondition.searchWord}) > 0
+                  </otherwise>
+              </choose>
+          </if>
+      </where>
+  </sql>
+
+  <select id="selectTotalRecord" resultType="int">
+    SELECT COUNT(*)
+    FROM MEMBER_MANAGEMENT b
+    <include refid="searchFrag"/>
+  </select>
+  
+  <select id="selectTotalRecord2" resultType="int">
+    SELECT COUNT(*)
+    FROM MEMBER_MANAGEMENT b
+    LEFT JOIN group_member a ON b.member_id = a.member_id
+    LEFT JOIN group_management c ON a.group_id = c.group_id
+    where c.group_id = #{groupId,jdbcType=VARCHAR}
+  </select>
+
+  <select id="retrieveMemberList" resultMap="BaseResultMap">
+WITH ORDEREDMEMBER AS (
+  SELECT
+    c.group_id,
+    c.group_name,
+    c.group_profile_picture,
+    c.group_creation_date,
+    c.group_delyn,
+    c.use_status,
+    c.business_license_id,
+    c.application_date,
+    c.approval_date,
+    c.group_comment,
+    a.group_admin_yn,
+    a.group_join_date,
+    b.member_id,
+    b.member_role,
+    b.member_join_date,
+    b.member_pw,
+    b.member_name,
+    b.member_regno1,
+    b.member_regno2,
+    b.member_zip,
+    b.member_address_1,
+    b.member_address_2,
+    b.member_tel,
+    b.member_email,
+    b.member_profile_pict,
+    b.member_description,
+    b.member_auth_question,
+    b.member_auth_response,
+    b.member_delyn
+  FROM member_management b
+  LEFT JOIN group_member a ON b.member_id = a.member_id
+  LEFT JOIN group_management c ON a.group_id = c.group_id
+  <include refid="searchFrag" />
+  ORDER BY b.member_join_date DESC
+)
+SELECT *
+FROM (
+  SELECT A.*, ROWNUM RNUM
+  FROM ORDEREDMEMBER A
+)
+<![CDATA[
+ WHERE RNUM >= #{firstRecord} AND RNUM <= #{lastRecord}
+ ]]>
+ORDER BY RNUM ASC
+  </select>
+
+  <select id="retrieveMember" resultMap="BaseResultMap" parameterType="String">
+
+          SELECT
+            c.group_id
+            , c.group_name
+            , c.group_profile_picture
+            , c.group_creation_date
+            , c.group_delyn
+            , c.use_status
+            , c.business_license_id
+            , c.application_date
+            , c.approval_date
+            , c.group_comment
+            , c.group_address
+            , a.group_admin_yn
+            , a.group_join_date
+            , b.member_id
+            , b.member_role
+            , b.member_join_date
+            , b.member_pw
+            , b.member_name
+            , b.member_regno1
+            , b.member_regno2
+            , b.member_zip
+            , b.member_address_1
+            , b.member_address_2
+            , b.member_tel
+            , b.member_email
+            , b.member_profile_pict
+            , b.member_description
+            , b.member_auth_question
+            , b.member_auth_response
+            , b.member_delyn
+            , ROWNUM RNUM
+          FROM member_management b
+          LEFT JOIN group_member a ON b.member_id = a.member_id
+          LEFT JOIN group_management c ON a.group_id = c.group_id
+          where b.MEMBER_ID = #{memberId,jdbcType=VARCHAR}
+  </select>
+
+  <update id="modifyMemberStatus" parameterType="kr.or.nexus.vo.MemberManagementVO">
+    update MEMBER_MANAGEMENT
+    set MEMBER_DELYN = #{memberDelyn,jdbcType=VARCHAR}
+    where MEMBER_ID = #{memberId,jdbcType=VARCHAR}
+  </update>
+  
+  <select id="retrieveGroupList" resultType="kr.or.nexus.vo.GroupManagementVO">
+    SELECT DISTINCT
+      c.group_id
+      , c.group_name
+      , c.group_profile_picture
+      , c.group_creation_date
+      , c.group_delyn
+      , c.use_status
+      , c.business_license_id
+      , c.application_date
+      , c.approval_date
+      , c.group_comment
+    FROM member_management b
+    LEFT JOIN group_member a ON b.member_id = a.member_id
+    LEFT JOIN group_management c ON a.group_id = c.group_id
+    where c.group_name is not null
+  </select>
+  
+    <select id="retrieveMemberListByGroup" resultMap="BaseResultMap">
+        WITH ORDEREDMEMBER AS (
+          SELECT
+            c.group_id
+            , c.group_name
+            , c.group_profile_picture
+            , c.group_creation_date
+            , c.group_delyn
+            , c.use_status
+            , c.business_license_id
+            , c.application_date
+            , c.approval_date
+            , c.group_comment
+            , a.group_admin_yn
+            , a.group_join_date
+            , b.member_id
+            , b.member_role
+            , b.member_join_date
+            , b.member_pw
+            , b.member_name
+            , b.member_regno1
+            , b.member_regno2
+            , b.member_zip
+            , b.member_address_1
+            , b.member_address_2
+            , b.member_tel
+            , b.member_email
+            , b.member_profile_pict
+            , b.member_description
+            , b.member_auth_question
+            , b.member_auth_response
+            , b.member_delyn
+            , ROWNUM RNUM
+          FROM member_management b
+          LEFT JOIN group_member a ON b.member_id = a.member_id
+          LEFT JOIN group_management c ON a.group_id = c.group_id
+          where c.group_id = #{groupId,jdbcType=VARCHAR}
+
+        )
+        SELECT A.*
+        FROM ORDEREDMEMBER A
+        <![CDATA[
+        WHERE RNUM >= #{paging.firstRecord} AND RNUM <= #{paging.lastRecord}
+        ]]>
+  </select>
+    <select id="retrieveMemberListNoGroup" resultMap="BaseResultMap">
+        WITH ORDEREDMEMBER AS (
+          SELECT
+            c.group_id
+            , c.group_name
+            , c.group_profile_picture
+            , c.group_creation_date
+            , c.group_delyn
+            , c.use_status
+            , c.business_license_id
+            , c.application_date
+            , c.approval_date
+            , c.group_comment
+            , a.group_admin_yn
+            , a.group_join_date
+            , b.member_id
+            , b.member_role
+            , b.member_join_date
+            , b.member_pw
+            , b.member_name
+            , b.member_regno1
+            , b.member_regno2
+            , b.member_zip
+            , b.member_address_1
+            , b.member_address_2
+            , b.member_tel
+            , b.member_email
+            , b.member_profile_pict
+            , b.member_description
+            , b.member_auth_question
+            , b.member_auth_response
+            , b.member_delyn
+            , ROWNUM RNUM
+          FROM member_management b
+          LEFT JOIN group_member a ON b.member_id = a.member_id
+          LEFT JOIN group_management c ON a.group_id = c.group_id
+          where c.group_id is null
+        )
+        SELECT A.*
+        FROM ORDEREDMEMBER A
+        <![CDATA[
+        WHERE RNUM >= #{paging.firstRecord} AND RNUM <= #{paging.lastRecord}
+        ]]>
+  </select>
+  
+  
+</mapper>

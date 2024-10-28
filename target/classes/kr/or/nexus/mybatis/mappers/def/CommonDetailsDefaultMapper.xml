@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.nexus.commons.def.mapper.CommonDetailsDefaultMapper">
+  <resultMap id="BaseResultMap" type="kr.or.nexus.vo.def.CommonDetailsDefaultVO">
+    <id column="COMM_DETAILS_ID" jdbcType="VARCHAR" property="commDetailsId" />
+    <id column="COMM" jdbcType="VARCHAR" property="comm" />
+    <result column="COMM_DETAILS_NAME" jdbcType="VARCHAR" property="commDetailsName" />
+    <result column="COMM_DETAILS_COMMENT" jdbcType="VARCHAR" property="commDetailsComment" />
+    <result column="COMM_DETAILS_REG_DATE" jdbcType="TIMESTAMP" property="commDetailsRegDate" />
+    <result column="USE_STATUS" jdbcType="VARCHAR" property="useStatus" />
+    <result column="DETAIL_COMMENT1" jdbcType="VARCHAR" property="detailComment1" />
+    <result column="DETAIL_COMMENT2" jdbcType="VARCHAR" property="detailComment2" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="map">
+    delete from COMMON_DETAILS
+    where COMM_DETAILS_ID = #{commDetailsId,jdbcType=VARCHAR}
+      and COMM = #{comm,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="kr.or.nexus.vo.def.CommonDetailsDefaultVO">
+    insert into COMMON_DETAILS (COMM_DETAILS_ID, COMM, COMM_DETAILS_NAME, 
+      COMM_DETAILS_COMMENT, COMM_DETAILS_REG_DATE, 
+      USE_STATUS, DETAIL_COMMENT1, DETAIL_COMMENT2
+      )
+    values (#{commDetailsId,jdbcType=VARCHAR}, #{comm,jdbcType=VARCHAR}, #{commDetailsName,jdbcType=VARCHAR}, 
+      #{commDetailsComment,jdbcType=VARCHAR}, #{commDetailsRegDate,jdbcType=TIMESTAMP}, 
+      #{useStatus,jdbcType=VARCHAR}, #{detailComment1,jdbcType=VARCHAR}, #{detailComment2,jdbcType=VARCHAR}
+      )
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="kr.or.nexus.vo.def.CommonDetailsDefaultVO">
+    update COMMON_DETAILS
+    set COMM_DETAILS_NAME = #{commDetailsName,jdbcType=VARCHAR},
+      COMM_DETAILS_COMMENT = #{commDetailsComment,jdbcType=VARCHAR},
+      COMM_DETAILS_REG_DATE = #{commDetailsRegDate,jdbcType=TIMESTAMP},
+      USE_STATUS = #{useStatus,jdbcType=VARCHAR},
+      DETAIL_COMMENT1 = #{detailComment1,jdbcType=VARCHAR},
+      DETAIL_COMMENT2 = #{detailComment2,jdbcType=VARCHAR}
+    where COMM_DETAILS_ID = #{commDetailsId,jdbcType=VARCHAR}
+      and COMM = #{comm,jdbcType=VARCHAR}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="map" resultMap="BaseResultMap">
+    select COMM_DETAILS_ID, COMM, COMM_DETAILS_NAME, COMM_DETAILS_COMMENT, COMM_DETAILS_REG_DATE, 
+    USE_STATUS, DETAIL_COMMENT1, DETAIL_COMMENT2
+    from COMMON_DETAILS
+    where COMM_DETAILS_ID = #{commDetailsId,jdbcType=VARCHAR}
+      and COMM = #{comm,jdbcType=VARCHAR}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select COMM_DETAILS_ID, COMM, COMM_DETAILS_NAME, COMM_DETAILS_COMMENT, COMM_DETAILS_REG_DATE, 
+    USE_STATUS, DETAIL_COMMENT1, DETAIL_COMMENT2
+    from COMMON_DETAILS
+  </select>
+</mapper>

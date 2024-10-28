@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.nexus.commons.def.mapper.AnnouncementAnswersDefaultMapper">
+  <resultMap id="BaseResultMap" type="kr.or.nexus.vo.def.AnnouncementAnswersDefaultVO">
+    <id column="BOARD_CMT_ID" jdbcType="NUMERIC" property="boardCmtId" />
+    <id column="BOARD_ID" jdbcType="VARCHAR" property="boardId" />
+    <result column="PARENT_CMT_ID" jdbcType="NUMERIC" property="parentCmtId" />
+    <result column="CMT_CREATION_DATE" jdbcType="TIMESTAMP" property="cmtCreationDate" />
+    <result column="MEMBER_ID" jdbcType="VARCHAR" property="memberId" />
+    <result column="CMT_CONTENT" jdbcType="CLOB" property="cmtContent" />
+  </resultMap>
+  
+  
+  
+  
+  
+  
+  
+  
+  <delete id="deleteByPrimaryKey" parameterType="map">
+    delete from ANNOUNCEMENT_ANSWERS
+    where BOARD_CMT_ID = #{boardCmtId,jdbcType=NUMERIC}
+      and BOARD_ID = #{boardId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="kr.or.nexus.vo.def.AnnouncementAnswersDefaultVO">
+    insert into ANNOUNCEMENT_ANSWERS (BOARD_CMT_ID, BOARD_ID, PARENT_CMT_ID, 
+      CMT_CREATION_DATE, MEMBER_ID, CMT_CONTENT
+      )
+    values (#{boardCmtId,jdbcType=NUMERIC}, #{boardId,jdbcType=VARCHAR}, #{parentCmtId,jdbcType=NUMERIC}, 
+      #{cmtCreationDate,jdbcType=TIMESTAMP}, #{memberId,jdbcType=VARCHAR}, #{cmtContent,jdbcType=CLOB}
+      )
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="kr.or.nexus.vo.def.AnnouncementAnswersDefaultVO">
+    update ANNOUNCEMENT_ANSWERS
+    set PARENT_CMT_ID = #{parentCmtId,jdbcType=NUMERIC},
+      CMT_CREATION_DATE = #{cmtCreationDate,jdbcType=TIMESTAMP},
+      MEMBER_ID = #{memberId,jdbcType=VARCHAR},
+      CMT_CONTENT = #{cmtContent,jdbcType=CLOB}
+    where BOARD_CMT_ID = #{boardCmtId,jdbcType=NUMERIC}
+      and BOARD_ID = #{boardId,jdbcType=VARCHAR}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="map" resultMap="BaseResultMap">
+    select BOARD_CMT_ID, BOARD_ID, PARENT_CMT_ID, CMT_CREATION_DATE, MEMBER_ID, CMT_CONTENT
+    from ANNOUNCEMENT_ANSWERS
+    where BOARD_CMT_ID = #{boardCmtId,jdbcType=NUMERIC}
+      and BOARD_ID = #{boardId,jdbcType=VARCHAR}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select BOARD_CMT_ID, BOARD_ID, PARENT_CMT_ID, CMT_CREATION_DATE, MEMBER_ID, CMT_CONTENT
+    from ANNOUNCEMENT_ANSWERS
+  </select>
+</mapper>

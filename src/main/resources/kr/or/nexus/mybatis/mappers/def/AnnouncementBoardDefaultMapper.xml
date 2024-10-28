@@ -1,0 +1,401 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.nexus.gnotification.dao.GnoticeMapper">
+
+	<!-- include 할 템플릿 코드 -->
+	<sql id="GnoticeCulumns">
+		board_id
+		,board_title
+		,board_content
+		,board_create_date
+		,board_delyn
+		,group_id
+		,member_id
+		,ATTACHED_FILE_ID
+	</sql>
+
+
+
+
+
+
+	<select id="createBoardDetail" parameterType="kr.or.nexus.gnotification.vo.GnoticeVO"
+	 resultMap="Gnotice">
+
+
+
+		SELECT
+		    a.board_id,
+		    a.board_title,
+		    a.board_content,
+		    a.board_create_date,
+		    a.attached_file_id,
+		    a.board_delyn,
+		    a.group_id,
+		    a.member_id,
+		    a.project_id,
+		    b.member_name
+		FROM
+		    announcement_board a
+		INNER JOIN
+		    member_management b
+		ON
+		    a.member_id = b.member_id
+		WHERE
+		    a.PROJECT_ID IS NULL
+		AND
+		    a.GROUP_ID = #{groupId, jdbcType=VARCHAR}
+		AND
+		    a.BOARD_ID = #{boardId, jdbcType=VARCHAR}
+		AND
+			a.member_id =#{memberId, jdbcType=VARCHAR}
+		AND 
+			a.BOARD_DELYN = 'N'
+
+
+
+
+
+
+	</select>
+
+
+
+
+<!-- 	해당공지 파일 다운로드 관련 -->
+	<resultMap type="kr.or.nexus.gnotification.vo.GnoticeVO" id="Gnotice" autoMapping="true">
+		<id property="boardId" column="board_id" />
+		<result property="attachedFileId" column="ATTACHED_FILE_ID" />
+		<association property="managementVO" javaType="kr.or.nexus.vo.MemberManagementVO" autoMapping="true" />
+		<association property="attachedFile" column="ATTACHED_FILE_ID"
+			select="kr.or.nexus.commons.AtchFile.dao.AtchFileMapper.selectAtchFile" />
+	</resultMap>
+
+
+<!-- 	<resultMap type="kr.or.nexus.gnotification.vo.GnoticeVO" id="GnoticeAnswer" autoMapping="true"> -->
+<!-- 		<id property="boardId" column="board_id" /> -->
+<!-- 		<collection property="attachedFile" column="ATTACHED_FILE_ID" -->
+<!-- 		autoMapping="true" select="kr.or.nexus.gnotification.dao.GnoticeMapper.answerList" /> -->
+<!-- 	</resultMap> -->
+
+
+
+
+	<resultMap id="BaseResultMap"
+	type="kr.or.nexus.gnotification.vo.GnoticeVO">
+		<id column="BOARD_ID" jdbcType="VARCHAR" property="boardId" />
+		<id column="GROUP_ID" jdbcType="VARCHAR" property="groupId" />
+		<id column="MEMBER_ID" jdbcType="VARCHAR" property="memberId" />
+		<result column="BOARD_TITLE" jdbcType="VARCHAR"
+		property="boardTitle" />
+		<result column="BOARD_CREATE_DATE" jdbcType="TIMESTAMP"
+		property="boardCreateDate" />
+		<result column="ATTACHED_FILE_ID" jdbcType="VARCHAR"
+		property="attachedFileId" />
+		<result column="BOARD_DELYN" jdbcType="VARCHAR"
+		property="boardDelyn" />
+		<result column="PROJECT_ID" jdbcType="VARCHAR"
+		property="projectId" />
+		<result column="BOARD_CONTENT" jdbcType="CLOB"
+		property="boardContent" />
+		 <association property="managementVO" javaType="kr.or.nexus.vo.MemberManagementVO" autoMapping="true" />
+	</resultMap>
+
+
+
+
+
+
+
+	<update id="deleteByPrimaryKey" parameterType="kr.or.nexus.gnotification.vo.GnoticeVO">
+
+		UPDATE ANNOUNCEMENT_BOARD
+
+		SET BOARD_DELYN = 'Y'
+
+		where BOARD_ID = #{boardId,jdbcType=VARCHAR}
+		and
+		GROUP_ID = #{groupId,jdbcType=VARCHAR}
+		and
+		MEMBER_ID
+		=#{memberId,jdbcType=VARCHAR}
+
+	</update>
+
+
+
+
+
+
+	<insert id="insert"
+		parameterType="kr.or.nexus.gnotification.vo.GnoticeVO" keyProperty="boardId">
+	<selectKey keyProperty="boardId" resultType="String" order="BEFORE">
+        SELECT CONCAT('NOT', TO_CHAR(LPAD(SEQ_NOTIFICATION.NEXTVAL, 3, '0'))) FROM DUAL
+    </selectKey>
+		
+		INSERT INTO ANNOUNCEMENT_BOARD (
+		board_id
+		,board_title
+		,board_content
+		,board_create_date
+		,board_delyn
+		,group_id
+		,member_id
+		,ATTACHED_FILE_ID
+		
+		)VALUES(
+		#{boardId,jdbcType=VARCHAR}
+		,#{boardTitle,jdbcType=VARCHAR}
+		,#{boardContent,jdbcType=CLOB}
+		,SYSDATE
+		,'N'
+		,#{groupId,jdbcType=VARCHAR}
+		,#{memberId,jdbcType=VARCHAR}
+		,#{attachedFileId,jdbcType=VARCHAR}
+	)
+
+
+
+	</insert>
+
+
+
+
+
+
+	<update id="updateByPrimaryKey"
+		parameterType="kr.or.nexus.gnotification.vo.GnoticeVO">
+
+
+		update ANNOUNCEMENT_BOARD
+		set
+		BOARD_TITLE =
+		#{boardTitle,jdbcType=VARCHAR},
+
+		BOARD_CONTENT =
+		#{boardContent,jdbcType=CLOB},
+
+		ATTACHED_FILE_ID =
+		#{attachedFileId,jdbcType=VARCHAR}
+
+		where BOARD_ID =
+		#{boardId,jdbcType=VARCHAR}
+
+		and GROUP_ID = #{groupId,jdbcType=VARCHAR}
+
+		and MEMBER_ID = #{memberId,jdbcType=VARCHAR}
+
+
+	</update>
+
+
+	<select id="selectDetail"
+		parameterType="kr.or.nexus.gnotification.vo.GnoticeVO"
+		resultMap="Gnotice">
+
+		SELECT
+		    a.board_id,
+		    a.board_title,
+		    a.board_content,
+		    a.board_create_date,
+		    a.attached_file_id,
+		    a.board_delyn,
+		    a.group_id,
+		    a.member_id,
+		    a.project_id,
+		    b.member_name
+		FROM
+		    announcement_board a
+		INNER JOIN
+		    member_management b
+		ON
+		    a.member_id = b.member_id
+		WHERE
+		    a.PROJECT_ID IS NULL
+		AND
+		    a.GROUP_ID = #{groupId, jdbcType=VARCHAR}
+		AND
+		    a.BOARD_ID = #{boardId, jdbcType=VARCHAR}
+
+	</select>
+
+
+	<select id="selectByPrimaryKey" parameterType="map"
+		resultMap="Gnotice">
+
+		select BOARD_ID, GROUP_ID, MEMBER_ID, BOARD_TITLE,
+		BOARD_CREATE_DATE,
+		ATTACHED_FILE_ID,
+		BOARD_DELYN, PROJECT_ID,
+		BOARD_CONTENT
+
+		from ANNOUNCEMENT_BOARD
+
+		where
+		BOARD_ID =
+		#{boardId,jdbcType=VARCHAR}
+		and GROUP_ID = #{groupId,jdbcType=VARCHAR}
+		and MEMBER_ID = #{memberId,jdbcType=VARCHAR}
+	</select>
+
+
+	<!-- GRP013만 조회 나중에 바꿔야함 -->
+	<select id="selectAll" parameterType="String" resultMap="BaseResultMap">
+    SELECT
+    a.board_id,
+    a.board_title,
+    a.board_content,
+    a.board_create_date,
+    a.attached_file_id,
+    a.board_delyn,
+    a.group_id,
+    a.member_id,
+    a.project_id,
+    b.member_name
+FROM
+    announcement_board a
+INNER JOIN
+    member_management b
+ON
+    a.member_id = b.member_id
+WHERE
+    a.PROJECT_ID IS NULL
+AND
+    a.GROUP_ID = #{groupId, jdbcType=VARCHAR}
+AND
+	a.board_DELYN = 'N'    
+ORDER BY
+    a.BOARD_CREATE_DATE DESC
+
+	</select>
+
+
+
+
+
+
+
+
+
+
+
+	<!-- @@@@@ 댓글  @@@@@ -->
+
+
+<sql id="answerColumns">
+		BOARD_CMT_ID
+		,BOARD_ID
+		,PARENT_CMT_ID
+		,CMT_CONTENT
+		,CMT_CREATION_DATE
+		,MEMBER_ID
+		,CMT_DELYN
+</sql>
+
+<select id="answerList" parameterType="String" resultType="kr.or.nexus.gnotification.vo.GnoticeAnswerVO" >
+
+SELECT
+    a.board_cmt_id
+    ,a.board_id
+    ,a.parent_cmt_id
+    ,a.cmt_content
+    ,a.cmt_creation_date
+    ,a.member_id
+    ,a.cmt_delyn
+    ,b.member_name
+FROM
+    announcement_answers a
+INNER JOIN
+    member_management b
+ON
+    a.member_id = b.member_id
+    WHERE
+    a.BOARD_ID =  #{boardId, jdbcType=VARCHAR}
+AND
+	a.CMT_DELYN = 'N'
+ORDER BY
+    a.BOARD_CMT_ID
+
+	</select>
+
+
+
+
+
+<insert id="createAnswer" parameterType="kr.or.nexus.gnotification.vo.GnoticeAnswerVO">
+
+INSERT INTO announcement_answers (
+    board_cmt_id,
+    board_id,
+    cmt_content,
+    cmt_creation_date,
+    member_id,
+    cmt_delyn
+) VALUES (
+    COMMENT_SEQ.NEXTVAL
+    ,#{boardId, jdbcType=VARCHAR}
+    ,#{cmtContent}
+    ,SYSDATE
+    ,#{memberId, jdbcType=VARCHAR}
+    ,'N'
+)
+
+
+
+
+
+</insert>
+
+<update id="updateAnswer" parameterType="kr.or.nexus.gnotification.vo.GnoticeAnswerVO">
+
+
+UPDATE announcement_answers
+SET
+    CMT_CONTENT = #{cmtContent}
+WHERE
+    board_cmt_id = #{boardCmtId}
+AND
+    board_id = #{boardId}
+AND
+	member_id = #{memberId}
+AND
+	cmt_delyn ='N'
+
+
+</update>
+
+
+<update id="deleteAnswer" parameterType="kr.or.nexus.gnotification.vo.GnoticeAnswerVO">
+
+
+UPDATE announcement_answers
+SET
+	CMT_DELYN ='Y'
+WHERE
+	BOARD_CMT_ID = #{boardCmtId}
+AND
+	BOARD_ID = #{boardId}
+
+
+</update>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</mapper>

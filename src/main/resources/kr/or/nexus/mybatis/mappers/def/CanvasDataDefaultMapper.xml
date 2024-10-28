@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.nexus.commons.def.mapper.CanvasDataDefaultMapper">
+  <resultMap id="BaseResultMap" type="kr.or.nexus.vo.def.CanvasDataDefaultVO">
+    <id column="CANVAS_DATA_ID" jdbcType="VARCHAR" property="canvasDataId" />
+    <id column="CANVAS_ID" jdbcType="VARCHAR" property="canvasId" />
+    <result column="CANVAS_DATA_CR_DATE" jdbcType="TIMESTAMP" property="canvasDataCrDate" />
+    <result column="CANVAS_EM_DATA" jdbcType="CLOB" property="canvasEmData" />
+    <result column="CANVAS_DATA_TYPE" jdbcType="CLOB" property="canvasDataType" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="map">
+    delete from CANVAS_DATA
+    where CANVAS_DATA_ID = #{canvasDataId,jdbcType=VARCHAR}
+      and CANVAS_ID = #{canvasId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="kr.or.nexus.vo.def.CanvasDataDefaultVO">
+    insert into CANVAS_DATA (CANVAS_DATA_ID, CANVAS_ID, CANVAS_DATA_CR_DATE, 
+      CANVAS_EM_DATA, CANVAS_DATA_TYPE)
+    values (#{canvasDataId,jdbcType=VARCHAR}, #{canvasId,jdbcType=VARCHAR}, #{canvasDataCrDate,jdbcType=TIMESTAMP}, 
+      #{canvasEmData,jdbcType=CLOB}, #{canvasDataType,jdbcType=CLOB})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="kr.or.nexus.vo.def.CanvasDataDefaultVO">
+    update CANVAS_DATA
+    set CANVAS_DATA_CR_DATE = #{canvasDataCrDate,jdbcType=TIMESTAMP},
+      CANVAS_EM_DATA = #{canvasEmData,jdbcType=CLOB},
+      CANVAS_DATA_TYPE = #{canvasDataType,jdbcType=CLOB}
+    where CANVAS_DATA_ID = #{canvasDataId,jdbcType=VARCHAR}
+      and CANVAS_ID = #{canvasId,jdbcType=VARCHAR}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="map" resultMap="BaseResultMap">
+    select CANVAS_DATA_ID, CANVAS_ID, CANVAS_DATA_CR_DATE, CANVAS_EM_DATA, CANVAS_DATA_TYPE
+    from CANVAS_DATA
+    where CANVAS_DATA_ID = #{canvasDataId,jdbcType=VARCHAR}
+      and CANVAS_ID = #{canvasId,jdbcType=VARCHAR}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select CANVAS_DATA_ID, CANVAS_ID, CANVAS_DATA_CR_DATE, CANVAS_EM_DATA, CANVAS_DATA_TYPE
+    from CANVAS_DATA
+  </select>
+</mapper>

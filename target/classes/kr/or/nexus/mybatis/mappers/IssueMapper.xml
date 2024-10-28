@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.nexus.issue.dao.IssueMapper">
+
+<!-- issue has many를 적용 시키기 위해 resultMap으로 1:N을 매핑함. -->
+<resultMap type="IssueVO" id="issueMap" autoMapping="true">
+	<collection property="issueTags" ofType="IssueTagsVO" autoMapping="true"/>
+	<collection property="issueBoardAnswers" ofType="IssueBoardAnswersVO" autoMapping="true"/>
+</resultMap>
+
+<parameterMap type="IssueBoardAnswersVO" id="issueBoardMap"/>
+
+
+<!-- 선택한 이슈 상세조회 -->
+<select id="selectIssue" parameterType="String" resultMap="issueMap">
+    SELECT
+    a.issue_title
+  , a.project_id
+  , a.issue_content
+  , a.issue_officer
+  , a.issue_creation_date
+  , a.issue_deadline
+  , a.issue_idx
+  , a.sub_issue_idx
+  , a.issue_date
+  , a.issue_delyn
+  , a.project_mem_idx
+  , a.issue_progress_status
+  , a.issue_priority_name
+  , b.issue_tags_id
+  , b.issue_tag_name
+FROM
+  issue a LEFT OUTER JOIN issue_tags b
+on
+    a.issue_idx = b.issue_idx
+where a.issue_idx = #{issueIdx}
+</select>
+
+
+
+<!-- 선택한 이슈 상세조회 (썩준) -->
+<select id="beforeDetailIssue" parameterType="String" resultMap="issueMap">
+
+
+SELECT
+    a.issue_title,
+    a.project_id,
+    a.issue_content,
+    a.issue_officer,
+    a.issue_creation_date,
+    a.issue_deadline,
+    a.issue_idx,
+    a.sub_issue_idx,
+    a.issue_date,
+    a.issue_delyn,
+    a.project_mem_idx,
+    pm.MEMBER_ID,
+    a.issue_progress_status,
+    a.issue_priority_name,
+    b.issue_tags_id,
+    b.issue_tag_name
+FROM
+    issue a
+LEFT OUTER JOIN
+    issue_tags b
+ON
+    a.issue_idx = b.issue_idx
+LEFT OUTER JOIN
+    PROJECT_MEMBER pm
+ON
+    a.project_mem_idx = pm.project_mem_idx
+WHERE
+    a.issue_idx = #{issueIdx} and a.issue_delyn = 'N'
+
+
+
+
+
+
+
+
+
+</select>
+<!-- 이슈 리스트및 데이터를 조회 -->
+<select id="projectIssueList" resultMap="issueMap">
+   SELECT
+        issue_idx,
+        sub_issue_idx,
+        issue_date,
+        issue_delyn,
+        project_mem_idx,
+        issue_progress_status,
+        issue_priority_name,
+        issue_title,
+        project_id,
+        issue_content,
+        issue_officer,
+        issue_deadline,
+        issue_creation_date
+    FROM
+        issue
+    WHERE
+        project_id = #{projectId}
+        AND issue_delyn = 'N'
+        <if test="issueProgressStatus != null">
+            AND issue_progress_status = #{issueProgressStatus}
+        </if>
+        <if test="issueTitle != null">
+             AND INSTR(issue_title, #{issueTitle}) > 0
+        </if>
+    ORDER BY issue_creation_date DESC
+</select>
+<!-- 이슈 댓글을 전체 조회 -->
+<select id="issueCommentList">
+	SELECT
+    issue_comment_id
+  , issue_idx
+  , issue_parent_cmt_id
+  , issue_cmt_content
+  , issue_cmt_writer
+  , issue_cmt_cr_date
+  , issue_cmt_modified_date
+FROM
+    issue_board_answers
+WHERE
+    issue_idx = #{issueIdx}
+    AND
+    ISSUE_CMT_DELYN = 'N'
+ORDER BY issue_comment_id DESC
+</select>
+
+<!-- 이슈 내용을 업데이트 -->
+<update id="updateIssueContent" >
+	UPDATE issue
+	SET
+	issue_content = #{issueContent}
+	WHERE
+	issue_idx = #{issueIdx}
+</update>
+<!-- 이슈 제목을 업데이트 -->
+<update id="updateIssueTitle" >
+	UPDATE issue
+	SET
+	issue_title = #{issueTitle}
+	WHERE
+	issue_idx = #{issueIdx}
+</update>
+
+<!-- 상위 이슈를 업데이트 -->
+<update id="updateUpIssue">
+	UPDATE issue
+	SET
+	sub_issue_idx = #{subIssueIdx}
+	WHERE
+	issue_idx = #{issueIdx}
+</update>
+
+<!-- 이슈 담당자를 업데이트 -->
+<update id="updateOfficer">
+	UPDATE issue
+	SET
+	issue_officer = #{issueOfficer}
+	WHERE
+	issue_idx = #{issueIdx}
+</update>
+
+<!-- 이슈 우선순위를 업데이트 -->
+<update id="updatePriority">
+	UPDATE issue
+	SET
+	issue_priority_name = #{issuePriorityName}
+	WHERE
+	issue_idx = #{issueIdx}
+</update>
+
+<!-- 이슈 진행상태를 업데이트 -->
+<update id="updateProgressStatus">
+	UPDATE issue
+	SET
+	issue_progress_status = #{issueProgressStatus}
+	WHERE
+	issue_idx = #{issueIdx}
+</update>
+<!-- 이슈 시작기한을 업데이트 -->
+<update id="updateIssueStartDate">
+	UPDATE issue
+	SET
+	issue_date = #{issueDate}
+	WHERE
+	issue_idx = #{issueIdx}
+</update>
+<!-- 이슈 마감기한을 업데이트 -->
+<update id="updateIssueDeadLineDate">
+	UPDATE issue
+	SET
+	issue_deadline = #{issueDeadline}
+	WHERE
+	issue_idx = #{issueIdx}
+</update>
+
+<insert id="insertIssue" parameterType="kr.or.nexus.vo.IssueVO" >
+    <!-- issue 테이블에 이슈 추가 -->
+        <selectKey keyProperty="issueIdx" resultType="String" order="BEFORE">
+        SELECT CONCAT('ISS_', LPAD(SEQ_ISSUE.NEXTVAL, 3, '0')) FROM DUAL
+    </selectKey>
+    INSERT INTO issue (
+        issue_idx,
+        sub_issue_idx,
+        issue_date,
+        issue_delyn,
+        project_mem_idx,
+        issue_progress_status,
+        issue_priority_name,
+        issue_title,
+        project_id,
+        issue_content,
+        issue_officer,
+        issue_deadline,
+        issue_creation_date
+    ) VALUES (
+        #{issueIdx},
+        #{subIssueIdx},
+        #{issueDate},
+        'N',
+        #{projectMemIdx},
+        #{issueProgressStatus},
+        #{issuePriorityName},
+        #{issueTitle},
+        #{projectId},
+        #{issueContent},
+        #{issueOfficer},
+        #{issueDeadline},
+        SYSDATE
+    )
+    <!-- 새로 생성된 issue_idx를 바로 가져옴 -->
+
+
+    <!-- issue_tags 테이블에 태그가 있는 경우 태그 추가 -->
+    
+</insert>
+
+
+
+
+<update id="updateIssueTags">
+	UPDATE
+		issue_tags
+	SET
+	    issue_tag_name = #{issueTagName}
+	WHERE
+	    issue_idx = #{issueIdx}
+</update>
+
+<insert id="insertIssueBoard" parameterType="IssueBoardAnswersVO">
+INSERT INTO issue_board_answers (
+	issue_comment_id
+	, issue_idx
+	, issue_cmt_content
+	, issue_cmt_writer
+	, issue_cmt_cr_date
+	, issue_cmt_modified_date
+) VALUES (
+	SEQ_ISSUE_BOARD_ANSWERS.nextval
+	, #{issueIdx, jdbcType=VARCHAR}
+	, #{issueCmtContent, jdbcType=CLOB}
+	, #{issueCmtWriter, jdbcType=VARCHAR}
+	, sysdate
+	, sysdate
+	)
+</insert>
+
+<update id="deleteIssueCmt">
+	UPDATE
+		issue_board_answers
+	SET
+		issue_cmt_delyn = 'Y'
+	WHERE
+		issue_comment_id = #{issueCommentId}
+	AND
+		issue_idx = #{issueIdx}
+
+</update>
+
+<update id="updateIssueComment">
+		UPDATE
+		issue_board_answers
+	SET
+		issue_cmt_content = #{issueCmtContent}
+	WHERE
+		issue_comment_id = #{issueCommentId}
+	AND
+		issue_idx = #{issueIdx}
+</update>
+
+<delete id="issueDelete">
+		UPDATE issue
+	SET
+	    ISSUE_DELYN = 'Y'
+	WHERE
+	    issue_idx = #{issueIdx}
+   
+</delete>
+
+<select id="selectIssueList" parameterType="string" resultType="IssueVO">
+	SELECT *
+	FROM ISSUE
+	WHERE PROJECT_ID = #{projectId}
+</select>
+
+<insert id="createissueTag" parameterType="IssueVO">
+    <if test="issueTagName != null and issueTagName != ''">
+        INSERT INTO issue_tags (
+            issue_tags_id,
+            issue_idx,
+            issue_tag_name
+        ) VALUES (
+            SEQ_ISSUE_TAGS.NEXTVAL,
+            CONCAT('ISS_', LPAD(SEQ_ISSUE.CURRVAL, 3, '0')),
+            #{issueTagName}
+        )
+    </if>
+</insert>
+
+</mapper>

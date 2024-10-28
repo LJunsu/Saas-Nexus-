@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="kr.or.nexus.group.memmanage.dao.GroupMemberManageMapper">
+
+	<resultMap type="GroupMemberVO" id="gmMap" autoMapping="true">
+		<id property="groupId" column="GROUP_ID" />
+		<id property="memberId" column="MEMBER_ID" />
+		<association property="member"
+			javaType="MemberManagementVO" autoMapping="true">
+			<id property="memberId" column="MEMBER_ID" />
+		</association>
+		<collection property="projectMember"
+			ofType="ProjectMemberVO" autoMapping="true">
+			<id property="projectMemIdx" column="PROJECT_MEM_IDX" />
+			<collection property="project" ofType="ProjectVO" autoMapping="true" />
+		</collection>
+	</resultMap>
+
+	<resultMap type="GroupMemberVO" id="gmMap2" autoMapping="true">
+		<id property="groupId" column="GROUP_ID" />
+		<id property="memberId" column="MEMBER_ID" />
+		<association property="member"
+			javaType="MemberManagementVO" autoMapping="true">
+			<id property="memberId" column="MEMBER_ID" />
+		</association>
+		<association property="group" javaType="GroupManagementVO" autoMapping="true">
+			<id property="groupId" column="GROUP_ID"/>
+			<collection property="project" ofType="ProjectVO" autoMapping="true" />
+		</association>
+	</resultMap>
+	
+	<sql id="searchFrag">
+	    <if test="@org.apache.commons.lang3.StringUtils@isNotBlank(paging.simpleCondition.searchWord)">
+	        <choose>
+	            <when test="paging.simpleCondition.searchType == 'name'">
+	                AND INSTR(MEMBER_NAME, #{paging.simpleCondition.searchWord}) > 0
+	            </when>
+	            <otherwise>
+	                AND INSTR(MEMBER_NAME, #{paging.simpleCondition.searchWord}) > 0
+	            </otherwise>
+	        </choose>
+	    </if>
+	</sql>
+	
+	<select id="selectTotalRecord" parameterType="map" resultType="int">
+		SELECT COUNT(*)
+		FROM GROUP_MEMBER
+		NATURAL JOIN MEMBER_MANAGEMENT
+		WHERE GROUP_ID = #{groupId} AND GROUP_DELYN = 'N'
+		<include refid="searchFrag" />
+	</select>
+
+	<select id="selectGroupMemberList" parameterType="string"
+		resultMap="gmMap">
+		SELECT GROUP_ID, MEMBER_ID, MEMBER_NAME, MEMBER_TEL, MEMBER_EMAIL, MEMBER_ADDRESS_1, GROUP_JOIN_DATE
+		FROM GROUP_MEMBER
+		NATURAL JOIN MEMBER_MANAGEMENT
+		WHERE GROUP_ID = #{groupId} AND GROUP_DELYN = 'N'
+		ORDER BY MEMBER_ID ASC
+	</select>
+	
+	<select id="pagingGroupMemberList" parameterType="map" resultMap="gmMap">
+	    WITH ORDEREDMEMBERS AS (
+	        SELECT 
+	            GROUP_ID, 
+	            MEMBER_ID, 
+	            MEMBER_NAME, 
+	            MEMBER_TEL, 
+	            MEMBER_EMAIL, 
+	            MEMBER_ADDRESS_1, 
+	            GROUP_JOIN_DATE
+	        FROM GROUP_MEMBER
+	        NATURAL JOIN MEMBER_MANAGEMENT
+	        WHERE GROUP_ID = #{groupId} AND GROUP_DELYN = 'N'
+	        <include refid="searchFrag" />
+	        ORDER BY MEMBER_NAME ASC
+	    )
+	    SELECT A.*
+	    FROM (
+	        SELECT ORDEREDMEMBERS.*, ROWNUM RNUM
+	        FROM ORDEREDMEMBERS
+	    ) A
+	    <![CDATA[
+	    WHERE RNUM >= #{paging.firstRecord} AND RNUM <= #{paging.lastRecord}
+	    ]]>
+	</select>
+	
+	<select id="countGroupMember" parameterType="string" resultType="Integer">
+		SELECT COUNT(*)
+		FROM GROUP_MEMBER
+		WHERE GROUP_ID = #{groupId} AND GROUP_DELYN = 'N'
+	</select>
+
+	<select id="selectGroupMember" parameterType="string" resultMap="gmMap2">
+		SELECT
+			GROUP_ID
+			,MEMBER_ID
+			,GROUP_JOIN_DATE
+			,PROJECT_ID
+			,MEMBER_NAME
+			,MEMBER_ZIP
+			,MEMBER_ADDRESS_1
+			,MEMBER_ADDRESS_2
+			,MEMBER_TEL
+			,MEMBER_EMAIL
+			,MEMBER_PROFILE_PICT
+			,MEMBER_DESCRIPTION
+			,PROJECT_NAME
+		FROM GROUP_MEMBER
+		NATURAL JOIN MEMBER_MANAGEMENT
+		NATURAL JOIN PROJECT
+		WHERE MEMBER_ID = #{memberId} AND GROUP_DELYN = 'N'
+	</select>
+
+	<insert id="insertGroupMember" parameterType="GroupMemberVO">
+		INSERT INTO GROUP_MEMBER(
+		GROUP_ID
+		,MEMBER_ID
+		)
+		VALUES(
+		#{groupId}
+		, #{memberId}
+		)
+	</insert>
+	
+	<select id="selectGroupMemberFromKey" parameterType="GroupMemberVO" resultType="GroupMemberVO">
+		SELECT *
+		FROM GROUP_MEMBER
+		WHERE GROUP_ID = #{groupId} AND MEMBER_ID = #{memberId}
+	</select>
+	
+	<delete id="deleteGroupMember" parameterType="GroupMemberVO">
+		DELETE GROUP_MEMBER
+		WHERE GROUP_ID = #{groupId} AND MEMBER_ID = #{memberId}
+	</delete>
+	
+	<select id="searchGroupMember" parameterType="map" resultMap="gmMap">
+		WITH ORDEREDMEMBERS AS (
+	        SELECT 
+	            GROUP_ID, 
+	            MEMBER_ID, 
+	            MEMBER_NAME, 
+	            MEMBER_TEL, 
+	            MEMBER_EMAIL, 
+	            MEMBER_ADDRESS_1, 
+	            GROUP_JOIN_DATE
+	        FROM GROUP_MEMBER
+	        NATURAL JOIN MEMBER_MANAGEMENT
+	        <include refid="searchFrag" />
+	        WHERE GROUP_ID = #{groupId} AND GROUP_DELYN = 'N' AND MEMBER_NAME LIKE '%' || #{memberName} || '%'
+	        ORDER BY MEMBER_ID ASC
+	    )
+	    SELECT A.*
+	    FROM (
+	        SELECT ORDEREDMEMBERS.*, ROWNUM RNUM
+	        FROM ORDEREDMEMBERS
+	    ) A
+	    <![CDATA[
+	    WHERE RNUM >= #{paging.firstRecord} AND RNUM <= #{paging.lastRecord}
+	    ]]>
+	</select>
+	
+	
+	
+</mapper>

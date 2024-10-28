@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper
+	namespace="kr.or.nexus.notification.mapper.notificationMapper">
+
+	<insert id="insertNotification" parameterType="kr.or.nexus.vo.NotificationVO">
+		INSERT INTO
+		ANNOUNCEMENT_BOARD (
+		BOARD_ID,
+		GROUP_ID,
+		MEMBER_ID,
+		BOARD_TITLE,
+		BOARD_CONTENT,
+		BOARD_CREATE_DATE,
+		ATTACHED_FILE_ID,
+		BOARD_DELYN,
+		PROJECT_ID
+		) VALUES (
+		CONCAT('A', TO_CHAR(LPAD(ANNOUNCEMENT_BOARD_SEQ.NEXTVAL, 3, '0'))),
+		#{groupId,jdbcType=VARCHAR},
+		#{memberId,jdbcType=VARCHAR},
+		#{boardTitle,jdbcType=VARCHAR},
+		#{boardContent,jdbcType=CLOB},
+		SYSDATE,
+		#{atchFileId,jdbcType=VARCHAR},
+		#{boardDelyn,jdbcType=VARCHAR},
+		#{projectId,jdbcType=VARCHAR}
+		);
+	</insert>
+
+</mapper>

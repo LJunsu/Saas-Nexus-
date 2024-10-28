@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.nexus.mypage.dao.MyPageMapper">
+
+
+
+
+
+
+
+<select id="getMyPageInfo" parameterType="String" resultType="kr.or.nexus.vo.MemberManagementVO">
+SELECT
+    member_id,
+    member_pw,
+    member_name,
+    member_regno1,
+    member_regno2,
+    member_zip,
+    member_address_1,
+    member_address_2,
+    member_tel,
+    member_email,
+    member_profile_pict,
+    member_description,
+    member_auth_question,
+    member_auth_response,
+    member_delyn,
+    member_role,
+    member_join_date
+FROM
+    member_management
+
+WHERE
+    MEMBER_ID = #{userId}
+</select>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</mapper>

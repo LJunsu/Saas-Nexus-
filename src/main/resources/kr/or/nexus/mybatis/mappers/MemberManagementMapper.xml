@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.nexus.group.memmanage.dao.MemberManagementMapper">
+
+
+	<select id="selectByPrimaryKey" parameterType="string" resultType="MemberManagementVO">
+		SELECT *
+		FROM MEMBER_MANAGEMENT
+		WHERE MEMBER_ID = #{memberId}
+	</select>
+	
+	<select id="selectByUserEmail" parameterType="string" resultType="MemberManagementVO">
+		SELECT *
+		FROM MEMBER_MANAGEMENT
+		WHERE MEMBER_ID = #{memberEmail}
+	</select>
+	
+	<resultMap type="MemberManagementVO" id="memMap" autoMapping="true">
+		<id property="memberId" column="MEMBER_ID"/>
+		<association property="groupMemberVO" javaType="GroupMemberVO" autoMapping="true" />
+		<collection property="projectMemberVO" ofType="ProjectMemberVO" autoMapping="true" />
+	</resultMap>
+
+	<select id="selectByEmail" parameterType="string" resultMap="memMap">
+		SELECT *
+		FROM MEMBER_MANAGEMENT
+		LEFT OUTER JOIN GROUP_MEMBER ON (MEMBER_MANAGEMENT.MEMBER_ID = GROUP_MEMBER.MEMBER_ID)
+		WHERE MEMBER_MANAGEMENT.MEMBER_EMAIL LIKE '%' || #{memberEmail} || '%'
+		ORDER BY MEMBER_MANAGEMENT.MEMBER_NAME ASC
+	</select>
+	
+	<select id="findSessionUser" parameterType="string" resultMap="memMap">
+		SELECT *
+		FROM MEMBER_MANAGEMENT mm
+		LEFT OUTER JOIN GROUP_MEMBER gm ON mm.MEMBER_ID = gm.MEMBER_ID
+		LEFT OUTER JOIN PROJECT_MEMBER pm ON mm.MEMBER_ID = pm.MEMBER_ID
+		WHERE mm.MEMBER_ID = #{memberId}
+	</select>
+	
+	<insert id="insertMember" parameterType="MemberManagementVO">
+		INSERT INTO MEMBER_MANAGEMENT(
+			MEMBER_ID
+			,MEMBER_PW
+			,MEMBER_NAME
+			,MEMBER_REGNO1
+			,MEMBER_REGNO2
+			,MEMBER_ZIP
+			,MEMBER_ADDRESS_1
+			,MEMBER_ADDRESS_2
+			,MEMBER_TEL
+			,MEMBER_EMAIL
+			,MEMBER_PROFILE_PICT
+			,MEMBER_DESCRIPTION
+			,MEMBER_AUTH_QUESTION
+			,MEMBER_AUTH_RESPONSE
+		)VALUES(
+			#{memberId}
+			,#{memberPw}
+			,#{memberName}
+			,#{memberRegno1}
+			,#{memberRegno2}
+			,#{memberZip}
+			,#{memberAddress1}
+			,#{memberAddress2}
+			,#{memberTel}
+			,#{memberEmail}
+			,#{memberProfilePict}
+			,#{memberDescription}
+			,#{memberAuthQuestion}
+			,#{memberAuthResponse}
+		)
+	</insert>
+	
+	<insert id="insertGroupAdmin" parameterType="MemberManagementVO">
+		INSERT INTO MEMBER_MANAGEMENT(
+			MEMBER_ID
+			,MEMBER_PW
+			,MEMBER_NAME
+			,MEMBER_REGNO1
+			,MEMBER_REGNO2
+			,MEMBER_ZIP
+			,MEMBER_ADDRESS_1
+			,MEMBER_ADDRESS_2
+			,MEMBER_TEL
+			,MEMBER_EMAIL
+			,MEMBER_PROFILE_PICT
+			,MEMBER_DESCRIPTION
+			,MEMBER_AUTH_QUESTION
+			,MEMBER_AUTH_RESPONSE
+			,MEMBER_ROLE
+		)VALUES(
+			#{memberId}
+			,#{memberPw}
+			,#{memberName}
+			,#{memberRegno1}
+			,#{memberRegno2}
+			,#{memberZip}
+			,#{memberAddress1}
+			,#{memberAddress2}
+			,#{memberTel}
+			,#{memberEmail}
+			,#{memberProfilePict}
+			,#{memberDescription}
+			,#{memberAuthQuestion}
+			,#{memberAuthResponse}
+			,'ROLE_GROUPADMIN'
+		)
+	</insert>
+	
+	<insert id="insertGroupAdminMember" parameterType="GroupMemberVO">
+		INSERT INTO GROUP_MEMBER(
+			MEMBER_ID
+			,GROUP_ID
+			,GROUP_ADMIN_YN
+		)VALUES(
+			#{memberId}
+			,#{groupId}
+			,'Y'
+		)
+	</insert>
+	
+	<select id="searchId" parameterType="MemberManagementVO" resultType="MemberManagementVO">
+		SELECT *
+		FROM MEMBER_MANAGEMENT
+		WHERE MEMBER_NAME= #{memberName} AND MEMBER_EMAIL = #{memberEmail}
+	</select>
+
+	<select id="searchPw" parameterType="MemberManagementVO" resultType="MemberManagementVO">
+		SELECT *
+		FROM MEMBER_MANAGEMENT
+		WHERE MEMBER_ID= #{memberId} AND MEMBER_EMAIL = #{memberEmail}
+	</select>
+	
+	<update id="updatePassword" parameterType="MemberManagementVO">
+		UPDATE MEMBER_MANAGEMENT
+		SET	MEMBER_PW = #{memberPw}
+		WHERE MEMBER_ID = #{memberId}
+	</update>
+	
+	
+</mapper>

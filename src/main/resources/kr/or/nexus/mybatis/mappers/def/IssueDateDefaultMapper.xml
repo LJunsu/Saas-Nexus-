@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.nexus.commons.def.mapper.IssueDateDefaultMapper">
+  <resultMap id="BaseResultMap" type="kr.or.nexus.vo.def.IssueDateDefaultVO">
+    <id column="ISSUE_DATE_IDX" jdbcType="VARCHAR" property="issueDateIdx" />
+    <id column="ISSUE_IDX" jdbcType="VARCHAR" property="issueIdx" />
+    <result column="ISSUE_CREATION" jdbcType="TIMESTAMP" property="issueCreation" />
+    <result column="ISSUE_DEADLINE" jdbcType="TIMESTAMP" property="issueDeadline" />
+    <result column="ISSUE_REGISTRATION_DATE" jdbcType="TIMESTAMP" property="issueRegistrationDate" />
+    <result column="DATE_MODIFIED_DATE" jdbcType="TIMESTAMP" property="dateModifiedDate" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="map">
+    delete from ISSUE_DATE
+    where ISSUE_DATE_IDX = #{issueDateIdx,jdbcType=VARCHAR}
+      and ISSUE_IDX = #{issueIdx,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="kr.or.nexus.vo.def.IssueDateDefaultVO">
+    insert into ISSUE_DATE (ISSUE_DATE_IDX, ISSUE_IDX, ISSUE_CREATION, 
+      ISSUE_DEADLINE, ISSUE_REGISTRATION_DATE, 
+      DATE_MODIFIED_DATE)
+    values (#{issueDateIdx,jdbcType=VARCHAR}, #{issueIdx,jdbcType=VARCHAR}, #{issueCreation,jdbcType=TIMESTAMP}, 
+      #{issueDeadline,jdbcType=TIMESTAMP}, #{issueRegistrationDate,jdbcType=TIMESTAMP}, 
+      #{dateModifiedDate,jdbcType=TIMESTAMP})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="kr.or.nexus.vo.def.IssueDateDefaultVO">
+    update ISSUE_DATE
+    set ISSUE_CREATION = #{issueCreation,jdbcType=TIMESTAMP},
+      ISSUE_DEADLINE = #{issueDeadline,jdbcType=TIMESTAMP},
+      ISSUE_REGISTRATION_DATE = #{issueRegistrationDate,jdbcType=TIMESTAMP},
+      DATE_MODIFIED_DATE = #{dateModifiedDate,jdbcType=TIMESTAMP}
+    where ISSUE_DATE_IDX = #{issueDateIdx,jdbcType=VARCHAR}
+      and ISSUE_IDX = #{issueIdx,jdbcType=VARCHAR}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="map" resultMap="BaseResultMap">
+    select ISSUE_DATE_IDX, ISSUE_IDX, ISSUE_CREATION, ISSUE_DEADLINE, ISSUE_REGISTRATION_DATE, 
+    DATE_MODIFIED_DATE
+    from ISSUE_DATE
+    where ISSUE_DATE_IDX = #{issueDateIdx,jdbcType=VARCHAR}
+      and ISSUE_IDX = #{issueIdx,jdbcType=VARCHAR}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select ISSUE_DATE_IDX, ISSUE_IDX, ISSUE_CREATION, ISSUE_DEADLINE, ISSUE_REGISTRATION_DATE, 
+    DATE_MODIFIED_DATE
+    from ISSUE_DATE
+  </select>
+</mapper>

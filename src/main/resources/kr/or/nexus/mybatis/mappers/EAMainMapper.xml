@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.nexus.ea.dao.EAMainMapper">
+  <resultMap id="BaseResultMap" type="kr.or.nexus.vo.ElectronicApprovalVO">
+    <id column="EA_ID" jdbcType="VARCHAR" property="eaId" />
+    <result column="EA_SENDER" jdbcType="VARCHAR" property="eaSender" />
+    <result column="EA_RECEIVER" jdbcType="VARCHAR" property="eaReceiver" />
+    <result column="EA_SEND_DATE" jdbcType="TIMESTAMP" property="eaSendDate" />
+    <result column="EA_APPROVAL_DATE" jdbcType="TIMESTAMP" property="eaApprovalDate" />
+    <result column="EA_APPROVAL_YN" jdbcType="VARCHAR" property="eaApprovalYn" />
+    <association property="documentsVO" javaType="kr.or.nexus.vo.DocumentsVO" autoMapping="true" />
+    <collection property="projectParticipantsVO" ofType="ProjectParticipantsVO" autoMapping="true" />
+    <collection property="memberManagementVO" ofType="MemberManagementVO" autoMapping="true" />
+  </resultMap>
+  <select id="retrieveMemberList" resultType="kr.or.nexus.vo.MemberManagementVO" parameterType="java.util.Map">
+    SELECT
+        a.member_id,
+        a.member_name,
+        a.member_email,
+        a.member_role
+    FROM
+        member_management a
+        LEFT OUTER JOIN group_member b ON a.member_id = b.member_id
+    WHERE
+        b.group_id = #{groupId,jdbcType=VARCHAR}
+        AND a.member_id != #{memberId,jdbcType=VARCHAR}
+  </select>
+  
+  <insert id="insertElectronicApproval" parameterType="kr.or.nexus.vo.ElectronicApprovalVO">
+    <selectKey keyProperty="eaId" resultType="string" order="BEFORE">
+     SELECT 'EA' || LPAD(NVL(TO_NUMBER(SUBSTR(MAX(ea_id), 3)), 0) + 1, 3, '0')
+     FROM electronic_approval
+    </selectKey>
+      INSERT INTO electronic_approval (
+          ea_id
+          , ea_sender
+          , ea_receiver
+          , ea_send_date
+          , ea_approval_date
+          , ea_approval_yn
+      ) VALUES (
+          #{eaId,jdbcType=VARCHAR}
+          , #{eaSender,jdbcType=VARCHAR}
+          , #{eaReceiver,jdbcType=VARCHAR}
+          , sysdate
+          , #{eaApprovalDate,jdbcType=VARCHAR}
+          , #{eaApprovalYn,jdbcType=VARCHAR}
+      )
+  </insert>
+  
+  <select id="retrieveRecentEAId" resultType="String">
+    select ea_id
+    from electronic_approval
+    where rownum = 1
+    order by ea_id desc
+  </select>
+  
+    <insert id="insertDocument" parameterType="kr.or.nexus.vo.DocumentsVO">
+    <selectKey keyProperty="documentId" resultType="string" order="BEFORE">
+       SELECT 'DC' || LPAD(NVL(TO_NUMBER(SUBSTR(MAX(document_id), 3)),0) + 1,3,'0')
+       FROM documents
+    </selectKey>
+      INSERT INTO documents (
+          document_id
+          , ea_id
+          , draft_date
+          , completion_date
+          , creation_reason
+          , project_name
+          , total_participants
+          , document_class
+          , file_url
+      ) VALUES (
+          #{documentId,jdbcType=VARCHAR}
+          , #{eaId,jdbcType=VARCHAR}
+          , sysdate
+          , #{completionDate,jdbcType=VARCHAR}
+          , #{creationReason,jdbcType=VARCHAR}
+          , #{projectName,jdbcType=VARCHAR}
+          , #{totalParticipants,jdbcType=VARCHAR}
+          , #{documentClass,jdbcType=VARCHAR}
+          , #{fileUrl,jdbcType=VARCHAR}
+      )
+  </insert>
+  
+    <select id="retrieveRecentDocumentId" resultType="String">
+    select document_id
+    from documents
+    where rownum = 1
+    order by document_id desc
+  </select>
+  
+   <insert id="insertParticipants" parameterType="kr.or.nexus.vo.ProjectParticipantsVO">
+    <selectKey keyProperty="participantId" resultType="string" order="BEFORE">
+       SELECT 'PP' || LPAD(NVL(TO_NUMBER(SUBSTR(MAX(participant_id), 3)),0) + 1,3,'0')
+       FROM project_participants
+    </selectKey>
+       INSERT INTO project_participants (
+           participant_id
+           , participant_name
+           , participant_role
+           , participant_email
+           , participant_remark
+           , member_id
+           , document_id
+           , ea_id
+       ) VALUES (
+           #{participantId,jdbcType=VARCHAR}
+           , #{participantName,jdbcType=VARCHAR}
+           , #{participantRole,jdbcType=VARCHAR}
+           , #{participantEmail,jdbcType=VARCHAR}
+           , #{participantRemark,jdbcType=VARCHAR}
+           , #{memberId,jdbcType=VARCHAR}
+           , #{documentId,jdbcType=VARCHAR}
+           , #{eaId,jdbcType=VARCHAR}
+       )
+  </insert>
+  
+  <select id="retrieveEAList" parameterType="String" resultType="java.util.Map">
+     SELECT
+         a.ea_id
+         , a.ea_sender
+         , a.ea_receiver
+         , a.ea_send_date
+         , a.ea_approval_date
+         , a.ea_approval_yn
+         , b.member_name AS ea_sender_name
+         , b.member_email as ea_sender_email
+         , c.member_name AS ea_receiver_name
+         , c.member_email as ea_receiver_email
+         , (select count(ea_id) from electronic_approval where ea_sender = #{memberId,jdbcType=VARCHAR} and ea_approval_date is null) ea_sender_count
+         , (select count(ea_id) from electronic_approval where ea_receiver = #{memberId,jdbcType=VARCHAR} and ea_approval_date is null) ea_receiver_count
+         , (select count(ea_id) from electronic_approval where (ea_receiver = #{memberId,jdbcType=VARCHAR} or ea_sender = #{memberId,jdbcType=VARCHAR}) and ea_approval_yn is not null) ea_Y_count
+         , d.project_name
+         , d.creation_reason
+         , d.file_url
+         , d.document_class
+     FROM
+         electronic_approval a
+         LEFT OUTER JOIN member_management b ON b.member_id = a.ea_sender
+         LEFT OUTER JOIN member_management c ON c.member_id = a.ea_receiver
+         LEFT OUTER JOIN DOCUMENTS d ON a.ea_id = d.ea_id
+     WHERE
+         a.ea_sender = #{memberId,jdbcType=VARCHAR} OR a.ea_receiver = #{memberId,jdbcType=VARCHAR}
+     ORDER BY
+         a.ea_id DESC
+  </select>
+  
+  <select id="retrieveEAListByProgress" parameterType="java.util.Map" resultType="java.util.Map">
+     SELECT
+         a.ea_id
+         , a.ea_sender
+         , a.ea_receiver
+         , a.ea_send_date
+         , a.ea_approval_date
+         , a.ea_approval_yn
+         , b.member_name AS ea_sender_name
+         , b.member_email as ea_sender_email
+         , c.member_name AS ea_receiver_name
+         , c.member_email as ea_receiver_email
+         , (select count(ea_id) from electronic_approval where ea_sender = #{memberId,jdbcType=VARCHAR} and ea_approval_date is null) ea_sender_count
+         , (select count(ea_id) from electronic_approval where ea_receiver = #{memberId,jdbcType=VARCHAR} and ea_approval_date is null) ea_receiver_count
+         , (select count(ea_id) from electronic_approval where (ea_receiver = #{memberId,jdbcType=VARCHAR} or ea_sender = #{memberId,jdbcType=VARCHAR}) and ea_approval_yn is not null) ea_Y_count
+         , d.project_name
+         , d.creation_reason
+         , d.file_url
+         , d.document_class
+     FROM
+         electronic_approval a
+         LEFT OUTER JOIN member_management b ON b.member_id = a.ea_sender
+         LEFT OUTER JOIN member_management c ON c.member_id = a.ea_receiver
+         LEFT OUTER JOIN DOCUMENTS d ON a.ea_id = d.ea_id
+     WHERE
+         <if test="approvalProgressStatus == 'waitingApproval'">
+          (a.ea_sender = #{memberId,jdbcType=VARCHAR}) 
+         </if>
+         <if test="approvalProgressStatus == 'waitingApprovalFromSender'">
+          (a.ea_receiver = #{memberId,jdbcType=VARCHAR}) 
+         </if>
+         <if test="approvalProgressStatus == 'completeApproval'">
+          (a.ea_sender = #{memberId,jdbcType=VARCHAR} OR a.ea_receiver = #{memberId,jdbcType=VARCHAR}) 
+         </if>
+         and 
+         <if test="approvalProgressStatus == 'completeApproval'">
+           a.ea_approval_yn is not null
+         </if>
+         <if test="approvalProgressStatus == 'waitingApprovalFromSender'||approvalProgressStatus == 'waitingApproval'">
+           a.ea_approval_yn IS NULL
+         </if>
+     ORDER BY a.ea_id DESC
+  </select>
+  
+  <update id="modifyElectronicApproval" parameterType="kr.or.nexus.vo.ElectronicApprovalVO">
+    UPDATE electronic_approval
+    SET
+        ea_approval_date = #{eaApprovalDate,jdbcType=VARCHAR}
+        , ea_approval_yn = #{eaApprovalYn,jdbcType=VARCHAR}
+    WHERE ea_id =  #{eaId,jdbcType=VARCHAR}
+  </update>
+  
+  <select id="retrieveEa" parameterType="String" resultMap="BaseResultMap">
+    SELECT
+        ea_id,
+        ea_sender,
+        ea_receiver,
+        ea_send_date,
+        ea_approval_date,
+        ea_approval_yn
+    FROM
+        electronic_approval
+    WHERE
+        ea_id=#{eaId,jdbcType=VARCHAR}
+  </select>
+  
+  
+  
+  <select id="selectDoc" parameterType="string" resultType="DocumentsVO">
+  	SELECT *
+  	FROM DOCUMENTS
+  	WHERE EA_ID = #{eaId}
+  </select>
+  
+  <select id="selectPart" parameterType="string" resultType="ProjectParticipantsVO">
+  	SELECT *
+  	FROM PROJECT_PARTICIPANTS
+  	WHERE EA_ID = #{eaId}
+  </select>
+  
+  
+    <select id="retrieveEACountListByProgress" parameterType="java.util.Map" resultType="java.util.Map">
+     SELECT
+          (select count(ea_id) from electronic_approval where ea_sender = #{memberId,jdbcType=VARCHAR} and ea_approval_date is null) ea_sender_count
+         , (select count(ea_id) from electronic_approval where ea_receiver = #{memberId,jdbcType=VARCHAR} and ea_approval_date is null) ea_receiver_count
+         , (select count(ea_id) from electronic_approval where (ea_receiver = #{memberId,jdbcType=VARCHAR} or ea_sender = #{memberId,jdbcType=VARCHAR}) and ea_approval_yn is not null) ea_Y_count
+     FROM
+         electronic_approval a
+         LEFT OUTER JOIN member_management b ON b.member_id = a.ea_sender
+         LEFT OUTER JOIN member_management c ON c.member_id = a.ea_receiver
+         LEFT OUTER JOIN DOCUMENTS d ON a.ea_id = d.ea_id
+     WHERE
+          (a.ea_receiver = #{memberId,jdbcType=VARCHAR} or a.ea_sender= #{memberId,jdbcType=VARCHAR}) 
+     ORDER BY a.ea_id DESC
+  </select>
+  
+  <select id="retrieveAllMemberList" resultType="kr.or.nexus.vo.MemberManagementVO" parameterType="java.util.Map">
+    SELECT
+        a.member_id,
+        a.member_name,
+        a.member_email,
+        a.member_role
+    FROM
+        member_management a
+        LEFT OUTER JOIN group_member b ON a.member_id = b.member_id
+    WHERE
+        b.group_id = #{groupId,jdbcType=VARCHAR}
+  </select>
+  
+</mapper>

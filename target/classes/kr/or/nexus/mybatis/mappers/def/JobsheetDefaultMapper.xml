@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.nexus.commons.def.mapper.JobsheetDefaultMapper">
+  <resultMap id="BaseResultMap" type="kr.or.nexus.vo.def.JobsheetDefaultVO">
+    <id column="JOBSHEET_ID" jdbcType="NUMERIC" property="jobsheetId" />
+    <result column="JOBSHEET_TITLE" jdbcType="VARCHAR" property="jobsheetTitle" />
+    <result column="JOBSHEET_REGDT" jdbcType="TIMESTAMP" property="jobsheetRegdt" />
+    <result column="JOBSHEET_UPDDT" jdbcType="TIMESTAMP" property="jobsheetUpddt" />
+    <result column="JOBSHEET_DELYN" jdbcType="CHAR" property="jobsheetDelyn" />
+    <result column="PROJECT_MEM_IDX" jdbcType="VARCHAR" property="projectMemIdx" />
+    <result column="ATTACHED_FILE_ID" jdbcType="VARCHAR" property="attachedFileId" />
+    <result column="JOBSHEET_CONTENT" jdbcType="CLOB" property="jobsheetContent" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Short">
+    delete from JOBSHEET
+    where JOBSHEET_ID = #{jobsheetId,jdbcType=NUMERIC}
+  </delete>
+  <insert id="insert" parameterType="kr.or.nexus.vo.def.JobsheetDefaultVO">
+    insert into JOBSHEET (JOBSHEET_ID, JOBSHEET_TITLE, JOBSHEET_REGDT, 
+      JOBSHEET_UPDDT, JOBSHEET_DELYN, PROJECT_MEM_IDX, 
+      ATTACHED_FILE_ID, JOBSHEET_CONTENT)
+    values (#{jobsheetId,jdbcType=NUMERIC}, #{jobsheetTitle,jdbcType=VARCHAR}, #{jobsheetRegdt,jdbcType=TIMESTAMP}, 
+      #{jobsheetUpddt,jdbcType=TIMESTAMP}, #{jobsheetDelyn,jdbcType=CHAR}, #{projectMemIdx,jdbcType=VARCHAR}, 
+      #{attachedFileId,jdbcType=VARCHAR}, #{jobsheetContent,jdbcType=CLOB})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="kr.or.nexus.vo.def.JobsheetDefaultVO">
+    update JOBSHEET
+    set JOBSHEET_TITLE = #{jobsheetTitle,jdbcType=VARCHAR},
+      JOBSHEET_REGDT = #{jobsheetRegdt,jdbcType=TIMESTAMP},
+      JOBSHEET_UPDDT = #{jobsheetUpddt,jdbcType=TIMESTAMP},
+      JOBSHEET_DELYN = #{jobsheetDelyn,jdbcType=CHAR},
+      PROJECT_MEM_IDX = #{projectMemIdx,jdbcType=VARCHAR},
+      ATTACHED_FILE_ID = #{attachedFileId,jdbcType=VARCHAR},
+      JOBSHEET_CONTENT = #{jobsheetContent,jdbcType=CLOB}
+    where JOBSHEET_ID = #{jobsheetId,jdbcType=NUMERIC}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Short" resultMap="BaseResultMap">
+    select JOBSHEET_ID, JOBSHEET_TITLE, JOBSHEET_REGDT, JOBSHEET_UPDDT, JOBSHEET_DELYN, 
+    PROJECT_MEM_IDX, ATTACHED_FILE_ID, JOBSHEET_CONTENT
+    from JOBSHEET
+    where JOBSHEET_ID = #{jobsheetId,jdbcType=NUMERIC}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select JOBSHEET_ID, JOBSHEET_TITLE, JOBSHEET_REGDT, JOBSHEET_UPDDT, JOBSHEET_DELYN, 
+    PROJECT_MEM_IDX, ATTACHED_FILE_ID, JOBSHEET_CONTENT
+    from JOBSHEET
+  </select>
+</mapper>

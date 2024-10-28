@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.nexus.sysadmin.group.dao.SAGroupMapper">
+  <resultMap id="BaseResultMap" type="kr.or.nexus.vo.GroupManagementVO">
+    <id column="GROUP_ID" jdbcType="VARCHAR" property="groupId" />
+    <result column="GROUP_NAME" jdbcType="VARCHAR" property="groupName" />
+    <result column="GROUP_PROFILE_PICTURE" jdbcType="VARCHAR" property="groupProfilePicture" />
+    <result column="GROUP_CREATION_DATE" jdbcType="TIMESTAMP" property="groupCreationDate" />
+    <result column="GROUP_ADDRESS" jdbcType="VARCHAR" property="groupAddress" />
+    <result column="GROUP_DELYN" jdbcType="VARCHAR" property="groupDelyn" />
+    <result column="USE_STATUS" jdbcType="VARCHAR" property="useStatus" />
+    <result column="BUSINESS_LICENSE_ID" jdbcType="VARCHAR" property="businessLicenseId" />
+    <result column="APPLICATION_DATE" jdbcType="TIMESTAMP" property="applicationDate" />
+    <result column="APPROVAL_DATE" jdbcType="TIMESTAMP" property="approvalDate" />
+    <result column="GROUP_COMMENT" jdbcType="VARCHAR" property="groupComment" />
+    <result column="MEMBER_ID" jdbcType="VARCHAR" property="memberId" />
+    <association property="memberManagementVO" javaType="MemberManagementVO" autoMapping="true" />
+  </resultMap>
+  
+  <resultMap type="GroupManagementVO" id="BaseResultMap2">
+  	<id property="groupId" column="GROUP_ID"/>
+  	<result column="GROUP_NAME" jdbcType="VARCHAR" property="groupName" />
+    <result column="GROUP_PROFILE_PICTURE" jdbcType="VARCHAR" property="groupProfilePicture" />
+    <result column="GROUP_CREATION_DATE" jdbcType="TIMESTAMP" property="groupCreationDate" />
+    <result column="GROUP_ADDRESS" jdbcType="VARCHAR" property="groupAddress" />
+    <result column="GROUP_DELYN" jdbcType="VARCHAR" property="groupDelyn" />
+    <result column="USE_STATUS" jdbcType="VARCHAR" property="useStatus" />
+    <result column="BUSINESS_LICENSE_ID" jdbcType="VARCHAR" property="businessLicenseId" />
+    <result column="APPLICATION_DATE" jdbcType="TIMESTAMP" property="applicationDate" />
+    <result column="APPROVAL_DATE" jdbcType="TIMESTAMP" property="approvalDate" />
+    <result column="GROUP_COMMENT" jdbcType="VARCHAR" property="groupComment" />
+    <result column="MEMBER_ID" jdbcType="VARCHAR" property="memberId" />
+  	<association property="memberManagementVO" javaType="MemberManagementVO" autoMapping="true" />
+  	<collection property="subscriptionPaymentList" ofType="SubscriptionPaymentVO" autoMapping="true" />
+  </resultMap>
+
+  <sql id="searchFrag">
+      <where>
+          <if test="@org.apache.commons.lang3.StringUtils@isNotBlank(simpleCondition.searchWord)">
+              <choose>
+                  <when test="simpleCondition.searchType eq 'Gname'">
+                      INSTR(b.GROUP_NAME, #{simpleCondition.searchWord}) > 0
+                  </when>
+                  <when test="simpleCondition.searchType eq 'Mname'">
+                      INSTR(a.MEMBER_NAME, #{simpleCondition.searchWord}) > 0
+                  </when>
+                  <otherwise>
+                      INSTR(b.GROUP_NAME, #{simpleCondition.searchWord}) > 0
+                      OR
+                      INSTR(a.MEMBER_NAME, #{simpleCondition.searchWord}) > 0
+                  </otherwise>
+              </choose>
+          </if>
+      </where>
+  </sql>
+
+  <select id="selectTotalRecord" resultType="int">
+    SELECT COUNT(*)
+    FROM GROUP_MANAGEMENT b LEFT JOIN member_management a ON b.member_id = a.member_id
+    <include refid="searchFrag"/>
+  </select>
+
+  <select id="retrieveGroupList" resultMap="BaseResultMap">
+    WITH ORDEREDGROUP AS (
+      SELECT 
+        b.GROUP_ID,
+        b.GROUP_NAME,
+        b.GROUP_PROFILE_PICTURE,
+        b.GROUP_CREATION_DATE,
+        b.GROUP_DELYN,
+        b.USE_STATUS,
+        b.BUSINESS_LICENSE_ID,
+        b.APPLICATION_DATE,
+        b.APPROVAL_DATE,
+        b.GROUP_COMMENT,
+        b.MEMBER_ID,
+        a.member_name
+      FROM GROUP_MANAGEMENT b 
+      LEFT JOIN member_management a 
+      ON b.member_id = a.member_id
+      <include refid="searchFrag" />
+      ORDER BY b.APPLICATION_DATE DESC
+    )
+    SELECT *
+    FROM (
+      SELECT A.*, ROWNUM RNUM
+      FROM ORDEREDGROUP A
+    )
+        <![CDATA[
+     WHERE RNUM >= #{firstRecord} AND RNUM <= #{lastRecord}
+         ]]>
+    ORDER BY RNUM ASC
+  </select>
+
+  <select id="retrieveGroup" parameterType="String" resultMap="BaseResultMap2">
+      select b.GROUP_ID
+      , b.GROUP_NAME
+      , b.GROUP_PROFILE_PICTURE
+      , b.GROUP_CREATION_DATE
+      , b.GROUP_DELYN
+      , b.USE_STATUS
+      , b.BUSINESS_LICENSE_ID
+      , b.APPLICATION_DATE
+      , b.APPROVAL_DATE
+      , b.GROUP_COMMENT
+      , b.GROUP_ADDRESS
+      , b.MEMBER_ID
+      , a.member_name
+      , a.member_Address_1
+      , a.member_Address_2
+      , a.member_tel
+      , a.member_email
+      , a.member_role
+      , ROWNUM RNUM
+      , c.*
+      from GROUP_MANAGEMENT b LEFT JOIN member_management a ON b.member_id = a.member_id
+      LEFT OUTER JOIN SUBSCRIPTION_PAYMENT c ON b.GROUP_ID = c.GROUP_ID
+      where b.group_id =#{groupId,jdbcType=VARCHAR}
+
+  </select>
+
+  <update id="modifyGroupApproval" parameterType="kr.or.nexus.vo.GroupManagementVO">
+    update GROUP_MANAGEMENT
+    set APPROVAL_DATE = #{approvalDate,jdbcType=TIMESTAMP}
+    where GROUP_ID = #{groupId,jdbcType=VARCHAR}
+  </update>
+
+  <insert id="insertGroupRefusal" parameterType="kr.or.nexus.vo.GroupRefusalVO">
+  <selectKey keyProperty="refusalIdx" resultType="int" order="BEFORE"> select SEQ_GROUP_REFUSAL.nextval as refusalIdx from dual</selectKey>
+    insert into GROUP_REFUSAL (
+       REFUSAL_IDX
+       , REFUSAL_CONTENT
+       , REFUSAL_DATE
+       , MEMBER_ID
+       , MEMBER_EMAIL
+       , GROUP_ID
+    ) values (
+       #{refusalIdx,jdbcType=NUMERIC}
+       , #{refusalContent,jdbcType=VARCHAR}
+       , #{refusalDate,jdbcType=DATE}
+       , #{memberId,jdbcType=VARCHAR}
+       , #{memberEmail,jdbcType=VARCHAR}
+       , #{groupId,jdbcType=VARCHAR}
+      )
+  </insert>
+
+
+
+
+
+</mapper>

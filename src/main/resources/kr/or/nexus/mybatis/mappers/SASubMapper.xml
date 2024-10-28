@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.nexus.sysadmin.subscribe.dao.SASubMapper">
+  <resultMap id="BaseResultMap" type="kr.or.nexus.vo.MemberManagementVO">
+    <id column="MEMBER_ID" jdbcType="VARCHAR" property="memberId" />
+    <result column="MEMBER_PW" jdbcType="VARCHAR" property="memberPw" />
+    <result column="MEMBER_NAME" jdbcType="VARCHAR" property="memberName" />
+    <result column="MEMBER_REGNO1" jdbcType="NUMERIC" property="memberRegno1" />
+    <result column="MEMBER_REGNO2" jdbcType="NUMERIC" property="memberRegno2" />
+    <result column="MEMBER_ZIP" jdbcType="NUMERIC" property="memberZip" />
+    <result column="MEMBER_ADDRESS_1" jdbcType="VARCHAR" property="memberAddress1" />
+    <result column="MEMBER_ADDRESS_2" jdbcType="VARCHAR" property="memberAddress2" />
+    <result column="MEMBER_TEL" jdbcType="VARCHAR" property="memberTel" />
+    <result column="MEMBER_EMAIL" jdbcType="VARCHAR" property="memberEmail" />
+    <result column="MEMBER_PROFILE_PICT" jdbcType="VARCHAR" property="memberProfilePict" />
+    <result column="MEMBER_DESCRIPTION" jdbcType="VARCHAR" property="memberDescription" />
+    <result column="MEMBER_AUTH_QUESTION" jdbcType="VARCHAR" property="memberAuthQuestion" />
+    <result column="MEMBER_AUTH_RESPONSE" jdbcType="VARCHAR" property="memberAuthResponse" />
+    <result column="MEMBER_DELYN" jdbcType="VARCHAR" property="memberDelyn" />
+    <result column="MEMBER_JOIN_DATE" jdbcType="DATE" property="memberJoinDate" />
+    <result column="MEMBER_ROLE" jdbcType="VARCHAR" property="memberRole" />
+    <association property="groupManagementVO" javaType="GroupManagementVO" autoMapping="true" />
+    <association property="groupMemberVO" javaType="GroupMemberVO" autoMapping="true" />
+  </resultMap>
+  
+  <select id="retrieveMemCountByRegDt" resultType="Integer" parameterType="java.util.Map">
+    WITH DateRange AS (
+        SELECT TO_DATE(#{startDate}, 'YYYY-MM-DD') + LEVEL - 1 AS member_join_date
+        FROM dual
+        CONNECT BY LEVEL &lt;= TO_DATE(#{lastDate}, 'YYYY-MM-DD') - TO_DATE(#{startDate}, 'YYYY-MM-DD') + 1
+    )
+    SELECT 
+        NVL(MM.memCount, 0) AS memCount
+    FROM 
+        DateRange DR
+    LEFT JOIN (
+        SELECT TRUNC(member_join_date) AS member_join_date, COUNT(*) AS memCount
+        FROM member_management
+        WHERE TRUNC(member_join_date, 'MM') = TO_DATE(#{justYearMonth}, 'YYYY-MM')
+        GROUP BY TRUNC(member_join_date)
+    ) MM
+    ON DR.member_join_date = MM.member_join_date
+    ORDER BY DR.member_join_date
+  </select>
+  
+  <select id="retrieveSubCountByRegDt" resultType="Integer" parameterType="java.util.Map">
+    
+    WITH date_series AS (
+	    SELECT TO_DATE(#{startDate}, 'YYYY-MM-DD') + LEVEL - 1 AS member_join_date
+	    FROM dual
+	    CONNECT BY LEVEL &lt;= TO_DATE(#{lastDate}, 'YYYY-MM-DD') - TO_DATE(#{startDate}, 'YYYY-MM-DD') + 1
+	)
+	SELECT 
+	    COALESCE(COUNT(subscription_payment.group_id), 0) AS new_subscribers
+	FROM date_series
+	LEFT JOIN (
+	    SELECT group_id, TRUNC(payment_date) AS payment_date
+	    FROM (
+	        SELECT group_id, payment_date, ROW_NUMBER() OVER (PARTITION BY group_id ORDER BY payment_date ASC) AS rnum
+	        FROM subscription_payment
+	    )
+	    WHERE rnum = 1
+	) subscription_payment
+	ON date_series.member_join_date = subscription_payment.payment_date
+	GROUP BY date_series.member_join_date
+	ORDER BY date_series.member_join_date
+    
+  </select>
+  
+  <select id="retrieveMemDetailByRegDt" resultType="kr.or.nexus.vo.MemberManagementVO" parameterType="String">
+    SELECT
+     member_id
+     , member_name
+     , member_address_1
+     , member_address_2
+     , member_tel
+     , member_email
+     , member_delyn
+     , member_role
+     , member_join_date
+    FROM
+        member_management
+    where TRUNC(member_join_date) = TO_DATE(#{goToControllerDate}, 'YYYY-MM-DD')
+  </select>
+  
+  <select id="retrieveSubDetailByRegDt" resultType="java.util.Map" parameterType="String">
+    WITH date_series AS (
+      SELECT TO_DATE(#{goToControllerDate}, 'YYYY-MM-DD') AS member_join_date
+      FROM dual
+    )
+    SELECT 
+        subscription_payment.payment_date
+        , subscription_payment.group_id
+        , subscription_payment.group_name
+        , subscription_payment.group_address
+        , subscription_payment.approval_date
+        , subscription_payment.member_name
+    FROM date_series
+    LEFT JOIN (
+        SELECT a.payment_date, b.group_id, b.group_name, b.group_address, b.approval_date, c.member_name
+        FROM (
+            SELECT group_id, payment_date, ROW_NUMBER() OVER (PARTITION BY group_id ORDER BY payment_date ASC) AS rnum
+            FROM subscription_payment
+        ) a
+        LEFT JOIN group_management b ON b.group_id = a.group_id
+        LEFT JOIN member_management c ON b.member_id = c.member_id
+        WHERE rnum = 1
+    ) subscription_payment
+    ON date_series.member_join_date = TRUNC(subscription_payment.payment_date)
+    GROUP BY 
+    subscription_payment.payment_date
+    , subscription_payment.group_id
+    , subscription_payment.group_name
+    , date_series.member_join_date
+    , subscription_payment.group_address
+    , subscription_payment.approval_date
+    , subscription_payment.member_name
+  </select>
+  
+  <select id="retrieveGroupList" resultType="kr.or.nexus.vo.GroupManagementVO">
+    SELECT DISTINCT
+       c.group_id
+       , c.group_name
+       , c.group_profile_picture
+       , c.group_creation_date
+       , c.group_delyn
+       , c.use_status
+       , c.business_license_id
+       , c.application_date
+       , c.approval_date
+       , c.group_comment
+     FROM member_management b
+     LEFT JOIN group_member a ON b.member_id = a.member_id
+     LEFT JOIN group_management c ON a.group_id = c.group_id
+     where c.group_name is not null
+  </select>
+  
+  <select id="retrieveTotalByGroup" resultType="java.util.Map" parameterType="string">
+    SELECT 
+        COUNT(DISTINCT b.member_id) + 1 AS total_group_member
+        , COUNT(DISTINCT c.project_id) AS total_group_project
+        , (SELECT COUNT(DISTINCT e.issue_idx)
+          from issue e
+          left outer JOIN project c ON c.project_id = e.project_id
+          where c.group_id=#{groupId})AS total_group_issue
+        , COALESCE(
+            (SELECT TO_CHAR(SUM(d.payment_amount), 'FM999,999,999,999') 
+             FROM subscription_payment d
+             WHERE d.group_id = #{groupId}), 
+            '0'
+          ) AS total_group_payment
+    FROM group_management a
+    LEFT OUTER JOIN group_member b ON a.group_id = b.group_id
+    LEFT OUTER JOIN project c ON a.group_id = c.group_id
+    LEFT OUTER JOIN issue e ON c.project_id = e.project_id
+    WHERE a.group_id = #{groupId}
+    GROUP BY a.group_id
+  </select>
+  
+  <select id="retrievePaymentAmountList" resultType="Integer">
+    WITH months AS (
+        SELECT '01' AS month FROM dual UNION ALL
+        SELECT '02' FROM dual UNION ALL
+        SELECT '03' FROM dual UNION ALL
+        SELECT '04' FROM dual UNION ALL
+        SELECT '05' FROM dual UNION ALL
+        SELECT '06' FROM dual UNION ALL
+        SELECT '07' FROM dual UNION ALL
+        SELECT '08' FROM dual UNION ALL
+        SELECT '09' FROM dual UNION ALL
+        SELECT '10' FROM dual UNION ALL
+        SELECT '11' FROM dual UNION ALL
+        SELECT '12' FROM dual
+    )
+    SELECT 
+        COALESCE(SUM(sp.payment_amount), 0) AS total_amount
+    FROM 
+        months m
+    LEFT JOIN 
+        subscription_payment sp
+        ON TO_CHAR(sp.payment_date, 'MM') = m.month
+    GROUP BY 
+        m.month
+    ORDER BY 
+        m.month
+  </select>
+  
+  <select id="retrievePaymentDetailList" resultType="java.util.Map" parameterType="java.util.Map">
+    SELECT
+        a.payment_id
+        , TO_CHAR(a.payment_date, 'YYYY-MM-DD') AS payment_date
+        , TO_CHAR(a.payment_amount, '999,999,999,999') AS payment_amount
+        , a.refund_approval
+        , a.group_id
+        , a.subscription_id
+        , b.group_name
+    FROM
+        subscription_payment a
+    left outer join group_management b on (a.group_id = b.group_id)
+    WHERE
+        a.payment_date BETWEEN TO_DATE(#{startDate}, 'YYYY-MM-DD') AND TO_DATE(#{lastDate}, 'YYYY-MM-DD')
+        AND a.refund_approval = 'N'
+  </select>
+  
+  <select id="retrievePayTotalByGroup" resultType="java.util.Map" parameterType="string">
+    WITH subscription_period AS (
+        SELECT
+            MIN(PAYMENT_DATE) AS first_payment_date, 
+            MAX(PAYMENT_DATE) AS last_payment_date 
+        FROM 
+            subscription_payment 
+        WHERE 
+            GROUP_ID = #{groupId}
+    ), 
+    payment_count AS (
+        SELECT 
+            COUNT(*) AS total_payments 
+        FROM 
+            subscription_payment
+        WHERE 
+            GROUP_ID = #{groupId}
+    ),
+    all_months AS (
+        SELECT ADD_MONTHS(TRUNC(s.first_payment_date, 'MM'), LEVEL - 1) AS month_start
+        FROM subscription_period s
+        CONNECT BY ADD_MONTHS(TRUNC(s.first_payment_date, 'MM'), LEVEL - 1) &lt;= TRUNC(s.last_payment_date, 'MM')
+    ),
+    months_with_payments AS (
+        SELECT DISTINCT TRUNC(PAYMENT_DATE, 'MM') AS payment_month
+        FROM subscription_payment
+        WHERE GROUP_ID = #{groupId}
+    )
+    SELECT *
+    FROM (
+        SELECT 
+            TO_CHAR(a.month_start, 'YYYY-MM') AS month,  
+            TO_CHAR(s.first_payment_date, 'YYYY-MM') AS first_payment_date, 
+            TO_CHAR(s.last_payment_date, 'YYYY-MM') AS last_payment_date,  
+            p.total_payments,
+            CEIL(MONTHS_BETWEEN(s.last_payment_date, s.first_payment_date)) + 1 AS expected_payments, 
+            (p.total_payments / (CEIL(MONTHS_BETWEEN(s.last_payment_date, s.first_payment_date)) + 1)) * 100 AS subscription_rate,
+            CASE
+                WHEN m.payment_month IS NULL THEN 'missing_month'
+                ELSE NULL
+            END AS missing_month
+        FROM 
+            all_months a
+        LEFT JOIN months_with_payments m
+            ON a.month_start = m.payment_month
+        JOIN subscription_period s
+            ON 1=1
+        JOIN payment_count p
+            ON 1=1
+        ORDER BY 
+            a.month_start ASC
+    )
+    WHERE ROWNUM &lt;= 10
+  </select>
+  
+  <select id="retrieveTotalPay" resultType="String">
+	SELECT TO_CHAR(SUM(payment_amount), 'FM999,999,999,999')
+	FROM subscription_payment
+  </select>
+</mapper>

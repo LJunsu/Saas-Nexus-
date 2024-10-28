@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.nexus.commons.def.mapper.ProjectRoleDefaultMapper">
+  <resultMap id="BaseResultMap" type="kr.or.nexus.vo.def.ProjectRoleDefaultVO">
+    <id column="PROJECT_ROLE_IDX" jdbcType="VARCHAR" property="projectRoleIdx" />
+    <id column="PROJECT_ID" jdbcType="VARCHAR" property="projectId" />
+    <result column="PROJECT_ROLE_NAME" jdbcType="VARCHAR" property="projectRoleName" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="map">
+    delete from PROJECT_ROLE
+    where PROJECT_ROLE_IDX = #{projectRoleIdx,jdbcType=VARCHAR}
+      and PROJECT_ID = #{projectId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="ProjectRoleVO">
+  	<selectKey order="BEFORE" resultType="string"
+			keyProperty="projectRoleIdx">
+			SELECT #{projectId} || '_' ||
+			LPAD(NVL(TO_NUMBER(SUBSTR(MAX(PROJECT_ROLE_IDX), 8)),0)+1,3,'0')
+			FROM PROJECT_ROLE
+			WHERE PROJECT_ID = #{projectId}
+	</selectKey>
+    insert into PROJECT_ROLE (PROJECT_ROLE_IDX, PROJECT_ID, PROJECT_ROLE_NAME
+      )
+    values (#{projectRoleIdx,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{projectRoleName,jdbcType=VARCHAR}
+      )
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="kr.or.nexus.vo.def.ProjectRoleDefaultVO">
+    update PROJECT_ROLE
+    set PROJECT_ROLE_NAME = #{projectRoleName,jdbcType=VARCHAR}
+    where PROJECT_ROLE_IDX = #{projectRoleIdx,jdbcType=VARCHAR}
+      and PROJECT_ID = #{projectId,jdbcType=VARCHAR}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="map" resultMap="BaseResultMap">
+    select PROJECT_ROLE_IDX, PROJECT_ID, PROJECT_ROLE_NAME
+    from PROJECT_ROLE
+    where PROJECT_ROLE_IDX = #{projectRoleIdx,jdbcType=VARCHAR}
+      and PROJECT_ID = #{projectId,jdbcType=VARCHAR}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select PROJECT_ROLE_IDX, PROJECT_ID, PROJECT_ROLE_NAME
+    from PROJECT_ROLE
+  </select>
+
+  <select id="selectRoleList" parameterType="string" resultType="ProjectRoleVO">
+  	SELECT PROJECT_ROLE_IDX, PROJECT_ID, PROJECT_ROLE_NAME
+  	FROM PROJECT_ROLE
+  	WHERE PROJECT_ID = #{projectId}
+  	ORDER BY PROJECT_ROLE_IDX ASC
+  </select>
+  
+  <delete id="deleteProjectRole" parameterType="ProjectRoleVO">
+  	DELETE
+  	FROM PROJECT_ROLE
+  	WHERE PROJECT_ROLE_IDX = #{projectRoleIdx}
+  </delete>
+  
+  <select id="selectRole" parameterType="string" resultType="ProjectRoleVO">
+  	SELECT *
+  	FROM PROJECT_ROLE
+  	WHERE PROJECT_ROLE_IDX = #{role}
+  </select>
+  
+  <select id="findByPk" parameterType="string" resultType="ProjectRoleVO">
+  	SELECT *
+  	FROM PROJECT_ROLE
+  	WHERE PROJECT_ROLE_IDX = #{projectRoleIdx}
+  </select>
+  
+  <select id="retrieve" parameterType="ProjectRoleDefaultVO" resultType="ProjectRoleDefaultVO">
+  	SELECT *
+  	FROM PROJECT_ROLE
+  	WHERE PROJECT_ID = #{projectId} AND PROJECT_ROLE_NAME = #{projectRoleName}
+  </select>
+  
+</mapper>

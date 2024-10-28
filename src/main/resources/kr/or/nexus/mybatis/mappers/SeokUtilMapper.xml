@@ -1,0 +1,774 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.nexus.commons.mapper.AlarmMapper">
+
+<resultMap type="MemberManagementVO" id="memMap"
+		autoMapping="true">
+	<id property="memberId" column="MEMBER_ID" />
+	<association property="groupMemberVO"
+	javaType="GroupMemberVO" autoMapping="true" />
+	<collection property="projectMemberVO"
+		ofType="ProjectMemberVO" autoMapping="true" />
+	<collection property="issueVO"
+		ofType="kr.or.nexus.vo.IssueVO" autoMapping="true" />
+	<collection property="projectVO"
+		ofType="kr.or.nexus.vo.ProjectVO" autoMapping="true" />
+
+</resultMap>
+
+
+
+<resultMap type="kr.or.nexus.commons.vo.AlarmReceiverVO" id="receiverMap"
+		autoMapping="true">
+	<id property="alarmNo" column="ALARM_NO" />
+	<collection property="alarmVO"
+		ofType="kr.or.nexus.commons.vo.AlarmVO" autoMapping="true" />
+</resultMap>
+
+
+
+<select id="NonSessionAlarmList" parameterType="String" resultMap="receiverMap">
+
+SELECT
+    ar.alarm_no,
+    ar.alarm_id,
+    ar.receiver_id,
+    ar.alarm_chk,
+    ar.alarm_chk_date,
+    a.alarm_id,
+    a.alarm_sender,
+    a.alarm_sender_n,
+    a.project_id,
+    a.group_id,
+    a.issue_idx,
+    a.data,
+    a.urldata,
+    a.eventtype,
+    a.eventdate
+FROM
+    alarm_receiver ar
+INNER JOIN
+    alarm a ON ar.alarm_id = a.alarm_id
+WHERE
+    ar.receiver_id =#{memberId}
+AND
+	NOT a.alarm_sender=#{memberId}
+AND
+	a.LOG_LOGIN is null    
+AND
+    a.eventdate > SYSTIMESTAMP - INTERVAL '24' HOUR
+ORDER BY
+	 a.eventdate DESC
+</select>
+
+
+<select id="NonChkAlarmList" parameterType="String" resultMap="receiverMap">
+SELECT
+    ar.alarm_no,
+    ar.alarm_id,
+    ar.receiver_id,
+    ar.alarm_chk,
+    ar.alarm_chk_date,
+    a.alarm_id,
+    a.alarm_sender,
+    a.alarm_sender_n,
+    a.project_id,
+    a.group_id,
+    a.issue_idx,
+    a.data,
+    a.urldata,
+    a.eventtype,
+    a.eventdate
+FROM
+    alarm_receiver ar
+INNER JOIN
+    alarm a ON ar.alarm_id = a.alarm_id
+WHERE
+    ar.receiver_id =#{memberId}
+AND
+	NOT a.alarm_sender=#{memberId}
+AND
+	a.LOG_LOGIN is null    
+AND
+    a.eventdate > SYSTIMESTAMP - INTERVAL '24' HOUR
+AND
+	 ar.alarm_chk ='N'
+ORDER BY
+	 a.eventdate DESC
+</select>
+
+
+
+
+<select id="ChkAlarmList" parameterType="String" resultMap="receiverMap">
+SELECT
+    ar.alarm_no,
+    ar.alarm_id,
+    ar.receiver_id,
+    ar.alarm_chk,
+    ar.alarm_chk_date,
+    a.alarm_id,
+    a.alarm_sender,
+    a.alarm_sender_n,
+    a.project_id,
+    a.group_id,
+    a.issue_idx,
+    a.data,
+    a.urldata,
+    a.eventtype,
+    a.eventdate
+FROM
+    alarm_receiver ar
+INNER JOIN
+    alarm a ON ar.alarm_id = a.alarm_id
+WHERE
+    ar.receiver_id =#{memberId}
+AND
+	NOT a.alarm_sender=#{memberId}
+AND
+	a.LOG_LOGIN is null	
+AND
+    a.eventdate > SYSTIMESTAMP - INTERVAL '24' HOUR
+AND
+	 ar.alarm_chk ='Y'
+ORDER BY
+	 a.eventdate DESC
+</select>
+
+
+
+
+
+
+
+
+<select id="NonSessionAlarmListCnt" parameterType="String" resultType="int">
+
+
+SELECT COUNT(*)
+FROM alarm_receiver ar
+INNER JOIN alarm a ON ar.alarm_id = a.alarm_id
+WHERE
+	ar.receiver_id =#{memberId}
+AND
+  	NOT	a.alarm_sender=#{memberId}
+AND
+	ar.ALARM_CHK ='N'
+AND
+    a.eventdate > SYSTIMESTAMP - INTERVAL '24' HOUR
+ORDER BY
+	 a.eventdate DESC
+
+
+</select>
+
+
+
+
+
+
+
+<select id="projectInfoList" parameterType="map"
+		resultMap="memMap">
+
+		SELECT
+		mm.member_role,
+		mm.member_join_date,
+		mm.member_id,
+		mm.member_pw,
+		mm.member_name,
+		mm.member_regno1,
+		mm.member_regno2,
+		mm.member_zip,
+		mm.member_address_1,
+		mm.member_address_2,
+		mm.member_tel,
+		mm.member_email,
+		mm.member_profile_pict,
+		mm.member_description,
+		mm.member_auth_question,
+		mm.member_auth_response,
+		mm.member_delyn,
+		pm.project_mem_idx,
+		pm.project_join_date,
+		pm.project_del_date,
+		pm.project_delyn,
+		pm.group_id,
+		pm.member_id AS project_member_id,
+		pm.project_role_idx,
+		pm.project_id
+		FROM
+		member_management mm
+		INNER JOIN
+		project_member pm
+		ON
+		mm.member_id = pm.member_id
+		WHERE
+		     1=1
+        <if test="projectId != null">
+            AND pm.project_id = #{projectId}
+        </if>
+        <if test="groupId != null">
+            AND pm.group_id = #{groupId}
+        </if>
+
+</select>
+
+
+
+<insert id="NonGroupdIdAlarm" parameterType="map" keyProperty="alarmId">
+    <!-- INSERT 실행 전에 alarm_id를 생성 -->
+    <selectKey keyProperty="alarmId" resultType="String" order="BEFORE">
+        SELECT CONCAT('ALM', TO_CHAR(LPAD(ALARM_SEQ.NEXTVAL, 5, '0'))) FROM DUAL
+    </selectKey>
+    INSERT INTO alarm (
+        alarm_id,
+        alarm_sender,
+        alarm_sender_n,
+        DATA,
+        urldata,
+        eventtype,
+        eventdate
+        <if test="issueIdx != null">
+        ,issue_idx
+        </if>
+        <if test="projectId != null">
+        ,project_id
+         </if>
+    ) VALUES (
+        #{alarmId},  <!-- 여기서 생성된 alarm_id를 사용 -->
+        #{memberId},
+        #{memberName},
+        #{data},
+        #{url},
+        #{eventType},
+        SYSDATE
+        
+         <if test="issueIdx != null">
+        ,#{issueIdx}
+         </if>
+         
+         <if test="projectId != null">
+        ,#{projectId}
+        </if>
+    )
+</insert>
+
+
+
+<insert id="YGroupdIdAlarm" parameterType="map"
+		keyProperty="alarmId">
+    <selectKey keyProperty="alarmId" resultType="String" order="BEFORE">
+        SELECT CONCAT('ALM', TO_CHAR(LPAD(ALARM_SEQ.NEXTVAL, 5, '0'))) FROM DUAL
+    </selectKey>
+		INSERT INTO alarm (
+		alarm_id,
+		alarm_sender,
+		alarm_sender_n,
+		project_id,
+		group_id,
+		DATA,
+		urldata,
+		eventtype,
+		eventdate
+		) VALUES (
+		#{alarmId},
+		#{memberId},
+		#{memberName},
+		#{projectId},
+		#{group_id},
+		#{data},
+		#{url},
+		#{eventType},
+		SYSDATE
+		)
+</insert>
+
+
+
+<insert id="LoginLog" parameterType="map"
+		keyProperty="alarmId">
+    <selectKey keyProperty="alarmId" resultType="String" order="BEFORE">
+        SELECT CONCAT('ALM', TO_CHAR(LPAD(ALARM_SEQ.NEXTVAL, 5, '0'))) FROM DUAL
+    </selectKey>
+		INSERT INTO alarm (
+		alarm_id,
+		alarm_sender,
+		alarm_sender_n,
+		eventtype,
+		eventdate,
+		LOG_LOGIN
+		) VALUES (
+		#{alarmId},
+		#{memberId},
+		#{memberName},
+		#{eventType},
+		SYSDATE
+		,'Y'
+		)
+</insert>
+
+
+
+
+
+
+
+
+
+
+
+<insert id="ReceiverInsert" parameterType="String">
+		INSERT INTO alarm_receiver (
+		alarm_no,
+		alarm_id,
+		receiver_id,
+		alarm_chk
+		) VALUES (
+		SEQ_ALARM.NEXTVAL,
+		#{alarmId},
+		#{memberId},
+		'N'
+		)
+</insert>
+
+
+
+
+<update id="alarmChkUpdate">
+
+
+UPDATE alarm_receiver
+SET
+    alarm_chk = 'Y',
+    alarm_chk_date = SYSDATE
+WHERE
+    alarm_no = #{alarmNo}
+
+
+
+
+</update>
+
+
+<select id="getGroupdId" parameterType="String" resultType="String">
+SELECT
+    group_id
+FROM
+    group_member
+WHERE
+    member_id = #{memberId}
+</select>
+
+
+<select id="getProjectListByGroupdId" parameterType="String" resultType="map">
+
+SELECT
+    p.project_id,
+    p.project_name,
+    p.project_success_status,
+    COUNT(pm.member_id) AS member_count
+FROM
+    project p
+JOIN
+    project_member pm ON p.project_id = pm.project_id
+WHERE
+    p.project_delyn = 'N'
+AND
+    p.group_id = #{groupId}
+GROUP BY
+    p.project_id,
+    p.project_name,
+    p.project_success_status
+ORDER BY
+    p.project_name
+
+
+
+
+
+</select>
+
+
+
+
+
+
+
+
+<select id="getGroupMemberList" parameterType="String"  resultMap="memMap">
+
+SELECT
+    b.group_admin_yn,
+    b.group_id,
+    b.member_id,
+    b.group_join_date,
+    b.group_delyn,
+    a.member_role,
+    a.member_join_date,
+    a.member_id,
+    a.member_name,
+    a.member_regno1,
+    a.member_regno2,
+    a.member_zip,
+    a.member_address_1,
+    a.member_address_2,
+    a.member_tel,
+    a.member_email,
+    a.member_profile_pict,
+    a.member_description,
+    a.member_auth_question,
+    a.member_auth_response,
+    a.member_delyn,
+    COUNT(f.issue_idx) AS issue_count
+FROM
+    group_member b
+JOIN
+    member_management a ON a.member_id = b.member_id
+JOIN
+    project_member e ON e.member_id = a.member_id
+JOIN
+    issue f ON e.project_mem_idx = f.project_mem_idx
+WHERE
+    b.group_id = #{groupId}
+GROUP BY
+    b.group_admin_yn,
+    b.group_id,
+    b.member_id,
+    b.group_join_date,
+    b.group_delyn,
+    a.member_role,
+    a.member_join_date,
+    a.member_id,
+    a.member_name,
+    a.member_regno1,
+    a.member_regno2,
+    a.member_zip,
+    a.member_address_1,
+    a.member_address_2,
+    a.member_tel,
+    a.member_email,
+    a.member_profile_pict,
+    a.member_description,
+    a.member_auth_question,
+    a.member_auth_response,
+    a.member_delyn
+
+
+</select>
+
+
+
+
+<select id="getgetProjectList" parameterType="String" resultMap="memMap">
+
+
+SELECT
+    mm.member_id,
+    mm.member_name,
+    p.project_id,
+    p.project_name,
+    p.project_description,
+    p.project_creation_date,
+    p.project_success_status,
+    p.PROJECT_BUDGET,
+    p.PROJECT_CREATION_DATE,
+    p.PROJECT_END_DATE
+FROM
+    member_management mm
+JOIN
+    project_member pm ON mm.member_id = pm.member_id
+JOIN
+    project p ON pm.project_id = p.project_id
+WHERE
+    mm.member_id = #{memberId}
+
+
+
+
+
+
+</select>
+
+
+<select
+	id="alarmIssueList"
+	parameterType="String"
+	resultType="kr.or.nexus.commons.vo.AlarmVO"
+>
+
+	SELECT
+	    *
+	FROM
+	    ALARM
+	WHERE
+	    PROJECT_ID = #{projectId}
+	    AND
+	    ISSUE_IDX IS NOT NULL
+	ORDER BY
+	    EVENTDATE DESC
+
+</select>
+
+<select id="getGroupId" parameterType="String">
+
+select GROUP_ID
+from GROUP_MEMBER
+where member_id = #{memberId}
+
+</select>
+
+
+<select id="getRoleAdminList" resultMap="memMap">
+
+SELECT
+    member_id,
+    member_pw,
+    member_name,
+    member_regno1,
+    member_regno2,
+    member_zip,
+    member_address_1,
+    member_address_2,
+    member_tel,
+    member_email,
+    member_profile_pict,
+    member_description,
+    member_auth_question,
+    member_auth_response,
+    member_delyn,
+    member_join_date
+FROM
+    member_management
+Where
+    member_role = 'ROLE_ADMIN'
+
+
+
+</select>
+
+<select id="getUserInfo" parameterType="String" resultMap="memMap">
+
+SELECT
+    member_id,
+    member_pw,
+    member_name,
+    member_regno1,
+    member_regno2,
+    member_zip,
+    member_address_1,
+    member_address_2,
+    member_tel,
+    member_email,
+    member_profile_pict,
+    member_description,
+    member_auth_question,
+    member_auth_response,
+    member_delyn,
+    member_role,
+    member_join_date
+FROM
+    member_management
+where member_id = #{memberId}   
+
+
+
+</select>
+
+
+<update id="updateUserInfo" parameterType="kr.or.nexus.vo.MemberManagementVO">
+
+UPDATE member_management
+SET
+  MEMBER_NAME = #{memberName},
+  MEMBER_REGNO1 =#{memberRegno1},
+  MEMBER_REGNO2 =#{memberRegno2},
+  MEMBER_ZIP =#{memberZip},
+  MEMBER_ADDRESS_1 =#{memberAddress1},
+  MEMBER_ADDRESS_2 =#{memberAddress2},
+  MEMBER_TEL =#{memberTel},
+  MEMBER_EMAIL =#{memberEmail},
+  MEMBER_AUTH_QUESTION=#{memberAuthQuestion},
+  MEMBER_AUTH_RESPONSE=#{memberAuthResponse}
+WHERE
+       member_id = #{memberId}
+</update>
+
+
+<select id="getUserLog" parameterType="String" resultType="kr.or.nexus.commons.vo.AlarmVO">
+
+
+
+WITH recent_log AS (
+    SELECT * 
+    FROM (
+        SELECT 
+            alarm_id,
+            alarm_sender,
+            alarm_sender_n,
+            project_id,
+            group_id,
+            issue_idx,
+            data,
+            urldata,
+            eventtype,
+            eventdate,
+            login_data,
+            log_login
+        FROM alarm
+        WHERE alarm_sender = #{memberId}
+          AND log_login = 'Y'
+          AND eventtype = '로그인'  
+        ORDER BY eventdate DESC  
+    )
+    WHERE ROWNUM = 1  
+)
+
+
+SELECT 
+    alarm_id,
+    alarm_sender,
+    alarm_sender_n,
+    project_id,
+    group_id,
+    issue_idx,
+    data,
+    urldata,
+    eventtype,
+    eventdate,
+    login_data,
+    log_login
+FROM recent_log
+
+UNION ALL
+
+SELECT 
+    alarm_id,
+    alarm_sender,
+    alarm_sender_n,
+    project_id,
+    group_id,
+    issue_idx,
+    data,
+    urldata,
+    eventtype,
+    eventdate,
+    login_data,
+    log_login
+FROM alarm
+WHERE alarm_sender = #{memberId}
+  AND log_login IS NULL
+  AND eventdate >= (SELECT eventdate FROM recent_log)
+ORDER BY eventdate DESC
+</select>
+
+<select id="getIssueCount" parameterType="String" resultType="String">
+
+SELECT 
+    COUNT(*) AS total_count
+FROM
+    project a
+JOIN
+    issue b ON a.project_id = b.project_id
+WHERE
+    a.PROJECT_DELYN = 'N'
+AND
+    a.group_id = #{groupId}
+AND
+    b.issue_progress_status = 'Completed'
+
+
+</select>
+
+
+<select id="getProjectCount" parameterType="String" resultType="String">
+
+SELECT 
+COUNT(*) AS project_count
+FROM 
+    project
+WHERE 
+    GROUP_ID = #{groupId}
+AND 
+    PROJECT_DELYN = 'N'
+AND 
+    PROJECT_STATE = 'C'
+
+</select>
+
+
+
+<select id="groupMemberCount" parameterType="String" resultType="String">
+
+
+SELECT 
+    COUNT(*) AS member_count
+FROM
+    group_member
+WHERE
+    group_id = #{groupId}
+AND 
+    group_delyn = 'N'
+
+
+
+</select>
+
+
+<select id="getGroupdMemberList" parameterType="String" resultType="kr.or.nexus.vo.GroupMemberVO">
+
+SELECT
+    group_id,
+    member_id,
+    group_join_date,
+    group_delyn,
+    group_admin_yn
+FROM
+    group_member
+WHERE
+    group_id = #{groupId}
+
+
+
+</select>
+
+<insert id="eaEvent" parameterType="map" keyProperty="alarmId">
+   <selectKey keyProperty="alarmId" resultType="String" order="BEFORE">
+        SELECT CONCAT('ALM', TO_CHAR(LPAD(ALARM_SEQ.NEXTVAL, 5, '0'))) FROM DUAL
+    </selectKey>
+		INSERT INTO alarm (
+		alarm_id,
+		alarm_sender,
+		alarm_sender_n,
+		group_id,
+		DATA,
+		urldata,
+		eventtype,
+		eventdate
+		) VALUES (
+		#{alarmId},
+		#{memberId},
+		#{memberName},
+		#{groupId},
+		#{data},
+		#{url},
+		#{eventType},
+		SYSDATE
+		)
+</insert>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</mapper>

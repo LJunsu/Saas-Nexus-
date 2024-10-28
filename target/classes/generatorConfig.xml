@@ -1,0 +1,87 @@
+<!DOCTYPE generatorConfiguration PUBLIC
+ "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+ "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+<generatorConfiguration>
+  <context id="simple" targetRuntime="MyBatis3Simple">
+  
+	<plugin type="org.mybatis.generator.plugins.MapperAnnotationPlugin" />
+	<plugin type="org.mybatis.generator.plugins.SerializablePlugin" />
+	<plugin type="com.softwareloop.mybatis.generator.plugins.LombokPlugin" />
+	
+	<commentGenerator>
+		<property name="suppressAllComments" value="true"/>
+		<property name="suppressDate" value="true"/>
+	</commentGenerator>
+	
+    <jdbcConnection driverClass="oracle.jdbc.driver.OracleDriver"
+        connectionURL="jdbc:oracle:thin:@112.220.114.130:1521:xe" userId="TEAM2_202402F" password="java" />
+        
+    <javaTypeResolver>
+    	<property name="forceBigDecimals" value="false"/>
+		<!-- DATE 타입을 String 이 아닌 LocalDateTime 으로 선언할때 필요함.	-->	
+		<property name="useJSR310Types" value="true"/>
+    </javaTypeResolver>    
+	
+	<javaModelGenerator targetPackage="kr.or.nexus.vo.def" targetProject="src/main/java">
+      <property name="enableSubPackages" value="true" />
+    </javaModelGenerator>
+	
+    <sqlMapGenerator targetPackage="kr.or.nexus.mybatis.mappers.def" targetProject="src/main/resources">
+    	<property name="enableSubPackages" value="true" />
+    </sqlMapGenerator>
+
+    <javaClientGenerator type="XMLMAPPER" targetPackage="kr.or.nexus.commons.def.mapper"  targetProject="src/main/java">
+      <property name="enableSubPackages" value="true" />
+    </javaClientGenerator>
+	
+	<!-- 
+	SELECT '<table tableName="'||TABLE_NAME||'"  domainObjectName="'||
+	    REPLACE(INITCAP(TABLE_NAME), '_', '') ||'DefaultVO" mapperName="'||
+	    REPLACE(INITCAP(TABLE_NAME), '_', '')||'DefaultMapper"/>'
+	FROM USER_TABLES; 
+	-->
+	<!-- 위 코드 조각으로 계정 내 모든 테이블에 대해 table 엘리먼트 생성할 수 있음. -->
+	
+	<table tableName="SYSADMIN"  domainObjectName="SysadminDefaultVO" mapperName="SysadminDefaultMapper"/>
+	<table tableName="MEMBER_MANAGEMENT"  domainObjectName="MemberManagementDefaultVO" mapperName="MemberManagementDefaultMapper"/>
+	<table tableName="INFORMATION_ANSWERS"  domainObjectName="InformationAnswersDefaultVO" mapperName="InformationAnswersDefaultMapper"/>
+	<table tableName="INFORMATION"  domainObjectName="InformationDefaultVO" mapperName="InformationDefaultMapper"/>
+	<table tableName="ISSUE"  domainObjectName="IssueDefaultVO" mapperName="IssueDefaultMapper"/>
+	<table tableName="PROJECT_MEMBER"  domainObjectName="ProjectMemberDefaultVO" mapperName="ProjectMemberDefaultMapper"/>
+	<table tableName="CHATTING_ROOM"  domainObjectName="ChattingRoomDefaultVO" mapperName="ChattingRoomDefaultMapper"/>
+	<table tableName="PROJECT"  domainObjectName="ProjectDefaultVO" mapperName="ProjectDefaultMapper"/>
+	<table tableName="GROUP_MEMBER"  domainObjectName="GroupMemberDefaultVO" mapperName="GroupMemberDefaultMapper"/>
+	<table tableName="NOTIFICATION_CONTENT"  domainObjectName="NotificationContentDefaultVO" mapperName="NotificationContentDefaultMapper"/>
+	<table tableName="CANVAS"  domainObjectName="CanvasDefaultVO" mapperName="CanvasDefaultMapper"/>
+	<table tableName="CLOUD_FILE"  domainObjectName="CloudFileDefaultVO" mapperName="CloudFileDefaultMapper"/>
+	<table tableName="CLOUD_FOLDER"  domainObjectName="CloudFolderDefaultVO" mapperName="CloudFolderDefaultMapper"/>
+	<table tableName="RECIPIENT_NOTIFICATIONS"  domainObjectName="RecipientNotificationsDefaultVO" mapperName="RecipientNotificationsDefaultMapper"/>
+	<table tableName="COMMON_CLASSIFICATION"  domainObjectName="CommonClassificationDefaultVO" mapperName="CommonClassificationDefaultMapper"/>
+	<table tableName="COMMON_DETAILS"  domainObjectName="CommonDetailsDefaultVO" mapperName="CommonDetailsDefaultMapper"/>
+	<table tableName="ISSUE_OFFICER"  domainObjectName="IssueOfficerDefaultVO" mapperName="IssueOfficerDefaultMapper"/>
+	<table tableName="CUSTOMER_BOARD"  domainObjectName="CustomerBoardDefaultVO" mapperName="CustomerBoardDefaultMapper"/>
+	<table tableName="CANVAS_DATA"  domainObjectName="CanvasDataDefaultVO" mapperName="CanvasDataDefaultMapper"/>
+	<table tableName="CLOUD_REPOSITORY"  domainObjectName="CloudRepositoryDefaultVO" mapperName="CloudRepositoryDefaultMapper"/>
+	<table tableName="VIDEO_CONFERENCE"  domainObjectName="VideoConferenceDefaultVO" mapperName="VideoConferenceDefaultMapper"/>
+	<table tableName="CARD_REGISTRATION"  domainObjectName="CardRegistrationDefaultVO" mapperName="CardRegistrationDefaultMapper"/>
+	<table tableName="VIDEO_MEETING_CONFERENCE"  domainObjectName="VideoMeetingConferenceDefaultVO" mapperName="VideoMeetingConferenceDefaultMapper"/>
+	<table tableName="ISSUE_TAGS"  domainObjectName="IssueTagsDefaultVO" mapperName="IssueTagsDefaultMapper"/>
+	<table tableName="ANNOUNCEMENT_BOARD"  domainObjectName="AnnouncementBoardDefaultVO" mapperName="AnnouncementBoardDefaultMapper"/>
+	<table tableName="ANNOUNCEMENT_ANSWERS"  domainObjectName="AnnouncementAnswersDefaultVO" mapperName="AnnouncementAnswersDefaultMapper"/>
+	<table tableName="ISSUE_BOARD_ANSWERS"  domainObjectName="IssueBoardAnswersDefaultVO" mapperName="IssueBoardAnswersDefaultMapper"/>
+	<table tableName="LOG"  domainObjectName="LogDefaultVO" mapperName="LogDefaultMapper"/>
+	<table tableName="PROJECT_ROLE"  domainObjectName="ProjectRoleDefaultVO" mapperName="ProjectRoleDefaultMapper"/>
+	<table tableName="FOLDER_ACCESS_ROLE"  domainObjectName="FolderAccessRoleDefaultVO" mapperName="FolderAccessRoleDefaultMapper"/>
+	<table tableName="CHATTING_ROOM_FILE"  domainObjectName="ChattingRoomFileDefaultVO" mapperName="ChattingRoomFileDefaultMapper"/>
+	<table tableName="ISSUE_CONTENT"  domainObjectName="IssueContentDefaultVO" mapperName="IssueContentDefaultMapper"/>
+	<table tableName="ISSUE_DATE"  domainObjectName="IssueDateDefaultVO" mapperName="IssueDateDefaultMapper"/>
+	<table tableName="JOBSHEET"  domainObjectName="JobsheetDefaultVO" mapperName="JobsheetDefaultMapper"/>
+	<table tableName="JOBSHEET_COMMENT"  domainObjectName="JobsheetCommentDefaultVO" mapperName="JobsheetCommentDefaultMapper"/>
+	<table tableName="SUBSCRIPTION_PAYMENT"  domainObjectName="SubscriptionPaymentDefaultVO" mapperName="SubscriptionPaymentDefaultMapper"/>
+	<table tableName="SUBSCRIPTION_TYPE"  domainObjectName="SubscriptionTypeDefaultVO" mapperName="SubscriptionTypeDefaultMapper"/>
+	<table tableName="CHAT_ROOM_SETTINGS"  domainObjectName="ChatRoomSettingsDefaultVO" mapperName="ChatRoomSettingsDefaultMapper"/>
+	<table tableName="GROUP"  domainObjectName="GroupDefaultVO" mapperName="GroupDefaultMapper"/>
+
+	
+  </context>
+</generatorConfiguration>

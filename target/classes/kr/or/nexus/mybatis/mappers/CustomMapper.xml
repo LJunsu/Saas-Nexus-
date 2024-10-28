@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.nexus.custom.mapper.CustomMapper">
+   <select id="selectCustomUserByName" resultType="MemberManagementVO">
+      select member_id, member_pw, member_name, member_role
+      from member_management
+      where member_id=#{username}
+   </select>
+</mapper>

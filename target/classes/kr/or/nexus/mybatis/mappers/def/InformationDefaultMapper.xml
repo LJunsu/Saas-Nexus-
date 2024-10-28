@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.nexus.commons.def.mapper.InformationDefaultMapper">
+  <resultMap id="BaseResultMap" type="kr.or.nexus.vo.def.InformationDefaultVO">
+    <id column="IF_BOARD_ID" jdbcType="VARCHAR" property="ifBoardId" />
+    <result column="IF_BOARD_TITLE" jdbcType="VARCHAR" property="ifBoardTitle" />
+    <result column="IF_BOARD_CREATION_DATE" jdbcType="TIMESTAMP" property="ifBoardCreationDate" />
+    <result column="IF_BOARD_DELYN" jdbcType="VARCHAR" property="ifBoardDelyn" />
+    <result column="IF_BOARD_LIKE" jdbcType="NUMERIC" property="ifBoardLike" />
+    <result column="IF_BOARD_NUM" jdbcType="NUMERIC" property="ifBoardNum" />
+    <result column="GROUP_ID" jdbcType="VARCHAR" property="groupId" />
+    <result column="MEMBER_ID" jdbcType="VARCHAR" property="memberId" />
+    <result column="ATTACHED_FILE_ID" jdbcType="VARCHAR" property="attachedFileId" />
+    <result column="IF_BOARD_CONTENT" jdbcType="CLOB" property="ifBoardContent" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from INFORMATION
+    where IF_BOARD_ID = #{ifBoardId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="kr.or.nexus.vo.def.InformationDefaultVO">
+    insert into INFORMATION (IF_BOARD_ID, IF_BOARD_TITLE, IF_BOARD_CREATION_DATE, 
+      IF_BOARD_DELYN, IF_BOARD_LIKE, IF_BOARD_NUM, 
+      GROUP_ID, MEMBER_ID, ATTACHED_FILE_ID, 
+      IF_BOARD_CONTENT)
+    values (#{ifBoardId,jdbcType=VARCHAR}, #{ifBoardTitle,jdbcType=VARCHAR}, #{ifBoardCreationDate,jdbcType=TIMESTAMP}, 
+      #{ifBoardDelyn,jdbcType=VARCHAR}, #{ifBoardLike,jdbcType=NUMERIC}, #{ifBoardNum,jdbcType=NUMERIC}, 
+      #{groupId,jdbcType=VARCHAR}, #{memberId,jdbcType=VARCHAR}, #{attachedFileId,jdbcType=VARCHAR}, 
+      #{ifBoardContent,jdbcType=CLOB})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="kr.or.nexus.vo.def.InformationDefaultVO">
+    update INFORMATION
+    set IF_BOARD_TITLE = #{ifBoardTitle,jdbcType=VARCHAR},
+      IF_BOARD_CREATION_DATE = #{ifBoardCreationDate,jdbcType=TIMESTAMP},
+      IF_BOARD_DELYN = #{ifBoardDelyn,jdbcType=VARCHAR},
+      IF_BOARD_LIKE = #{ifBoardLike,jdbcType=NUMERIC},
+      IF_BOARD_NUM = #{ifBoardNum,jdbcType=NUMERIC},
+      GROUP_ID = #{groupId,jdbcType=VARCHAR},
+      MEMBER_ID = #{memberId,jdbcType=VARCHAR},
+      ATTACHED_FILE_ID = #{attachedFileId,jdbcType=VARCHAR},
+      IF_BOARD_CONTENT = #{ifBoardContent,jdbcType=CLOB}
+    where IF_BOARD_ID = #{ifBoardId,jdbcType=VARCHAR}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select IF_BOARD_ID, IF_BOARD_TITLE, IF_BOARD_CREATION_DATE, IF_BOARD_DELYN, IF_BOARD_LIKE, 
+    IF_BOARD_NUM, GROUP_ID, MEMBER_ID, ATTACHED_FILE_ID, IF_BOARD_CONTENT
+    from INFORMATION
+    where IF_BOARD_ID = #{ifBoardId,jdbcType=VARCHAR}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select IF_BOARD_ID, IF_BOARD_TITLE, IF_BOARD_CREATION_DATE, IF_BOARD_DELYN, IF_BOARD_LIKE, 
+    IF_BOARD_NUM, GROUP_ID, MEMBER_ID, ATTACHED_FILE_ID, IF_BOARD_CONTENT
+    from INFORMATION
+  </select>
+</mapper>

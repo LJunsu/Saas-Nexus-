@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.nexus.commons.def.mapper.CloudRepositoryDefaultMapper">
+  <resultMap id="BaseResultMap" type="kr.or.nexus.vo.def.CloudRepositoryDefaultVO">
+    <id column="CLOUD_ID" jdbcType="VARCHAR" property="cloudId" />
+    <id column="PROJECT_ID" jdbcType="VARCHAR" property="projectId" />
+    <result column="CLOUD_STORAGE" jdbcType="NUMERIC" property="cloudStorage" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="map">
+    delete from CLOUD_REPOSITORY
+    where CLOUD_ID = #{cloudId,jdbcType=VARCHAR}
+      and PROJECT_ID = #{projectId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="kr.or.nexus.vo.def.CloudRepositoryDefaultVO">
+    insert into CLOUD_REPOSITORY (CLOUD_ID, PROJECT_ID, CLOUD_STORAGE
+      )
+    values (#{cloudId,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{cloudStorage,jdbcType=NUMERIC}
+      )
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="kr.or.nexus.vo.def.CloudRepositoryDefaultVO">
+    update CLOUD_REPOSITORY
+    set CLOUD_STORAGE = #{cloudStorage,jdbcType=NUMERIC}
+    where CLOUD_ID = #{cloudId,jdbcType=VARCHAR}
+      and PROJECT_ID = #{projectId,jdbcType=VARCHAR}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="map" resultMap="BaseResultMap">
+    select CLOUD_ID, PROJECT_ID, CLOUD_STORAGE
+    from CLOUD_REPOSITORY
+    where CLOUD_ID = #{cloudId,jdbcType=VARCHAR}
+      and PROJECT_ID = #{projectId,jdbcType=VARCHAR}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select CLOUD_ID, PROJECT_ID, CLOUD_STORAGE
+    from CLOUD_REPOSITORY
+  </select>
+</mapper>

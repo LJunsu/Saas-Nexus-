@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.nexus.calendar.dao.CalendarMapper">
+  <resultMap id="BaseResultMap" type="kr.or.nexus.vo.IssueVO" autoMapping="true">
+	<collection property="issueTags" ofType="kr.or.nexus.vo.IssueTagsVO" autoMapping="true"/>
+	<collection property="issueBoardAnswers" ofType="kr.or.nexus.vo.IssueBoardAnswersVO" autoMapping="true"/>
+  </resultMap>
+  
+  <resultMap type="ProjectMemberVO" id="pmMap" autoMapping="true">
+ 	<id property="projectMemIdx" column="PROJECT_MEM_IDX"/>
+ 	<collection property="projectRole" ofType="ProjectRoleVO" autoMapping="true">
+ 		<id property="projectRoleIdx" column="PROJECT_ROLE_IDX"/>
+ 	</collection>
+ 	<collection property="member" ofType="MemberManagementVO" autoMapping="true">
+ 		<id property="memberName" column="MEMBER_NAME"/>
+ 	</collection>
+ </resultMap>
+  
+  <select id="retrieveIssueList" resultMap="BaseResultMap" parameterType="String">
+    SELECT
+        a.issue_idx
+      , a.sub_issue_idx
+      , a.issue_date
+      , a.issue_delyn
+      , a.project_mem_idx
+      , a.issue_progress_status
+      , a.issue_priority_name
+      , a.issue_title
+      , a.project_id
+      , a.issue_content
+      , a.issue_officer
+      , a.issue_deadline
+      , a.issue_creation_date
+      , b.issue_tags_id
+      , b.issue_tag_name
+    FROM
+       issue a LEFT JOIN issue_tags b ON a.issue_idx = b.issue_idx
+    WHERE
+        a.project_id = #{projectId} and a.issue_delyn='N' AND (TO_CHAR(a.issue_deadline, 'yyyy-MM') LIKE '2024-09' OR TO_CHAR(a.issue_date, 'yyyy-MM') LIKE '2024-09')
+  </select>
+  
+  <select id="retrieveIssue" resultMap="BaseResultMap" parameterType="String">
+    SELECT
+        a.issue_idx
+      , a.sub_issue_idx
+      , a.issue_date
+      , a.issue_delyn
+      , a.project_mem_idx
+      , a.issue_progress_status
+      , a.issue_priority_name
+      , a.issue_title
+      , a.project_id
+      , a.issue_content
+      , a.issue_officer
+      , a.issue_deadline
+      , a.issue_creation_date
+      , b.issue_tags_id
+      , b.issue_tag_name
+    FROM
+        issue a LEFT JOIN issue_tags b ON a.issue_idx = b.issue_idx
+    WHERE
+        a.issue_idx = #{issueIdx}
+  </select>
+  
+  <select id="retrieveProjectMemberList" parameterType="String" resultMap="pmMap">
+  	SELECT
+  	    PROJECT_MEMBER.PROJECT_MEM_IDX
+  	    , PROJECT_MEMBER.PROJECT_ROLE_IDX
+  	    , PROJECT_MEMBER.MEMBER_ID
+  	    , PROJECT_ROLE.PROJECT_ROLE_NAME
+  	    , MEMBER_MANAGEMENT.MEMBER_NAME
+  	FROM
+  	    PROJECT_MEMBER
+  	    LEFT OUTER JOIN
+  	    PROJECT_ROLE
+  	    ON (PROJECT_MEMBER.PROJECT_ROLE_IDX = PROJECT_ROLE.PROJECT_ROLE_IDX)
+  	    LEFT OUTER JOIN
+  	    MEMBER_MANAGEMENT
+  	    ON (PROJECT_MEMBER.MEMBER_ID = MEMBER_MANAGEMENT.MEMBER_ID)
+  	WHERE
+  	    PROJECT_MEMBER.PROJECT_ID = #{projectId, jdbcType=VARCHAR}
+  	    AND
+  		PROJECT_MEMBER.PROJECT_DELYN = 'N'
+  </select>
+  
+  <insert id="insertIssue" parameterType="kr.or.nexus.vo.IssueVO">
+  	<selectKey keyProperty="issueIdx" resultType="string" order="BEFORE">
+      SELECT CONCAT('ISS_', TO_CHAR(LPAD(SEQ_ISSUE.NEXTVAL, 3, '0'))) AS issueIdx FROM DUAL
+    </selectKey>
+  	DECLARE
+  	    V_ISSUE_IDX VARCHAR2(30);
+  	BEGIN
+  	    INSERT INTO ISSUE (
+  	        ISSUE_IDX
+  	        , SUB_ISSUE_IDX
+  	        , ISSUE_DATE
+  	        , ISSUE_DELYN
+  	        , PROJECT_MEM_IDX
+  	        , ISSUE_PROGRESS_STATUS
+  	        , ISSUE_PRIORITY_NAME
+  	        , ISSUE_TITLE
+  	        , PROJECT_ID
+  	        , ISSUE_CONTENT
+  	        , ISSUE_OFFICER
+  	        , ISSUE_DEADLINE
+  	        , ISSUE_CREATION_DATE
+  	    ) VALUES (
+  	        #{issueIdx}
+  		    , #{subIssueIdx, jdbcType=VARCHAR}
+  		    , #{issueDate, jdbcType=DATE}
+  		    , 'N'
+  		    , #{projectMemIdx, jdbcType=VARCHAR}
+  		    , #{issueProgressStatus, jdbcType=VARCHAR}
+  		    , #{issuePriorityName, jdbcType=VARCHAR}
+  		    , #{issueTitle, jdbcType=VARCHAR}
+  		    , #{projectId, jdbcType=VARCHAR}
+  		    , #{issueContent}
+  		    , #{issueOfficer, jdbcType=VARCHAR}
+  		    , #{issueDeadline, jdbcType=DATE}
+  		    , SYSDATE
+  	    )
+  	    RETURNING ISSUE_IDX INTO V_ISSUE_IDX;
+  
+  	    INSERT INTO ISSUE_TAGS (
+  	        ISSUE_TAGS_ID
+  	        , ISSUE_IDX
+  	        , ISSUE_TAG_NAME
+  	    ) VALUES (
+  	        SEQ_ISSUE_TAGS.NEXTVAL
+  	        , V_ISSUE_IDX
+  	        , #{issueTags[0].issueTagName, jdbcType=VARCHAR}
+  	    );
+  	END;
+  </insert>
+  
+  <update id="updateIssue" parameterType="kr.or.nexus.vo.IssueVO">
+  	UPDATE
+  	    ISSUE
+  	SET
+  	    SUB_ISSUE_IDX = #{subIssueIdx, jdbcType=VARCHAR}
+  	    , ISSUE_DATE = #{issueDate, jdbcType=DATE}
+  	    , ISSUE_PROGRESS_STATUS = #{issueProgressStatus, jdbcType=VARCHAR}
+  	    , ISSUE_PRIORITY_NAME = #{issuePriorityName, jdbcType=VARCHAR}
+  	    , ISSUE_TITLE = #{issueTitle, jdbcType=VARCHAR}
+  	    , ISSUE_CONTENT = #{issueContent}
+  	    , ISSUE_OFFICER = #{issueOfficer, jdbcType=VARCHAR}
+  	    , ISSUE_DEADLINE = #{issueDeadline, jdbcType=DATE}
+  	WHERE
+  	    ISSUE_IDX = #{issueIdx, jdbcType=VARCHAR}
+  	    AND
+  	    PROJECT_ID = #{projectId, jdbcType=VARCHAR}
+  </update>
+  
+  <update id="updateIssueTag" parameterType="kr.or.nexus.vo.IssueVO">
+  	UPDATE
+  	    ISSUE_TAGS
+  	SET
+  	    ISSUE_TAG_NAME = #{issueTags[0].issueTagName, jdbcType=VARCHAR}
+  	WHERE
+  	    ISSUE_IDX = #{issueIdx, jdbcType=VARCHAR}
+  </update>
+  
+  <update id="deleteIssue" parameterType="String">
+  	UPDATE
+  	    ISSUE
+  	SET
+  	    ISSUE_DELYN = 'Y'
+  	WHERE
+  	    ISSUE_IDX = #{issueIdx, jdbcType=VARCHAR}
+  </update>
+  
+  <insert id="insertGit" parameterType="kr.or.nexus.vo.GitVO">
+  <selectKey keyProperty="gitIdx" resultType="string" order="BEFORE">
+    SELECT CONCAT('GIT', TO_CHAR(LPAD(SEQ_GIT.NEXTVAL, 3, '0'))) AS gitIdx FROM DUAL
+  </selectKey>
+    INSERT INTO git (
+        git_idx
+        , git_url
+        , git_token
+        , project_id
+        , owner
+        , repo
+    ) VALUES (
+        #{gitIdx,jdbcType=VARCHAR}
+        , #{gitUrl,jdbcType=VARCHAR}
+        , #{gitToken,jdbcType=VARCHAR}
+        , #{projectId,jdbcType=VARCHAR}
+        , #{owner,jdbcType=VARCHAR}
+        , #{repo,jdbcType=VARCHAR}
+    )
+  </insert>
+  
+  <select id="retrieveGit" parameterType="String" resultType="kr.or.nexus.vo.GitVO">
+    SELECT
+        git_idx
+        , git_url
+        , git_token
+        , project_id
+        , owner
+        , repo
+    FROM
+        git
+    where project_id = #{projectId, jdbcType=VARCHAR}
+  </select>
+</mapper>

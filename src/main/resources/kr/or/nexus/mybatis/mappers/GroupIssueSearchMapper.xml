@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="kr.or.nexus.header.dao.GroupIssueSearchMapper">
+
+<select id="GroupIssueSearch" resultType="kr.or.nexus.header.vo.GroupIssueSearchVO" parameterType="string" >
+	SELECT
+    a.project_name
+  , a.project_delyn
+  , b.issue_title
+  , b.project_id
+  , b.issue_content
+  , b.issue_officer
+  , b.issue_creation_date
+  , b.issue_idx
+  , b.sub_issue_idx
+  , b.issue_delyn
+  , b.project_mem_idx
+  , b.issue_progress_status
+  , c.member_id
+  , m.member_name
+  , group_management.group_id
+FROM
+    issue   b
+  , project a
+  , project_member c
+  , member_management m
+  , group_management
+WHERE
+    a.project_id = b.project_id
+    AND
+    a.group_id = group_management.group_id
+    AND
+    group_management.group_id = #{groupId}
+    AND
+    b.issue_delyn = 'N'
+    AND
+    b.project_mem_idx = c.project_mem_idx
+    AND
+    c.member_id = m.member_id
+    AND
+    a.project_delyn = 'N'
+	ORDER BY b.issue_creation_date DESC
+</select>
+</mapper>

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:c="http://www.springframework.org/schema/c"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.3.xsd">
+
+
+	<bean
+		class="org.springframework.http.converter.json.Jackson2ObjectMapperFactoryBean"
+		id="jackson2ObjectMapper"
+	>
+		<!-- 시간 데이터가 쪼개져서(배열의 형태) 출력되는 것을 하나의 데이터(문자열)로 출력 -->
+		<!-- 필요에 따라 사용을 해도, 안해도 됨 ㅋ -->
+		<property name="featuresToDisable">
+			<array>
+				<util:constant static-field="com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS"/>
+			</array>
+		</property>
+	</bean>
+
+	<bean class="kr.or.nexus.log.filter.ViewNameInterceptor" id="ainterceptor"></bean>
+	
+	<bean id="aInterceptor" class="kr.or.nexus.log.filter.ViewNameInterceptor"></bean>
+	<mvc:interceptors>
+		<mvc:interceptor>
+			<mvc:mapping path="/**"/>
+			<ref bean="aInterceptor"/>
+		</mvc:interceptor>
+	</mvc:interceptors>	
+
+	<!-- 정적 자원 처리를 위한 설정, 정적 자원 요청을 WAS가 가진 DefaultServlet에게 위임 처리 -->
+	<!-- <mvc:default-servlet-handler/> -->
+
+	<!-- 정적 자원을 일괄 관리할 수 있는 설정 -->
+	<!-- cache-period="0" 모든 정적자원에 캐싱을 하지 마셈 -->
+	<mvc:resources
+		location="/resources/"
+		mapping="/resources/**"
+		cache-period="0"
+	></mvc:resources>
+
+	<!--
+		동적 자원
+		HandlerMapping, HandlerAdapter, ViewResolver를 비롯한
+		spring webmvc의 핵심 전략 객체들이 자동으로 bean 등록됨
+	-->
+	<mvc:annotation-driven></mvc:annotation-driven>
+
+	<!-- 컨트롤러의 빈을 등록하기 위한 작업 -->
+	<context:component-scan
+		base-package="kr.or.nexus"
+		use-default-filters="false"
+	>
+		<context:include-filter
+			type="annotation"
+			expression="org.springframework.stereotype.Controller"
+		/>
+	</context:component-scan>
+
+
+
+	<!-- tiles를 사용하기 위한 설정 -->
+	<mvc:tiles-configurer>
+		<mvc:definitions location="/WEB-INF/tiles/*.xml" />
+	</mvc:tiles-configurer>
+
+	<!-- view-resolvers-컴포지션 설정 -->
+	<mvc:view-resolvers>
+		<!-- view-resolvers-컴포지션이 forward 이후에 동작하는 순서인듯  -->
+		<!-- 우선순위 -->
+		<!-- accept가 json이면 -->
+		<mvc:content-negotiation>
+			<mvc:default-views>
+				<!-- json 마샬링을 전담 -->
+				<bean
+					id="jsonView"
+					class="org.springframework.web.servlet.view.json.MappingJackson2JsonView"
+					p:objectMapper-ref="jackson2ObjectMapper"
+				/>
+			</mvc:default-views>
+		</mvc:content-negotiation>
+		<!-- mvc:content-negotiation는 반드시 첫번째 순서  -->
+
+		<!-- mvc:tiles-configurer tiles에 대한 설정에 대한 정보 / 해당 location에 존재하는 xml에 기입된 view가 요청이 들어오면 tiles가 적용 -->
+		<mvc:tiles/>
+
+		<mvc:jsp prefix="/WEB-INF/views/" suffix=".jsp" />
+		<!-- InternalResourceViewResolver는 반드시 순서가 마지막에 위치해야 한다. -->
+	</mvc:view-resolvers>
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver"></bean>
+
+
+
+	<mvc:cors>
+		<mvc:mapping path="/**" allowed-origins="localhost" allowed-methods="*" allowed-headers="*" allow-credentials="false"/>
+	</mvc:cors>
+</beans>

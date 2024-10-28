@@ -1,0 +1,513 @@
+@charset "UTF-8";
+
+div#Cmt-area {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    margin-top:15px;
+}
+
+div#CmtContent-area{
+	width: 80%;
+	height: 50%
+
+}
+[id^="issueCmtContent"] {
+	border: none;
+}
+#issueCmtWriter {
+	border: none;
+	margin-bottom: 0px;
+}
+
+.chat-contact-info flex-grow-1 ms-2:hover {
+
+	  background-color: #c0c0c0;
+
+}
+
+#content-area {
+	margin-top: 2%;
+	margin-left: 2%;
+}
+
+
+#fileName {
+  display: none;
+}
+
+#downIssue-area{
+	display: none;
+}
+
+#name1{
+	border: none;
+}
+#name2{
+	float:right;
+	border: none;
+}
+
+#content-line{
+	margin-top: 5%;
+	border: none;
+	width: 100%;
+	height: 20%;
+}
+
+#creatIssue-area{
+	float:right;
+}
+.swal2-container {
+  z-index: 20000 !important;
+}
+
+
+/* 기본 select2 요소에 커스텀 스타일 추가 */
+.select2-container--default .select2-selection--single {
+    height: 40px; /* 높이 조정 */
+    border-radius: 5px; /* 모서리 둥글게 */
+    border: 1px solid #ced4da; /* 테두리 색상 */
+    padding: 5px 10px; /* 안쪽 여백 */
+    background-color: #f8f9fa; /* 배경색 */
+    font-size: 16px; /* 글꼴 크기 */
+    transition: border-color 0.3s ease; /* 전환 효과 */
+}
+
+/* 포커스 시 스타일 변경 */
+.select2-container--default .select2-selection--single:focus,
+.select2-container--default .select2-selection--single:hover {
+    border-color: #80bdff; /* 포커스 시 테두리 색상 변경 */
+    outline: 0; /* 포커스 시 기본 윤곽선 제거 */
+}
+
+/* 드롭다운의 옵션 리스트 스타일 */
+.select2-dropdown {
+    border-radius: 5px; /* 모서리 둥글게 */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* 드롭다운 그림자 */
+    border: 1px solid #ced4da; /* 테두리 색상 */
+    background-color: #ffffff; /* 배경색 */
+}
+
+/* 옵션 선택 시 스타일 */
+.select2-results__option--highlighted[aria-selected] {
+    background-color: #80bdff; /* 선택된 옵션의 배경색 */
+    color: white; /* 선택된 옵션의 글자 색상 */
+}
+
+/* 리스트 아이템에 마우스를 올렸을 때 배경색을 연한 회색으로 변경 */
+.chat-contact-list-item:hover {
+    background-color: #f0f0f0; /* 연한 회색 배경 */
+}
+
+/* 클릭된 리스트 아이템의 스타일을 정의 */
+.chat-contact-list-item.active {
+    background-color: #d1ecf1; /* 클릭된 상태의 배경색 */
+    border-left: 4px solid #007bff; /* 클릭된 항목 왼쪽에 파란색 경계선 추가 */
+}
+
+/* 선택된 아이템의 텍스트 색상과 두께 변경 */
+.chat-contact-list-item.active .chat-contact-name {
+    font-weight: bold;
+    color: #007bff; /* 파란색 텍스트 */
+}
+
+.ql-container.ql-snow{
+	margin-left: 10%;
+	width: 92%;
+	border-width: 70%;
+}
+/*댓글 컨텐츠 스타일 */
+.ql-toolbar.ql-snow {
+ 	margin-left: 10%;
+	width: 92%;
+	border-width: 70%;
+}
+
+
+/* 댓글 영역 */
+#showEditor {
+    color: unset;
+    font-style: oblique;
+    width: 80%;
+    margin-bottom: 10px;
+}
+
+ #editor-area {
+   display: none; /* 처음엔 보이지 않도록 설정 */
+}
+
+#cmtCreate-area {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 3%;
+}
+#CmtH4{
+	margin-top: 10%;
+}
+#CmtSavebtn #CmtCanclebtn{
+	float: right;
+}
+
+#editor {
+    height: 150px; /* 원하는 높이로 설정 */
+    overflow-y: auto; /* 내용이 넘칠 경우 스크롤이 생기도록 설정 */
+}
+#editor2 {
+    height: 150px; /* 원하는 높이로 설정 */
+    overflow-y: auto; /* 내용이 넘칠 경우 스크롤이 생기도록 설정 */
+}
+/* 댓글 테두리 */
+#CmtAllLine-area {
+  border: 1px solid #ddd;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  margin-top: 2%;
+}
+
+#issueCmtContent {
+  font-family: sans-serif;
+}
+
+
+
+#CmtWriter-area {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: space-between;
+}
+/* 댓글영역 */
+
+#issueDelShowBtn{
+	width: 20px;
+	height: 20px;
+	margin-left: 54%;
+}
+
+#issueTextContainer p {
+  font-size: 16px;
+  color: #333;
+  margin-top: 10px;
+}
+#CntDelImg{
+	width:20px;
+	height:20px;
+}
+#CntDelBtn{
+	border: none;
+	float: right;
+}
+
+
+
+
+.dropdown{
+  position : relative;
+  display : inline-block;
+}
+
+.dropbtn_icon{
+  font-family : 'Material Icons';
+}
+.dropbtn{
+  margin-right: 50%;
+  border : 1px solid rgb(37, 37, 37);
+  border-radius : 4px;
+  background-color: #f5f5f5;
+  font-weight: 400;
+  color : rgb(37, 37, 37);
+  padding : 12px;
+  width :100px;
+  text-align: left;
+  cursor : pointer;
+  font-size : 12px;
+
+}
+.dropdown-content{
+  display : none;
+  position : absolute;
+  z-index : 1; /*다른 요소들보다 앞에 배치*/
+  font-weight: 400;
+  background-color: #f9f9f9;
+  min-width : 200px;
+}
+
+.dropdown-content a{
+  display : block;
+  text-decoration : none;
+  color : rgb(37, 37, 37);
+  font-size: 12px;
+  padding : 12px 20px;
+}
+
+.dropdown-content a:hover{
+  background-color : #ececec
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+#downIssue {
+    background-color: transparent; /* 배경 투명 */
+    border: 1px solid #ccc; /* 얇은 회색 테두리 */
+    padding: 8px 16px; /* 적당한 여백 */
+    border-radius: 4px; /* 살짝 둥근 모서리 */
+    color: #333; /* 글자 색상 */
+    font-size: 14px; /* 글자 크기 */
+    cursor: pointer; /* 클릭 가능하도록 포인터 */
+    transition: all 0.3s ease; /* 부드러운 효과 추가 */
+}
+
+#downIssue:hover {
+    background-color: #f0f0f0; /* 마우스를 올렸을 때 배경 색상 */
+    border-color: #aaa; /* 테두리 색상 약간 진하게 */
+}
+
+.fileAddButton {
+    display: none; /* 기본 파일 입력 숨기기 */
+}
+
+#fileNameLabel {
+    background-color: transparent; /* 배경 투명 */
+    border: 1px solid #ccc; /* 얇은 회색 테두리 */
+    padding: 8px 16px; /* 적당한 여백 */
+    border-radius: 4px; /* 살짝 둥근 모서리 */
+    color: #333; /* 글자 색상 */
+    font-size: 14px; /* 글자 크기 */
+    cursor: pointer; /* 클릭 가능하도록 포인터 */
+    transition: all 0.3s ease; /* 부드러운 효과 추가 */
+    display: inline-block; /* 레이블을 버튼처럼 보이게 */
+}
+
+#fileNameLabel:hover {
+    background-color: #f0f0f0; /* 마우스를 올렸을 때 배경 색상 */
+    border-color: #aaa; /* 테두리 색상 약간 진하게 */
+}
+
+#upIssue-select {
+    background-color: transparent; /* 배경 투명 */
+    border: 1px solid #ccc; /* 얇은 회색 테두리 */
+    padding: 8px 16px; /* 내부 여백 */
+    border-radius: 4px; /* 살짝 둥근 모서리 */
+    color: #333; /* 글자 색상 */
+    font-size: 14px; /* 글자 크기 */
+    cursor: pointer; /* 클릭 가능하도록 포인터 */
+    transition: all 0.3s ease; /* 부드러운 효과 추가 */
+    appearance: none; /* 기본 드롭다운 화살표 제거 (브라우저마다 다를 수 있음) */
+    -webkit-appearance: none; /* Safari 및 Chrome 대응 */
+    -moz-appearance: none; /* Firefox 대응 */
+    background-image: url("data:image/svg+xml;charset=US-ASCII,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'><path fill='%23333' d='M2 0L0 2h4zM2 5L0 3h4z'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 12px;
+}
+
+#upIssue-select:hover {
+    background-color: #f0f0f0; /* 마우스를 올렸을 때 배경 색상 */
+    border-color: #aaa; /* 테두리 색상 약간 진하게 */
+}
+
+#progress-color {
+	margin-top: 4%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: space-evenly;
+
+}
+
+#content-area {
+    width: 100%;
+    max-width: 95%; /* 최대 너비 설정 */
+    margin: 20px auto; /* 중앙 정렬을 위한 margin */
+    border: none;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+#content-line {
+    width: 100%;
+    height: 350px; /* 텍스트 필드 높이 설정 */
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #fff;
+    font-size: 16px;
+    line-height: 1.5;
+    color: #333;
+    resize: none; /* 사용자가 크기 조정하지 못하게 설정 */
+    overflow-y: auto; /* 세로 스크롤바가 필요할 때만 표시 */
+    margin: 2px 2px -6px auto;
+    font-size: large;
+    font-family: bold;
+}
+
+#issueDelArea{
+	display:flex;
+	justify-content: space-between;
+}
+#issueDelBtnArea{
+	margin-right: 5px;
+}
+
+#preview-area {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-items: center;
+    overflow-x: auto; /* 가로 스크롤 지원 */
+    padding: 10px;
+    background-color: #f8f8f8;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    gap: 15px; /* 아이템 사이의 간격 */
+}
+
+#preview-content {
+	position: relative;
+    margin-left: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-left: 5px;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease-in-out, width 0.3s ease-in-out, height 0.3s ease-in-out;
+}
+
+.delete-icon {
+    position: absolute;
+    top: 0px;
+    right: 5px;
+    color: black;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+#preview-content:hover {
+    transform: scale(1.05);
+}
+
+.preview-img, .preview-video, .preview-pdf {
+    width: calc(100% - 10px); /* 이미지가 preview-content의 크기에 맞게 변동 */
+    max-width: 170px; /* 최대 크기 */
+    height: auto;
+    max-height: 150px; /* 최대 크기 */
+    object-fit: cover; /* 이미지가 잘리는 것을 방지 */
+    border-bottom: 2px solid #ddd;
+}
+
+.preview-filename {
+    padding: 5px;
+    font-size: 12px;
+    color: #555;
+    text-align: center;
+    width: 100%;
+    font-size:18px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; /* 파일명이 길 경우 생략 표시 */
+}
+
+/* 미리보기 아이템이 일정 크기 이하로 작아지지 않도록 제한 */
+#preview-area #preview-content {
+    min-width: 100px; /* 최소 너비 */
+    min-height: 100px; /* 최소 높이 */
+}
+
+#preview-area {
+    scroll-behavior: smooth; /* 스크롤이 부드럽게 작동 */
+}
+
+#select2-issueTagName-1o-results{
+	width:100%;
+}
+
+span[data-select2-id="select2-data-50-6mz2"] {
+	width:65%;
+}
+
+.blur {
+  filter: blur(2px);
+}
+
+/* datepicker 사이즈 조정 */
+#startPicker,#deadPicker{
+	width:98px;
+}
+
+#preview-area {
+    display: flex;
+    gap: 10px; /* 미리보기 사이의 간격 */
+    overflow-x: auto; /* 가로 스크롤 */
+    padding: 15px; /* 내부 여백 */
+    border: 2px solid #dcdcdc; /* 연한 회색 테두리 */
+    border-radius: 10px; /* 모서리 둥글게 */
+    background-color: #f9f9f9; /* 연한 배경색 */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 부드러운 그림자 */
+    scroll-behavior: smooth; /* 스크롤 부드럽게 */
+}
+
+#preview-area::-webkit-scrollbar {
+    height: 8px; /* 스크롤바 높이 */
+}
+
+#preview-area::-webkit-scrollbar-thumb {
+    background-color: #b0b0b0; /* 스크롤바 색상 */
+    border-radius: 10px; /* 스크롤바 모서리 둥글게 */
+}
+
+#preview-area::-webkit-scrollbar-track {
+    background-color: #f0f0f0; /* 스크롤 트랙 배경색 */
+    border-radius: 10px;
+}
+#issueDateListSearch{
+	display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-around;
+    padding: 11px;
+}
+
+
+/*////////////////////////////////////////////////////////////////////////// header*/
+.input-group {
+    position: relative;
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+}
+
+.select2-results__option{
+	  width:360px;
+      padding:0 5px;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+}
+
+.select2-container--open{
+		z-index: 9999999;
+}
+
+
+#projectSearchSelect + .select2-container--default .select2-selection--single {
+    border-radius: 0px !important; /* projectSearchSelect 요소에만 적용 */
+}
+#dotbogi{
+	height: 24px;
+	white-space: nowrap;
+	border-top-left-radius: 0;
+	border-bottom-left-radius: 0;
+}

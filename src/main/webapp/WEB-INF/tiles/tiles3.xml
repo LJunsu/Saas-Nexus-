@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tiles-definitions PUBLIC "-//Apache Software Foundation//DTD Tiles Configuration 3.0//EN" "http://tiles.apache.org/dtds/tiles-config_3_0.dtd" >
+
+<tiles-definitions>
+	
+	<definition name="abstractParent2" template="/WEB-INF/layouts/layout_NA.jsp">
+		<put-attribute name="preScript" value="/WEB-INF/includee/preScript.jsp" />
+		<put-attribute name="header" value="/WEB-INF/includee/sysheader.jsp" />
+		<put-attribute name="sidebar" value="/WEB-INF/includee/sidebar.jsp" />
+		<put-attribute name="footer" value="/WEB-INF/includee/footer.jsp" />
+		<put-attribute name="postScript" value="/WEB-INF/includee/postScript.jsp" />
+	</definition>
+
+	<definition name="tiles3:*/*" extends="abstractParent2">
+		<put-attribute name="contentPage" value="/WEB-INF/views/{1}/{2}.jsp" />
+	</definition>
+	
+	<definition name="tiles3:*/*/*" extends="abstractParent2">
+		<put-attribute name="contentPage" value="/WEB-INF/views/{1}/{2}/{3}.jsp" />
+	</definition>
+
+</tiles-definitions>

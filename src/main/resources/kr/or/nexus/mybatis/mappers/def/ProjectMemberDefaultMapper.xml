@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.nexus.commons.def.mapper.ProjectMemberDefaultMapper">
+  <resultMap id="BaseResultMap" type="kr.or.nexus.vo.def.ProjectMemberDefaultVO">
+    <id column="PROJECT_MEM_IDX" jdbcType="VARCHAR" property="projectMemIdx" />
+    <result column="PROJECT_JOIN_DATE" jdbcType="TIMESTAMP" property="projectJoinDate" />
+    <result column="PROJECT_DEL_DATE" jdbcType="TIMESTAMP" property="projectDelDate" />
+    <result column="PROJECT_DELYN" jdbcType="VARCHAR" property="projectDelyn" />
+    <result column="GROUP_ID" jdbcType="VARCHAR" property="groupId" />
+    <result column="MEMBER_ID" jdbcType="VARCHAR" property="memberId" />
+    <result column="PROJECT_ROLE_IDX" jdbcType="VARCHAR" property="projectRoleIdx" />
+    <result column="PROJECT_ID" jdbcType="VARCHAR" property="projectId" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from PROJECT_MEMBER
+    where PROJECT_MEM_IDX = #{projectMemIdx,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="kr.or.nexus.vo.def.ProjectMemberDefaultVO">
+    insert into PROJECT_MEMBER (PROJECT_MEM_IDX, PROJECT_JOIN_DATE, 
+      PROJECT_DEL_DATE, PROJECT_DELYN, GROUP_ID, 
+      MEMBER_ID, PROJECT_ROLE_IDX, PROJECT_ID
+      )
+    values (#{projectMemIdx,jdbcType=VARCHAR}, #{projectJoinDate,jdbcType=TIMESTAMP}, 
+      #{projectDelDate,jdbcType=TIMESTAMP}, #{projectDelyn,jdbcType=VARCHAR}, #{groupId,jdbcType=VARCHAR}, 
+      #{memberId,jdbcType=VARCHAR}, #{projectRoleIdx,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}
+      )
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="kr.or.nexus.vo.def.ProjectMemberDefaultVO">
+    update PROJECT_MEMBER
+    set PROJECT_JOIN_DATE = #{projectJoinDate,jdbcType=TIMESTAMP},
+      PROJECT_DEL_DATE = #{projectDelDate,jdbcType=TIMESTAMP},
+      PROJECT_DELYN = #{projectDelyn,jdbcType=VARCHAR},
+      GROUP_ID = #{groupId,jdbcType=VARCHAR},
+      MEMBER_ID = #{memberId,jdbcType=VARCHAR},
+      PROJECT_ROLE_IDX = #{projectRoleIdx,jdbcType=VARCHAR},
+      PROJECT_ID = #{projectId,jdbcType=VARCHAR}
+    where PROJECT_MEM_IDX = #{projectMemIdx,jdbcType=VARCHAR}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select PROJECT_MEM_IDX, PROJECT_JOIN_DATE, PROJECT_DEL_DATE, PROJECT_DELYN, GROUP_ID, 
+    MEMBER_ID, PROJECT_ROLE_IDX, PROJECT_ID
+    from PROJECT_MEMBER
+    where PROJECT_MEM_IDX = #{projectMemIdx,jdbcType=VARCHAR}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select PROJECT_MEM_IDX, PROJECT_JOIN_DATE, PROJECT_DEL_DATE, PROJECT_DELYN, GROUP_ID, 
+    MEMBER_ID, PROJECT_ROLE_IDX, PROJECT_ID
+    from PROJECT_MEMBER
+  </select>
+</mapper>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:websocket="http://www.springframework.org/schema/websocket"
+    xmlns="http://www.springframework.org/schema/beans"
+    xsi:schemaLocation="http://www.springframework.org/schema/websocket http://www.springframework.org/schema/websocket/spring-websocket-4.3.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+<!--     알람 핸들러 설정 -->
+    <bean id="myHandler" class="kr.or.nexus.commons.alarm.AlarmHandler"></bean>
+
+<!--     채팅 핸들러 설정 -->
+    <bean id="chatHandler" class="kr.or.nexus.chat.model.websocket.handler.chatHandler"></bean>
+
+<!-- 	코드 쉐어 핸들러 설정 -->
+    <bean id="codeShareHandler" class="kr.or.nexus.codeShare.controller.CodeShareHandler"></bean>
+
+<!--     WebSocket 핸들러 매핑 및 인터셉터 설정 -->
+    <websocket:handlers allowed-origins="localhost">
+        <websocket:mapping handler="myHandler" path="/alarm" />
+        <websocket:mapping handler="chatHandler" path="/chatting" />
+        <websocket:mapping handler="codeShareHandler" path="/grp/{groupId}/project/{projectId}/codeShare/{codeShareId}" />
+        <websocket:handshake-interceptors>
+            <bean class="org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor" />
+    		<bean class="kr.or.nexus.commons.alarmAndLog.handShake.HttpSessionInterceptor" />
+		</websocket:handshake-interceptors>
+
+		<websocket:sockjs />
+    </websocket:handlers>
+
+</beans>
